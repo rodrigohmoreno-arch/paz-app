@@ -20,7 +20,7 @@ export default function Navbar() {
           <Link href="/#inicio" className="hover:text-[#e85d95] transition duration-300">INICIO</Link>
           <Link href="/#tienda" className="hover:text-[#e85d95] transition duration-300">TIENDA</Link>
           <Link href="/#membresias" className="hover:text-[#e85d95] transition duration-300">MEMBRESÍAS</Link>
-          <Link href="/#tragamonedas" className="hover:text-[#e85d95] transition duration-300">TRAGAMONEDAS</Link>
+          <Link href="/#giro-paz" className="hover:text-[#e85d95] transition duration-300">GIRO PAZ</Link>
           <Link href="/#contacto" className="hover:text-[#e85d95] transition duration-300">CONTACTO</Link>
         </div>
 
@@ -64,7 +64,7 @@ export default function Navbar() {
             <Link href="/#inicio" onClick={() => setMobileOpen(false)}>INICIO</Link>
             <Link href="/#tienda" onClick={() => setMobileOpen(false)}>TIENDA</Link>
             <Link href="/#membresias" onClick={() => setMobileOpen(false)}>MEMBRESÍAS</Link>
-            <Link href="/#tragamonedas" onClick={() => setMobileOpen(false)}>TRAGAMONEDAS</Link>
+            <Link href="/#giro-paz" onClick={() => setMobileOpen(false)}>GIRO PAZ</Link>
             <Link href="/#contacto" onClick={() => setMobileOpen(false)}>CONTACTO</Link>
             {user ? (
               <>

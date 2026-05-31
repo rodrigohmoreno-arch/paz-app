@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage, isConfigured } from "@/lib/firebase";
+import { db, isConfigured } from "@/lib/firebase";
 import Image from "next/image";
 import toast from "react-hot-toast";
 
@@ -24,7 +23,20 @@ export default function AdminProductos() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: "", description: "", price: "", imageUrl: "" });
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] || null;
+    setImageFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setImagePreview(ev.target?.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
+  }
 
   useEffect(() => {
     fetchProducts();
@@ -48,10 +60,15 @@ export default function AdminProductos() {
   }
 
   async function handleUploadImage(file: File): Promise<string> {
-    if (!storage) throw new Error("Storage no configurado");
-    const storageRef = ref(storage, `productos/${Date.now()}-${file.name}`);
-    await uploadBytes(storageRef, file);
-    return getDownloadURL(storageRef);
+    const formPayload = new FormData();
+    formPayload.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: formPayload });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Error al subir imagen");
+    }
+    const data = await res.json();
+    return data.imageUrl;
   }
 
   async function handleSave() {
@@ -78,7 +95,7 @@ export default function AdminProductos() {
         price: parseFloat(formData.price),
         imageUrl,
         active: true,
-        createdAt: editingId ? formData.imageUrl : new Date().toISOString(),
+        createdAt: new Date().toISOString(),
       };
 
       if (editingId) {
@@ -94,6 +111,7 @@ export default function AdminProductos() {
       setEditingId(null);
       setFormData({ name: "", description: "", price: "", imageUrl: "" });
       setImageFile(null);
+      setImagePreview(null);
       fetchProducts();
     } catch {
       toast.error("Error al guardar. Verificá la configuración de Firebase.");
@@ -180,16 +198,27 @@ export default function AdminProductos() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Foto del producto</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                  className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#fef5f8] file:text-[#e85d95] hover:file:bg-[#fde8ef]"
-                />
-                {formData.imageUrl && !imageFile && (
-                  <div className="mt-2">
-                    <Image src={formData.imageUrl} alt="Preview" width={100} height={100} className="w-20 h-20 object-cover rounded-xl" />
+                <label className="block text-sm font-medium mb-2">Foto del producto</label>
+                <label className="flex items-center justify-center gap-2 w-full py-4 px-4 rounded-2xl border-2 border-dashed border-[#fcd5e3] bg-[#fef5f8] cursor-pointer hover:border-[#f285af] hover:bg-[#fde8ef] transition">
+                  <svg className="w-5 h-5 text-[#e85d95]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                  <span className="text-sm font-semibold text-[#e85d95]">
+                    {imageFile ? imageFile.name : "Elegir imagen"}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </label>
+                {(imagePreview || (formData.imageUrl && !imageFile)) && (
+                  <div className="mt-3 flex justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={imagePreview || formData.imageUrl}
+                      alt="Preview"
+                      className="w-32 h-32 object-cover rounded-xl border border-gray-200 shadow-sm"
+                    />
                   </div>
                 )}
               </div>

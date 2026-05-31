@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 
 export default function RegistroPage() {
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -18,6 +19,10 @@ export default function RegistroPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!phone.trim()) {
+      toast.error("El teléfono es obligatorio");
+      return;
+    }
     if (password !== confirmPassword) {
       toast.error("Las contraseñas no coinciden");
       return;
@@ -28,7 +33,7 @@ export default function RegistroPage() {
     }
     setLoading(true);
     try {
-      await signUp(email, password, name);
+      await signUp(email, password, name, phone);
       toast.success("¡Cuenta creada exitosamente!");
       router.push("/");
     } catch {
@@ -58,6 +63,18 @@ export default function RegistroPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Tu nombre"
+              required
+              className="w-full px-5 py-3.5 rounded-full border border-[#fcd5e3] focus:border-[#f285af] focus:outline-none focus:ring-2 focus:ring-[#fcd5e3] transition text-sm"
+            />
+          </div>
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium text-[#2b2230] mb-2">Teléfono *</label>
+            <input
+              id="phone"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+54 11 1234-5678"
               required
               className="w-full px-5 py-3.5 rounded-full border border-[#fcd5e3] focus:border-[#f285af] focus:outline-none focus:ring-2 focus:ring-[#fcd5e3] transition text-sm"
             />

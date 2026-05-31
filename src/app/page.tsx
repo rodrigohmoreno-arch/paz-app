@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GiroPaz from "@/components/GiroPaz";
 
 export default function Home() {
   return (
@@ -112,7 +113,7 @@ export default function Home() {
                 <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> Todo lo de White</li>
                 <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> Descuentos exclusivos 20%</li>
                 <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> Acceso VIP a eventos</li>
-                <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> Tragamonedas premium</li>
+                <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> GIRO PAZ premium</li>
                 <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> Soporte prioritario</li>
               </ul>
               <button className="w-full bg-white text-[#1a1a2e] rounded-full py-3.5 text-sm font-bold hover:bg-gray-100 transition">Elegir Black</button>
@@ -144,21 +145,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* TRAGAMONEDAS */}
-      <section id="tragamonedas" className="py-20 md:py-28 bg-white">
+      {/* GIRO PAZ */}
+      <section id="giro-paz" className="py-20 md:py-28 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="rounded-[35px] md:rounded-[40px] bg-olive border border-blush-100 shadow-2xl p-8 md:p-14 grid lg:grid-cols-2 items-center gap-10">
             <div>
               <p className="uppercase tracking-[0.3em] text-blush-500 mb-4 text-sm font-semibold">Jugá y ganá</p>
-              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-5">Tragamonedas de la Suerte</h2>
+              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-5">GIRO PAZ</h2>
               <p className="text-muted text-base md:text-lg leading-relaxed mb-8">
                 Probá suerte todos los días y conseguí descuentos, premios y puntos VIP. Cada giro es una nueva oportunidad.
               </p>
-              <button className="btn-primary text-white px-8 py-4 rounded-full shadow-xl text-base font-semibold">Jugar Ahora</button>
             </div>
-            <div className="flex justify-center">
-              <Image src="/images/general/flamenco.png" alt="Flamenco" width={280} height={373} className="w-[220px] md:w-[280px] rounded-3xl shadow-2xl hover:scale-105 transition duration-500" />
-            </div>
+            <GiroPaz />
           </div>
         </div>
       </section>

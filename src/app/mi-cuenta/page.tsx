@@ -49,7 +49,11 @@ export default function MiCuenta() {
                 {userData.displayName.charAt(0).toUpperCase()}
               </div>
               <h2 className="text-2xl font-serif font-bold text-[#2b2230]">{userData.displayName}</h2>
-              <p className="text-[#5f5668] text-sm mb-4">{userData.email}</p>
+              <p className="text-[#5f5668] text-sm mb-1">{userData.email}</p>
+              {userData.phone && (
+                <p className="text-[#5f5668] text-sm mb-4">{userData.phone}</p>
+              )}
+              {!userData.phone && <div className="mb-4" />}
               <p className="text-xs text-gray-400">
                 Miembro desde {new Date(userData.createdAt).toLocaleDateString("es-AR")}
               </p>

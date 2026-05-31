@@ -16,6 +16,7 @@ interface UserData {
   uid: string;
   email: string;
   displayName: string;
+  phone: string;
   role: "user" | "admin";
   membership: "white" | "black" | "pink";
   points: number;
@@ -28,7 +29,7 @@ interface AuthContextType {
   loading: boolean;
   firebaseReady: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string, phone: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -73,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = async (email: string, password: string, name: string, phone: string) => {
     if (!auth || !db) throw new Error("Firebase no configurado");
     const result = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(result.user, { displayName: name });
@@ -82,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       uid: result.user.uid,
       email,
       displayName: name,
+      phone,
       role: "user",
       membership: "white",
       points: 0,
