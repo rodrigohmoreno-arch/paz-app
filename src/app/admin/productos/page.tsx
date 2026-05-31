@@ -12,6 +12,7 @@ interface Product {
   description: string;
   price: number;
   imageUrl: string;
+  clubPoints: number;
   active: boolean;
   createdAt: string;
 }
@@ -21,7 +22,7 @@ export default function AdminProductos() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ name: "", description: "", price: "", imageUrl: "" });
+  const [formData, setFormData] = useState({ name: "", description: "", price: "", imageUrl: "", clubPoints: "" });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -94,6 +95,7 @@ export default function AdminProductos() {
         description: formData.description,
         price: parseFloat(formData.price),
         imageUrl,
+        clubPoints: parseInt(formData.clubPoints) || 0,
         active: true,
         createdAt: new Date().toISOString(),
       };
@@ -109,7 +111,7 @@ export default function AdminProductos() {
 
       setShowForm(false);
       setEditingId(null);
-      setFormData({ name: "", description: "", price: "", imageUrl: "" });
+      setFormData({ name: "", description: "", price: "", imageUrl: "", clubPoints: "" });
       setImageFile(null);
       setImagePreview(null);
       fetchProducts();
@@ -139,6 +141,7 @@ export default function AdminProductos() {
       description: product.description,
       price: product.price.toString(),
       imageUrl: product.imageUrl,
+      clubPoints: (product.clubPoints || 0).toString(),
     });
     setShowForm(true);
   }
@@ -151,7 +154,7 @@ export default function AdminProductos() {
           onClick={() => {
             setShowForm(true);
             setEditingId(null);
-            setFormData({ name: "", description: "", price: "", imageUrl: "" });
+            setFormData({ name: "", description: "", price: "", imageUrl: "", clubPoints: "" });
           }}
           className="btn-primary text-white px-6 py-3 rounded-full text-sm font-semibold"
         >
@@ -222,6 +225,17 @@ export default function AdminProductos() {
                   </div>
                 )}
               </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Puntos Club PAZ</label>
+                <input
+                  type="number"
+                  value={formData.clubPoints}
+                  onChange={(e) => setFormData({ ...formData, clubPoints: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#f285af] focus:outline-none text-sm"
+                  placeholder="Ej: 50 (puntos que gana el comprador)"
+                  min="0"
+                />
+              </div>
             </div>
             <div className="flex gap-3 mt-6">
               <button
@@ -269,7 +283,11 @@ export default function AdminProductos() {
               <div className="p-5">
                 <h3 className="font-semibold text-[#2b2230] mb-1">{product.name}</h3>
                 <p className="text-sm text-[#5f5668] mb-3">{product.description}</p>
-                <p className="text-xl font-bold text-[#e85d95] mb-4">${product.price.toLocaleString()}</p>
+                <p className="text-xl font-bold text-[#e85d95] mb-1">${product.price.toLocaleString()}</p>
+                {product.clubPoints > 0 && (
+                  <p className="text-xs text-[#5f5668] mb-3">+{product.clubPoints} puntos Club PAZ</p>
+                )}
+                {!product.clubPoints && <div className="mb-3" />}
                 <div className="flex gap-2">
                   <button onClick={() => startEdit(product)} className="flex-1 text-sm py-2 rounded-full border border-gray-200 hover:bg-gray-50 transition font-medium">
                     Editar

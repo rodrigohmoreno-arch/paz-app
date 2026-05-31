@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Link from "next/link";
+import { useAuth } from "@/lib/auth-context";
 
 const SYMBOLS = ["🌸", "💎", "🎀", "⭐", "💝", "🦩", "👑", "🌺"];
 const REEL_COUNT = 3;
@@ -20,19 +22,30 @@ function determinePrize(results: string[]): Prize {
   if (results[0] === results[1] && results[1] === results[2]) {
     if (results[0] === "💎") return { label: "JACKPOT", description: "50% de descuento en tu próxima compra", type: "jackpot" };
     if (results[0] === "👑") return { label: "JACKPOT", description: "Producto gratis a elección", type: "jackpot" };
-    return { label: "GRAN PREMIO", description: "30% de descuento + 500 puntos VIP", type: "big" };
+    return { label: "GRAN PREMIO", description: "30% de descuento + 500 puntos Club PAZ", type: "big" };
   }
   if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
-    return { label: "PREMIO", description: "10% de descuento + 100 puntos VIP", type: "small" };
+    return { label: "PREMIO", description: "10% de descuento + 100 puntos Club PAZ", type: "small" };
   }
-  return { label: "Seguí intentando", description: "+10 puntos VIP por participar", type: "none" };
+  return { label: "Seguí intentando", description: "+10 puntos Club PAZ por participar", type: "none" };
 }
 
-export default function GiroPaz() {
+export default function ClubPazPoints() {
+  const { user, userData } = useAuth();
   const [reels, setReels] = useState<string[]>(["🌸", "💎", "🎀"]);
   const [spinning, setSpinning] = useState(false);
   const [prize, setPrize] = useState<Prize | null>(null);
   const [animatingReels, setAnimatingReels] = useState<boolean[]>([false, false, false]);
+
+  const hasMembership = user && userData && userData.membership !== "none";
+
+  const monthlySpins: Record<string, number> = {
+    white: 15,
+    yellow: 30,
+    pink: 60,
+  };
+
+  const spinsAllowed = userData?.membership ? monthlySpins[userData.membership] || 0 : 0;
 
   const spin = useCallback(() => {
     if (spinning) return;
@@ -86,17 +99,45 @@ export default function GiroPaz() {
     none: "from-gray-400 to-gray-500",
   };
 
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center">
+        <div className="bg-gradient-to-b from-[#2b2230] to-[#1a1a2e] rounded-[30px] p-6 md:p-10 shadow-2xl w-full max-w-md text-center">
+          <h3 className="text-2xl md:text-3xl font-serif font-bold text-white mb-3">CLUB PAZ POINTS</h3>
+          <div className="w-20 h-[2px] bg-gradient-to-r from-[#f285af] to-[#e85d95] mx-auto rounded-full mb-6" />
+          <p className="text-gray-300 text-sm mb-6">Registrate y suscribite a una membresía para acceder a los giros de Club PAZ Points.</p>
+          <Link href="/registro" className="inline-block bg-gradient-to-r from-[#f285af] to-[#e85d95] text-white px-8 py-3 rounded-full font-semibold text-sm hover:scale-105 transition">
+            Registrate
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasMembership) {
+    return (
+      <div className="flex flex-col items-center">
+        <div className="bg-gradient-to-b from-[#2b2230] to-[#1a1a2e] rounded-[30px] p-6 md:p-10 shadow-2xl w-full max-w-md text-center">
+          <h3 className="text-2xl md:text-3xl font-serif font-bold text-white mb-3">CLUB PAZ POINTS</h3>
+          <div className="w-20 h-[2px] bg-gradient-to-r from-[#f285af] to-[#e85d95] mx-auto rounded-full mb-6" />
+          <p className="text-gray-300 text-sm mb-6">Necesitás una membresía activa para acceder a los giros de Club PAZ Points.</p>
+          <Link href="/#membresias" className="inline-block bg-gradient-to-r from-[#f285af] to-[#e85d95] text-white px-8 py-3 rounded-full font-semibold text-sm hover:scale-105 transition">
+            Ver Membresías
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center">
-      {/* Slot Machine */}
       <div className="bg-gradient-to-b from-[#2b2230] to-[#1a1a2e] rounded-[30px] p-6 md:p-10 shadow-2xl w-full max-w-md">
-        {/* Title */}
         <div className="text-center mb-6">
-          <h3 className="text-2xl md:text-3xl font-serif font-bold text-white mb-1">GIRO PAZ</h3>
-          <div className="w-20 h-[2px] bg-gradient-to-r from-[#f285af] to-[#e85d95] mx-auto rounded-full" />
+          <h3 className="text-2xl md:text-3xl font-serif font-bold text-white mb-1">CLUB PAZ POINTS</h3>
+          <div className="w-20 h-[2px] bg-gradient-to-r from-[#f285af] to-[#e85d95] mx-auto rounded-full mb-2" />
+          <p className="text-gray-400 text-xs">{spinsAllowed} giros/mes con tu membresía {userData?.membership?.toUpperCase()}</p>
         </div>
 
-        {/* Reels */}
         <div className="flex justify-center gap-3 md:gap-4 mb-6">
           {reels.map((symbol, i) => (
             <div
@@ -114,7 +155,6 @@ export default function GiroPaz() {
           ))}
         </div>
 
-        {/* Spin Button */}
         <button
           onClick={spin}
           disabled={spinning}
@@ -131,7 +171,6 @@ export default function GiroPaz() {
         </button>
       </div>
 
-      {/* Prize Result */}
       {prize && (
         <div className={`mt-6 w-full max-w-md rounded-2xl p-5 text-center text-white bg-gradient-to-r ${prizeColors[prize.type]} shadow-lg animate-fade-in`}>
           <p className="text-xl md:text-2xl font-bold mb-1">{prize.label}</p>

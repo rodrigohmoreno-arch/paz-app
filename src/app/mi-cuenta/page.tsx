@@ -27,13 +27,15 @@ export default function MiCuenta() {
 
   if (!user || !userData) return null;
 
-  const membershipColors = {
-    white: { bg: "bg-white border-2 border-gray-200", text: "text-gray-700", label: "White - Básico" },
-    black: { bg: "bg-[#1a1a2e]", text: "text-white", label: "Black - Premium" },
-    pink: { bg: "bg-gradient-to-r from-[#f285af] to-[#e85d95]", text: "text-white", label: "Pink - VIP" },
+  const membershipConfig: Record<string, { bg: string; text: string; label: string; spins: number; discount: number }> = {
+    none: { bg: "bg-gray-100 border-2 border-gray-200", text: "text-gray-700", label: "Sin membresía", spins: 0, discount: 0 },
+    white: { bg: "bg-white border-2 border-gray-200", text: "text-gray-700", label: "White - Básico", spins: 15, discount: 0 },
+    yellow: { bg: "bg-gradient-to-r from-yellow-400 to-amber-500", text: "text-white", label: "Yellow - Premium", spins: 30, discount: 10 },
+    pink: { bg: "bg-gradient-to-r from-[#f285af] to-[#e85d95]", text: "text-white", label: "Pink - VIP", spins: 60, discount: 20 },
   };
 
-  const membership = membershipColors[userData.membership];
+  const membership = membershipConfig[userData.membership] || membershipConfig.none;
+  const hasMembership = userData.membership !== "none";
 
   return (
     <>
@@ -51,10 +53,15 @@ export default function MiCuenta() {
               <h2 className="text-2xl font-serif font-bold text-[#2b2230]">{userData.displayName}</h2>
               <p className="text-[#5f5668] text-sm mb-1">{userData.email}</p>
               {userData.phone && (
-                <p className="text-[#5f5668] text-sm mb-4">{userData.phone}</p>
+                <p className="text-[#5f5668] text-sm mb-1">{userData.phone}</p>
               )}
-              {!userData.phone && <div className="mb-4" />}
-              <p className="text-xs text-gray-400">
+              {userData.memberId && (
+                <div className="mt-3 bg-[#fef5f8] rounded-xl p-3">
+                  <p className="text-xs text-[#5f5668]">ID de miembro</p>
+                  <p className="text-lg font-bold text-[#2b2230] font-mono tracking-wider">{userData.memberId}</p>
+                </div>
+              )}
+              <p className="text-xs text-gray-400 mt-3">
                 Miembro desde {new Date(userData.createdAt).toLocaleDateString("es-AR")}
               </p>
             </div>
@@ -63,19 +70,42 @@ export default function MiCuenta() {
             <div className={`rounded-3xl shadow-lg p-8 ${membership.bg} ${membership.text}`}>
               <p className="text-sm opacity-70 mb-2">Tu membresía</p>
               <h2 className="text-2xl font-serif font-bold mb-4">{membership.label}</h2>
-              <div className="mt-6">
-                <p className="text-sm opacity-70 mb-1">Puntos acumulados</p>
-                <p className="text-4xl font-bold">{userData.points.toLocaleString()}</p>
-              </div>
-              {userData.membership === "white" && (
-                <Link href="/#membresias" className="inline-block mt-6 bg-[#1a1a2e] text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#2b2230] transition">
-                  Mejorar Plan
-                </Link>
+
+              {hasMembership ? (
+                <>
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div>
+                      <p className="text-sm opacity-70 mb-1">Puntos acumulados</p>
+                      <p className="text-3xl font-bold">{(userData.points || 0).toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm opacity-70 mb-1">Giros/mes</p>
+                      <p className="text-3xl font-bold">{membership.spins}</p>
+                    </div>
+                  </div>
+                  {membership.discount > 0 && (
+                    <div className="mt-4 bg-white/20 rounded-xl p-3">
+                      <p className="text-sm font-semibold">{membership.discount}% de descuento en todas tus compras</p>
+                    </div>
+                  )}
+                  {userData.membership === "pink" && (
+                    <div className="mt-3 bg-white/20 rounded-xl p-3">
+                      <p className="text-sm font-semibold">Participás del sorteo exclusivo de fin de año</p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="mt-4">
+                  <p className="text-sm mb-4">Suscribite a una membresía para acceder a Club PAZ Points, descuentos y más beneficios.</p>
+                  <Link href="/#membresias" className="inline-block bg-[#1a1a2e] text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#2b2230] transition">
+                    Ver Membresías
+                  </Link>
+                </div>
               )}
             </div>
           </div>
 
-          {/* Actions */}
+          {/* Activities */}
           <div className="mt-8 bg-white rounded-3xl shadow-lg p-8 border border-[#fde8ef]">
             <h3 className="text-xl font-serif font-bold text-[#2b2230] mb-4">Mis Actividades</h3>
             <div className="grid sm:grid-cols-3 gap-4">
@@ -84,15 +114,28 @@ export default function MiCuenta() {
                 <p className="text-sm text-[#5f5668]">Compras</p>
               </div>
               <div className="bg-[#fef5f8] rounded-2xl p-5 text-center">
-                <p className="text-3xl font-bold text-[#e85d95] mb-1">0</p>
+                <p className="text-3xl font-bold text-[#e85d95] mb-1">{userData.spinsUsed || 0}</p>
                 <p className="text-sm text-[#5f5668]">Giros usados</p>
               </div>
               <div className="bg-[#fef5f8] rounded-2xl p-5 text-center">
-                <p className="text-3xl font-bold text-[#e85d95] mb-1">{userData.points}</p>
-                <p className="text-sm text-[#5f5668]">Puntos</p>
+                <p className="text-3xl font-bold text-[#e85d95] mb-1">{(userData.points || 0).toLocaleString()}</p>
+                <p className="text-sm text-[#5f5668]">Puntos Club PAZ</p>
               </div>
             </div>
           </div>
+
+          {/* Points info */}
+          {hasMembership && (
+            <div className="mt-6 bg-gradient-to-r from-[#f6f1cc] to-[#fef5f8] rounded-3xl p-8 border border-[#fde8ef]">
+              <h3 className="text-lg font-serif font-bold text-[#2b2230] mb-3">Tus puntos Club PAZ</h3>
+              <p className="text-sm text-[#5f5668] mb-2">
+                Los puntos que acumulás con tus compras web y físicas pueden canjearse por mercadería y beneficios en la tienda.
+              </p>
+              <Link href="/#tienda" className="text-sm text-[#e85d95] font-semibold hover:underline">
+                Ver productos para canjear →
+              </Link>
+            </div>
+          )}
 
           <div className="mt-6 text-center">
             <button

@@ -7,14 +7,14 @@ import { db, isConfigured } from "@/lib/firebase";
 interface Stats {
   totalUsers: number;
   totalProducts: number;
-  memberships: { white: number; black: number; pink: number };
+  memberships: { none: number; white: number; yellow: number; pink: number };
 }
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
     totalProducts: 0,
-    memberships: { white: 0, black: 0, pink: 0 },
+    memberships: { none: 0, white: 0, yellow: 0, pink: 0 },
   });
   const [loading, setLoading] = useState(true);
 
@@ -28,10 +28,10 @@ export default function AdminDashboard() {
         const usersSnap = await getDocs(collection(db, "users"));
         const productsSnap = await getDocs(collection(db, "products"));
 
-        const memberships = { white: 0, black: 0, pink: 0 };
+        const memberships = { none: 0, white: 0, yellow: 0, pink: 0 };
         usersSnap.docs.forEach((doc) => {
           const data = doc.data();
-          const m = data.membership as "white" | "black" | "pink";
+          const m = (data.membership || "none") as keyof typeof memberships;
           if (m in memberships) memberships[m]++;
         });
 
@@ -60,7 +60,6 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <>
-          {/* Stats Cards */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
               <p className="text-sm text-[#5f5668] mb-1">Usuarios Totales</p>
@@ -71,8 +70,8 @@ export default function AdminDashboard() {
               <p className="text-3xl font-bold text-[#2b2230]">{stats.totalProducts}</p>
             </div>
             <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
-              <p className="text-sm text-[#5f5668] mb-1">Miembros Black</p>
-              <p className="text-3xl font-bold text-[#1a1a2e]">{stats.memberships.black}</p>
+              <p className="text-sm text-[#5f5668] mb-1">Miembros Yellow</p>
+              <p className="text-3xl font-bold text-amber-500">{stats.memberships.yellow}</p>
             </div>
             <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
               <p className="text-sm text-[#5f5668] mb-1">Miembros Pink VIP</p>
@@ -80,32 +79,25 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Info box */}
           <div className="bg-gradient-to-r from-[#f6f1cc] to-[#fef5f8] rounded-2xl p-8 border border-[#fde8ef]">
             <h2 className="text-xl font-serif font-bold text-[#2b2230] mb-3">Panel de Administración PAZ</h2>
-            <p className="text-[#5f5668] mb-4">
-              Desde acá podés gestionar todo tu sitio:
-            </p>
+            <p className="text-[#5f5668] mb-4">Desde acá podés gestionar todo tu sitio:</p>
             <ul className="space-y-2 text-sm text-[#5f5668]">
               <li className="flex items-center gap-2">
                 <span className="text-[#e85d95] font-bold">&#10003;</span>
-                <strong>Productos:</strong> Agregar, editar y eliminar productos con fotos y precios
+                <strong>Productos:</strong> Agregar, editar y eliminar productos con fotos, precios y puntos Club PAZ
               </li>
               <li className="flex items-center gap-2">
                 <span className="text-[#e85d95] font-bold">&#10003;</span>
-                <strong>Usuarios:</strong> Ver usuarios registrados, sus membresías y puntos
+                <strong>Usuarios:</strong> Ver usuarios, cargar puntos manualmente (compras físicas)
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-gray-300 font-bold">&#9675;</span>
-                <strong>Pedidos:</strong> Gestionar compras y envíos (próximamente)
+                <span className="text-[#e85d95] font-bold">&#10003;</span>
+                <strong>Membresías:</strong> White, Yellow, Pink con giros y descuentos
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-gray-300 font-bold">&#9675;</span>
-                <strong>Promociones:</strong> Crear descuentos y ofertas (próximamente)
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-gray-300 font-bold">&#9675;</span>
-                <strong>MercadoPago:</strong> Integración de pagos (próximamente)
+                <span className="text-[#e85d95] font-bold">&#10003;</span>
+                <strong>MercadoPago:</strong> Integración de pagos
               </li>
             </ul>
           </div>

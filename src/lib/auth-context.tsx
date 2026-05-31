@@ -18,8 +18,11 @@ interface UserData {
   displayName: string;
   phone: string;
   role: "user" | "admin";
-  membership: "white" | "black" | "pink";
+  membership: "none" | "white" | "yellow" | "pink";
+  memberId: string;
   points: number;
+  spinsUsed: number;
+  spinsResetMonth: string;
   createdAt: string;
 }
 
@@ -31,22 +34,39 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, name: string, phone: string) => Promise<void>;
   signOut: () => Promise<void>;
+  refreshUserData: () => Promise<void>;
+}
+
+function generateMemberId(): string {
+  const prefix = "PAZ";
+  const num = Math.floor(100000 + Math.random() * 900000);
+  return `${prefix}-${num}`;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const firebaseReady = isConfigured && !!auth;
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(firebaseReady);
+
+  const refreshUserData = async () => {
+    if (!user || !db) return;
+    try {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists()) {
+        setUserData(userDoc.data() as UserData);
+      }
+    } catch {
+      // Firestore not available
+    }
+  };
 
   useEffect(() => {
-    if (!isConfigured || !auth) {
-      setLoading(false);
-      return;
-    }
+    if (!firebaseReady) return;
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth!, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser && db) {
         try {
@@ -63,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [firebaseReady]);
 
   const signIn = async (email: string, password: string) => {
     if (!auth || !db) throw new Error("Firebase no configurado");
@@ -85,8 +105,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       displayName: name,
       phone,
       role: "user",
-      membership: "white",
+      membership: "none",
+      memberId: generateMemberId(),
       points: 0,
+      spinsUsed: 0,
+      spinsResetMonth: new Date().toISOString().slice(0, 7),
       createdAt: new Date().toISOString(),
     };
 
@@ -102,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, userData, loading, firebaseReady: isConfigured, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, userData, loading, firebaseReady: isConfigured, signIn, signUp, signOut, refreshUserData }}>
       {children}
     </AuthContext.Provider>
   );
