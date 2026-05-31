@@ -51,6 +51,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>
             Usuarios
           </Link>
+          <Link href="/admin/slot-config" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-white/10 transition">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" /></svg>
+            Slot Config
+          </Link>
           <div className="pt-4 mt-4 border-t border-white/10">
             <Link href="/" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-white/10 transition text-gray-400">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" /></svg>
@@ -66,6 +70,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="flex gap-3">
           <Link href="/admin/productos" className="text-sm hover:text-[#f285af] transition">Productos</Link>
           <Link href="/admin/usuarios" className="text-sm hover:text-[#f285af] transition">Usuarios</Link>
+          <Link href="/admin/slot-config" className="text-sm hover:text-[#f285af] transition">Slot</Link>
           <Link href="/" className="text-sm text-gray-400 hover:text-white transition">Sitio</Link>
         </div>
       </header>

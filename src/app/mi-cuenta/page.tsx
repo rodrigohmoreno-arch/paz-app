@@ -2,20 +2,51 @@
 
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
+interface Coupon {
+  id: string;
+  code: string;
+  discount: number;
+  label: string;
+  status: string;
+  createdAt: string;
+  expiresAt: string;
+}
 
 export default function MiCuenta() {
   const { user, userData, loading, signOut } = useAuth();
   const router = useRouter();
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
 
   useEffect(() => {
     if (!loading && !user) {
       router.push("/login");
     }
   }, [user, loading, router]);
+
+  useEffect(() => {
+    async function loadCoupons() {
+      if (!user || !db) return;
+      try {
+        const q = query(collection(db, "coupons"), where("userId", "==", user.uid));
+        const snap = await getDocs(q);
+        const data = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Coupon));
+        const now = new Date();
+        const active = data.filter((c) => c.status === "active" && new Date(c.expiresAt) > now);
+        active.sort((a, b) => (a.expiresAt || "").localeCompare(b.expiresAt || ""));
+        setCoupons(active);
+      } catch {
+        // ignore
+      }
+    }
+    loadCoupons();
+  }, [user]);
 
   if (loading) {
     return (
@@ -36,6 +67,10 @@ export default function MiCuenta() {
 
   const membership = membershipConfig[userData.membership] || membershipConfig.none;
   const hasMembership = userData.membership !== "none";
+
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const spinsUsedThisMonth = userData.spinsResetMonth === currentMonth ? (userData.spinsUsed || 0) : 0;
+  const spinsRemaining = Math.max(0, membership.spins - spinsUsedThisMonth);
 
   return (
     <>
@@ -79,8 +114,8 @@ export default function MiCuenta() {
                       <p className="text-3xl font-bold">{(userData.points || 0).toLocaleString()}</p>
                     </div>
                     <div>
-                      <p className="text-sm opacity-70 mb-1">Giros/mes</p>
-                      <p className="text-3xl font-bold">{membership.spins}</p>
+                      <p className="text-sm opacity-70 mb-1">Giros restantes</p>
+                      <p className="text-3xl font-bold">{spinsRemaining} / {membership.spins}</p>
                     </div>
                   </div>
                   {membership.discount > 0 && (
@@ -105,6 +140,28 @@ export default function MiCuenta() {
             </div>
           </div>
 
+          {/* Coupons */}
+          {coupons.length > 0 && (
+            <div className="mt-8 bg-white rounded-3xl shadow-lg p-8 border border-[#fde8ef]">
+              <h3 className="text-xl font-serif font-bold text-[#2b2230] mb-4">Mis Cupones Activos</h3>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {coupons.map((c) => (
+                  <div key={c.id} className="border border-[#fde8ef] rounded-2xl p-4 bg-gradient-to-r from-[#fef5f8] to-white">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-mono font-bold text-[#2b2230] tracking-wider text-sm">{c.code}</span>
+                      <span className="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full font-semibold">ACTIVO</span>
+                    </div>
+                    <p className="text-lg font-bold text-[#e85d95]">{c.discount}% de descuento</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Vence: {new Date(c.expiresAt).toLocaleDateString("es-AR")}
+                    </p>
+                    <p className="text-xs text-[#5f5668] mt-2">Usá este código en tu próxima compra online o en tienda</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Activities */}
           <div className="mt-8 bg-white rounded-3xl shadow-lg p-8 border border-[#fde8ef]">
             <h3 className="text-xl font-serif font-bold text-[#2b2230] mb-4">Mis Actividades</h3>
@@ -114,8 +171,8 @@ export default function MiCuenta() {
                 <p className="text-sm text-[#5f5668]">Compras</p>
               </div>
               <div className="bg-[#fef5f8] rounded-2xl p-5 text-center">
-                <p className="text-3xl font-bold text-[#e85d95] mb-1">{userData.spinsUsed || 0}</p>
-                <p className="text-sm text-[#5f5668]">Giros usados</p>
+                <p className="text-3xl font-bold text-[#e85d95] mb-1">{spinsUsedThisMonth}</p>
+                <p className="text-sm text-[#5f5668]">Giros usados este mes</p>
               </div>
               <div className="bg-[#fef5f8] rounded-2xl p-5 text-center">
                 <p className="text-3xl font-bold text-[#e85d95] mb-1">{(userData.points || 0).toLocaleString()}</p>

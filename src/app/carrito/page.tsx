@@ -7,6 +7,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export default function CarritoPage() {
   const { items, removeItem, updateQuantity, clearCart, totalPrice, totalPoints } = useCart();
@@ -17,10 +19,67 @@ export default function CarritoPage() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponId, setCouponId] = useState<string | null>(null);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
 
-  const discount = userData?.membership === "pink" ? 20 : userData?.membership === "yellow" ? 10 : 0;
-  const discountAmount = Math.round(totalPrice * discount / 100);
+  const membershipDiscount = userData?.membership === "pink" ? 20 : userData?.membership === "yellow" ? 10 : 0;
+  const effectiveDiscount = Math.max(membershipDiscount, couponDiscount);
+  const discountAmount = Math.round(totalPrice * effectiveDiscount / 100);
   const finalPrice = totalPrice - discountAmount;
+  const discountSource = couponDiscount > membershipDiscount ? `cupón ${couponCode}` : userData?.membership || "";
+
+  async function handleValidateCoupon() {
+    if (!couponCode.trim() || !db) return;
+    setValidatingCoupon(true);
+    try {
+      const q = query(collection(db, "coupons"), where("code", "==", couponCode.trim().toUpperCase()));
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        toast.error("Cupón inválido");
+        setCouponDiscount(0);
+        setCouponId(null);
+        setValidatingCoupon(false);
+        return;
+      }
+
+      const couponDoc = snap.docs[0];
+      const coupon = couponDoc.data();
+
+      if (coupon.status === "used") {
+        toast.error("Este cupón ya fue utilizado");
+        setCouponDiscount(0);
+        setCouponId(null);
+        setValidatingCoupon(false);
+        return;
+      }
+
+      const now = new Date();
+      if (new Date(coupon.expiresAt) < now) {
+        toast.error("Este cupón está expirado");
+        setCouponDiscount(0);
+        setCouponId(null);
+        setValidatingCoupon(false);
+        return;
+      }
+
+      setCouponDiscount(coupon.discount);
+      setCouponId(couponDoc.id);
+      toast.success(`Cupón aplicado: ${coupon.discount}% de descuento`);
+    } catch {
+      toast.error("Error al validar cupón");
+    } finally {
+      setValidatingCoupon(false);
+    }
+  }
+
+  function handleRemoveCoupon() {
+    setCouponCode("");
+    setCouponDiscount(0);
+    setCouponId(null);
+  }
 
   const handleCheckout = async () => {
     if (!user && (!guestEmail || !guestName)) {
@@ -34,8 +93,10 @@ export default function CarritoPage() {
         items: items.map((i) => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, clubPoints: i.clubPoints })),
         totalPrice: finalPrice,
         totalPoints,
-        discount,
+        discount: effectiveDiscount,
         discountAmount,
+        couponCode: couponId ? couponCode : null,
+        couponId,
         userId: user?.uid || null,
         guestEmail: user ? userData?.email : guestEmail,
         guestName: user ? userData?.displayName : guestName,
@@ -56,6 +117,18 @@ export default function CarritoPage() {
       }
 
       const data = await res.json();
+
+      if (couponId && db) {
+        try {
+          await updateDoc(doc(db, "coupons", couponId), {
+            status: "used",
+            usedAt: new Date().toISOString(),
+          });
+        } catch {
+          // Coupon update failed but order went through
+        }
+      }
+
       if (data.init_point) {
         window.open(data.init_point as string, "_self");
       } else {
@@ -157,14 +230,49 @@ export default function CarritoPage() {
               {/* Summary */}
               <div className="bg-white rounded-3xl shadow-lg p-6 border border-[#fde8ef] h-fit">
                 <h3 className="text-xl font-serif font-bold text-[#2b2230] mb-4">Resumen</h3>
+
+                {/* Coupon Code Input */}
+                <div className="mb-4">
+                  <label className="block text-xs font-medium text-[#5f5668] mb-1">Código de cupón</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      placeholder="PAZ-XXXXXXXX"
+                      className="flex-1 px-3 py-2 rounded-lg border border-gray-200 focus:border-[#f285af] focus:outline-none text-sm font-mono"
+                      disabled={couponDiscount > 0}
+                    />
+                    {couponDiscount > 0 ? (
+                      <button
+                        onClick={handleRemoveCoupon}
+                        className="px-3 py-2 rounded-lg border border-red-200 text-red-500 text-xs font-semibold hover:bg-red-50 transition"
+                      >
+                        Quitar
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleValidateCoupon}
+                        disabled={validatingCoupon || !couponCode.trim()}
+                        className="px-3 py-2 rounded-lg bg-[#2b2230] text-white text-xs font-semibold hover:bg-[#3d2f44] transition disabled:opacity-50"
+                      >
+                        {validatingCoupon ? "..." : "Aplicar"}
+                      </button>
+                    )}
+                  </div>
+                  {couponDiscount > 0 && (
+                    <p className="text-xs text-green-600 mt-1 font-semibold">Cupón aplicado: {couponDiscount}% de descuento</p>
+                  )}
+                </div>
+
                 <div className="space-y-2 text-sm mb-4">
                   <div className="flex justify-between">
                     <span className="text-[#5f5668]">Subtotal</span>
                     <span className="font-semibold">${totalPrice.toLocaleString()}</span>
                   </div>
-                  {discount > 0 && (
+                  {effectiveDiscount > 0 && (
                     <div className="flex justify-between text-green-600">
-                      <span>Descuento {discount}% ({userData?.membership})</span>
+                      <span>Descuento {effectiveDiscount}% ({discountSource})</span>
                       <span>-${discountAmount.toLocaleString()}</span>
                     </div>
                   )}
