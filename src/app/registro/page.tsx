@@ -50,8 +50,8 @@ export default function RegistroPage() {
           <Link href="/">
             <Image src="/images/logo/logo-paz.jpg" alt="Paz" width={170} height={57} className="mx-auto w-[150px] mb-4" />
           </Link>
-          <h1 className="text-3xl font-serif font-bold text-[#2b2230]">Club PAZ Point</h1>
-          <p className="text-[#5f5668] mt-2">Suscribite a Club PAZ Point</p>
+          <h1 className="text-3xl font-serif font-bold text-[#2b2230]">Club Hello PAZ</h1>
+          <p className="text-[#5f5668] mt-2">Suscribite a Club Hello PAZ</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-[30px] shadow-xl p-8 space-y-5">

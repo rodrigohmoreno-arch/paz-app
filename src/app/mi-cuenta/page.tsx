@@ -30,7 +30,7 @@ export default function MiCuenta() {
   const membershipConfig: Record<string, { bg: string; text: string; label: string; spins: number; discount: number }> = {
     none: { bg: "bg-gray-100 border-2 border-gray-200", text: "text-gray-700", label: "Sin membresía", spins: 0, discount: 0 },
     white: { bg: "bg-white border-2 border-gray-200", text: "text-gray-700", label: "White - Básico", spins: 15, discount: 0 },
-    yellow: { bg: "bg-gradient-to-r from-yellow-400 to-amber-500", text: "text-white", label: "Yellow - Premium", spins: 30, discount: 10 },
+    yellow: { bg: "bg-gradient-to-r from-[#f9adc9] to-[#f285af]", text: "text-white", label: "Yellow - Premium", spins: 30, discount: 10 },
     pink: { bg: "bg-gradient-to-r from-[#f285af] to-[#e85d95]", text: "text-white", label: "Pink - VIP", spins: 60, discount: 20 },
   };
 
@@ -96,7 +96,7 @@ export default function MiCuenta() {
                 </>
               ) : (
                 <div className="mt-4">
-                  <p className="text-sm mb-4">Suscribite a una membresía para acceder a Club PAZ Points, descuentos y más beneficios.</p>
+                  <p className="text-sm mb-4">Suscribite a una membresía para acceder a Club Hello PAZ, descuentos y más beneficios.</p>
                   <Link href="/#membresias" className="inline-block bg-[#1a1a2e] text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#2b2230] transition">
                     Ver Membresías
                   </Link>
@@ -119,7 +119,7 @@ export default function MiCuenta() {
               </div>
               <div className="bg-[#fef5f8] rounded-2xl p-5 text-center">
                 <p className="text-3xl font-bold text-[#e85d95] mb-1">{(userData.points || 0).toLocaleString()}</p>
-                <p className="text-sm text-[#5f5668]">Puntos Club PAZ</p>
+                <p className="text-sm text-[#5f5668]">Puntos Club Hello PAZ</p>
               </div>
             </div>
           </div>
@@ -127,7 +127,7 @@ export default function MiCuenta() {
           {/* Points info */}
           {hasMembership && (
             <div className="mt-6 bg-gradient-to-r from-[#f6f1cc] to-[#fef5f8] rounded-3xl p-8 border border-[#fde8ef]">
-              <h3 className="text-lg font-serif font-bold text-[#2b2230] mb-3">Tus puntos Club PAZ</h3>
+              <h3 className="text-lg font-serif font-bold text-[#2b2230] mb-3">Tus puntos Club Hello PAZ</h3>
               <p className="text-sm text-[#5f5668] mb-2">
                 Los puntos que acumulás con tus compras web y físicas pueden canjearse por mercadería y beneficios en la tienda.
               </p>

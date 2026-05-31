@@ -18,7 +18,7 @@ export default function Footer() {
               <li><Link href="/#inicio" className="hover:text-[#f9adc9] transition">Inicio</Link></li>
               <li><Link href="/#tienda" className="hover:text-[#f9adc9] transition">Tienda</Link></li>
               <li><Link href="/#membresias" className="hover:text-[#f9adc9] transition">Membresías</Link></li>
-              <li><Link href="/#club-paz-points" className="hover:text-[#f9adc9] transition">Club PAZ Points</Link></li>
+              <li><Link href="/#club-paz-points" className="hover:text-[#f9adc9] transition">Club Hello PAZ</Link></li>
               <li><Link href="/#contacto" className="hover:text-[#f9adc9] transition">Contacto</Link></li>
             </ul>
           </div>

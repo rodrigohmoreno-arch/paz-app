@@ -226,7 +226,7 @@ export default function AdminProductos() {
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Puntos Club PAZ</label>
+                <label className="block text-sm font-medium mb-1">Puntos Club Hello PAZ</label>
                 <input
                   type="number"
                   value={formData.clubPoints}
@@ -285,7 +285,7 @@ export default function AdminProductos() {
                 <p className="text-sm text-[#5f5668] mb-3">{product.description}</p>
                 <p className="text-xl font-bold text-[#e85d95] mb-1">${product.price.toLocaleString()}</p>
                 {product.clubPoints > 0 && (
-                  <p className="text-xs text-[#5f5668] mb-3">+{product.clubPoints} puntos Club PAZ</p>
+                  <p className="text-xs text-[#5f5668] mb-3">+{product.clubPoints} puntos Club Hello PAZ</p>
                 )}
                 {!product.clubPoints && <div className="mb-3" />}
                 <div className="flex gap-2">

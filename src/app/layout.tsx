@@ -15,7 +15,7 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   title: "PAZ - La magia está en los detalles",
-  description: "Tienda premium PAZ - Membresías, Tienda, Club PAZ Points",
+  description: "Tienda premium PAZ - Membresías, Tienda, Club Hello PAZ",
 };
 
 export default function RootLayout({

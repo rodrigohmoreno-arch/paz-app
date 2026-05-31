@@ -68,15 +68,15 @@ export default function Home() {
               <ul className="space-y-3 text-left text-muted mb-8 text-sm">
                 <li className="flex items-center gap-2"><span className="text-gray-400 font-bold">&#10003;</span> Acceso a la tienda</li>
                 <li className="flex items-center gap-2"><span className="text-gray-400 font-bold">&#10003;</span> Acumula puntos en compras web y físicas</li>
-                <li className="flex items-center gap-2"><span className="text-gray-400 font-bold">&#10003;</span> 15 giros de Club PAZ Points por mes</li>
+                <li className="flex items-center gap-2"><span className="text-gray-400 font-bold">&#10003;</span> 15 giros de Club Hello PAZ por mes</li>
                 <li className="flex items-center gap-2"><span className="text-gray-400 font-bold">&#10003;</span> Canjeo de puntos por mercadería</li>
               </ul>
               <button className="w-full border-2 border-[#1a1a2e] text-[#1a1a2e] rounded-full py-3 text-sm font-semibold hover:bg-[#1a1a2e] hover:text-white transition">Comenzar Gratis</button>
             </div>
 
             {/* Yellow */}
-            <div className="membership-card rounded-[30px] bg-gradient-to-b from-yellow-400 to-amber-500 text-white shadow-2xl p-8 md:p-10 md:py-12 relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-amber-600 text-xs font-bold px-4 py-1 rounded-full tracking-wider shadow-md">RECOMENDADO</div>
+            <div className="membership-card rounded-[30px] bg-gradient-to-b from-[#f9adc9] to-[#f285af] text-white shadow-2xl p-8 md:p-10 md:py-12 relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-[#e85d95] text-xs font-bold px-4 py-1 rounded-full tracking-wider shadow-md">RECOMENDADO</div>
               <div className="w-16 h-16 mx-auto rounded-full bg-white/20 border-2 border-white/40 shadow-inner flex items-center justify-center mb-6">
                 <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" /></svg>
               </div>
@@ -86,10 +86,10 @@ export default function Home() {
               <ul className="space-y-3 text-left text-white/90 mb-8 text-sm">
                 <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> Todo lo de White</li>
                 <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> 10% de descuento en todas las compras</li>
-                <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> 30 giros de Club PAZ Points por mes</li>
+                <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> 30 giros de Club Hello PAZ por mes</li>
                 <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> Ofertas exclusivas vía newsletter</li>
               </ul>
-              <button className="w-full bg-white text-amber-600 rounded-full py-3.5 text-sm font-bold hover:bg-amber-50 transition">Elegir Yellow</button>
+              <button className="w-full bg-white text-[#e85d95] rounded-full py-3.5 text-sm font-bold hover:bg-pink-50 transition">Elegir Yellow</button>
             </div>
 
             {/* Pink VIP */}
@@ -107,7 +107,7 @@ export default function Home() {
               <ul className="space-y-3 text-left text-white/80 mb-8 text-sm">
                 <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> Todo lo de Yellow</li>
                 <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> 20% de descuento en todas las compras</li>
-                <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> 60 giros de Club PAZ Points por mes</li>
+                <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> 60 giros de Club Hello PAZ por mes</li>
                 <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> Sorteo exclusivo de fin de año</li>
                 <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> Puntos adicionales en compras físicas</li>
               </ul>
@@ -117,15 +117,15 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CLUB PAZ POINTS */}
+      {/* CLUB HELLO PAZ */}
       <section id="club-paz-points" className="py-20 md:py-28 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="rounded-[35px] md:rounded-[40px] bg-olive border border-blush-100 shadow-2xl p-8 md:p-14 grid lg:grid-cols-2 items-center gap-10">
             <div>
               <p className="uppercase tracking-[0.3em] text-blush-500 mb-4 text-sm font-semibold">Jugá y ganá</p>
-              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-5">CLUB PAZ POINTS</h2>
+              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-5">CLUB HELLO PAZ</h2>
               <p className="text-muted text-base md:text-lg leading-relaxed mb-4">
-                Suscribite al friends club PAZ y obtené beneficios.
+                Suscribite al Club Hello PAZ y obtené beneficios.
               </p>
               <p className="text-muted text-sm leading-relaxed mb-8">
                 Cada membresía incluye giros mensuales (no acumulables). Girá y ganá descuentos, premios y puntos para canjear por mercadería.

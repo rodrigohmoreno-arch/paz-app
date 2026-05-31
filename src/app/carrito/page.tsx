@@ -86,7 +86,7 @@ export default function CarritoPage() {
               <p className="text-[#5f5668] mb-4">Tu pedido fue procesado. Te enviaremos los detalles por email.</p>
               {totalPoints > 0 && (
                 <div className="bg-[#fef5f8] rounded-xl p-4 mb-6">
-                  <p className="text-[#e85d95] font-bold text-lg">+{totalPoints} puntos Club PAZ obtenidos</p>
+                  <p className="text-[#e85d95] font-bold text-lg">+{totalPoints} puntos Club Hello PAZ obtenidos</p>
                 </div>
               )}
               {!user && (
@@ -134,7 +134,7 @@ export default function CarritoPage() {
                       <h3 className="font-serif font-semibold text-[#2b2230]">{item.name}</h3>
                       <p className="text-blush-500 font-semibold">${item.price.toLocaleString()}</p>
                       {item.clubPoints > 0 && (
-                        <p className="text-xs text-[#e85d95]">+{item.clubPoints * item.quantity} puntos Club PAZ</p>
+                        <p className="text-xs text-[#e85d95]">+{item.clubPoints * item.quantity} puntos Club Hello PAZ</p>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
@@ -176,7 +176,7 @@ export default function CarritoPage() {
 
                 {totalPoints > 0 && (
                   <div className="bg-[#fef5f8] rounded-xl p-3 mb-4 text-center">
-                    <p className="text-sm text-[#e85d95] font-semibold">+{totalPoints} puntos Club PAZ</p>
+                    <p className="text-sm text-[#e85d95] font-semibold">+{totalPoints} puntos Club Hello PAZ</p>
                   </div>
                 )}
 

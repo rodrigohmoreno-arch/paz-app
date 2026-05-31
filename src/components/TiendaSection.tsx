@@ -92,7 +92,7 @@ export default function TiendaSection() {
                   <h3 className="text-lg font-serif font-semibold mb-2">{product.name}</h3>
                   <p className="text-muted text-sm mb-2">{product.description}</p>
                   {product.clubPoints > 0 && (
-                    <p className="text-xs text-[#e85d95] font-semibold mb-3">+{product.clubPoints} puntos Club PAZ</p>
+                    <p className="text-xs text-[#e85d95] font-semibold mb-3">+{product.clubPoints} puntos Club Hello PAZ</p>
                   )}
                   <div className="flex items-center justify-between">
                     <span className="text-blush-500 text-xl font-semibold">${product.price.toLocaleString()}</span>

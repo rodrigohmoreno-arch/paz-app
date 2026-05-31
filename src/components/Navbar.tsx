@@ -22,7 +22,7 @@ export default function Navbar() {
           <Link href="/#inicio" className="hover:text-[#e85d95] transition duration-300">INICIO</Link>
           <Link href="/#tienda" className="hover:text-[#e85d95] transition duration-300">TIENDA</Link>
           <Link href="/#membresias" className="hover:text-[#e85d95] transition duration-300">MEMBRESÍAS</Link>
-          <Link href="/#club-paz-points" className="hover:text-[#e85d95] transition duration-300">CLUB PAZ POINTS</Link>
+          <Link href="/#club-paz-points" className="hover:text-[#e85d95] transition duration-300">CLUB HELLO PAZ</Link>
           <Link href="/#contacto" className="hover:text-[#e85d95] transition duration-300">CONTACTO</Link>
         </div>
 
@@ -78,7 +78,7 @@ export default function Navbar() {
             <Link href="/#inicio" onClick={() => setMobileOpen(false)}>INICIO</Link>
             <Link href="/#tienda" onClick={() => setMobileOpen(false)}>TIENDA</Link>
             <Link href="/#membresias" onClick={() => setMobileOpen(false)}>MEMBRESÍAS</Link>
-            <Link href="/#club-paz-points" onClick={() => setMobileOpen(false)}>CLUB PAZ POINTS</Link>
+            <Link href="/#club-paz-points" onClick={() => setMobileOpen(false)}>CLUB HELLO PAZ</Link>
             <Link href="/#contacto" onClick={() => setMobileOpen(false)}>CONTACTO</Link>
             <Link href="/carrito" onClick={() => setMobileOpen(false)}>CARRITO ({totalItems})</Link>
             {user ? (

@@ -71,7 +71,7 @@ export default function AdminDashboard() {
             </div>
             <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
               <p className="text-sm text-[#5f5668] mb-1">Miembros Yellow</p>
-              <p className="text-3xl font-bold text-amber-500">{stats.memberships.yellow}</p>
+              <p className="text-3xl font-bold text-[#f285af]">{stats.memberships.yellow}</p>
             </div>
             <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
               <p className="text-sm text-[#5f5668] mb-1">Miembros Pink VIP</p>
@@ -85,7 +85,7 @@ export default function AdminDashboard() {
             <ul className="space-y-2 text-sm text-[#5f5668]">
               <li className="flex items-center gap-2">
                 <span className="text-[#e85d95] font-bold">&#10003;</span>
-                <strong>Productos:</strong> Agregar, editar y eliminar productos con fotos, precios y puntos Club PAZ
+                <strong>Productos:</strong> Agregar, editar y eliminar productos con fotos, precios y puntos Club Hello PAZ
               </li>
               <li className="flex items-center gap-2">
                 <span className="text-[#e85d95] font-bold">&#10003;</span>
