@@ -78,7 +78,8 @@ export default function AdminUsuarios() {
       await updateDoc(doc(db, "users", membershipModal.uid), {
         membership: newMembership,
       });
-      toast.success(`Membresía actualizada a ${newMembership.toUpperCase()}`);
+      const names: Record<string, string> = { none: "Ninguna", white: "Friend", yellow: "Bestie", pink: "BBF" };
+      toast.success(`Membresía actualizada a ${names[newMembership] || newMembership}`);
       setMembershipModal(null);
       fetchUsers();
     } catch {
@@ -91,8 +92,15 @@ export default function AdminUsuarios() {
   const membershipColors: Record<string, string> = {
     none: "bg-gray-100 text-gray-600",
     white: "bg-gray-50 text-gray-700 border border-gray-200",
-    yellow: "bg-[#fef5e7] text-[#c9a84c] border border-[#f5e6c8]",
+    yellow: "bg-[#faebc8] text-[#c9a84c] border border-[#f0d99a]",
     pink: "bg-[#fde8ef] text-[#e85d95] border border-[#fcd5e3]",
+  };
+
+  const membershipNames: Record<string, string> = {
+    none: "NONE",
+    white: "FRIEND",
+    yellow: "BESTIE",
+    pink: "BBF",
   };
 
   return (
@@ -116,7 +124,7 @@ export default function AdminUsuarios() {
                 <div className="flex items-center gap-3 mb-1">
                   <h3 className="font-semibold text-[#2b2230]">{u.displayName}</h3>
                   <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${membershipColors[u.membership] || membershipColors.none}`}>
-                    {(u.membership || "none").toUpperCase()}
+                    {membershipNames[u.membership] || "NONE"}
                   </span>
                 </div>
                 <p className="text-sm text-[#5f5668]">{u.email}</p>
@@ -205,9 +213,9 @@ export default function AdminUsuarios() {
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#f285af] focus:outline-none text-sm"
               >
                 <option value="none">Sin membresía</option>
-                <option value="white">White - Básico</option>
-                <option value="yellow">Yellow - Premium</option>
-                <option value="pink">Pink - VIP</option>
+                <option value="white">Friend - Básico</option>
+                <option value="yellow">Bestie - Premium</option>
+                <option value="pink">BBF - VIP</option>
               </select>
             </div>
             <div className="flex gap-3 mt-6">

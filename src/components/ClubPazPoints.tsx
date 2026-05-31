@@ -135,7 +135,7 @@ export default function ClubPazPoints() {
         <div className="text-center mb-6">
           <h3 className="text-2xl md:text-3xl font-serif font-bold text-white mb-1">CLUB HELLO PAZ</h3>
           <div className="w-20 h-[2px] bg-gradient-to-r from-[#f285af] to-[#e85d95] mx-auto rounded-full mb-2" />
-          <p className="text-gray-400 text-xs">{spinsAllowed} giros/mes con tu membresía {userData?.membership?.toUpperCase()}</p>
+          <p className="text-gray-400 text-xs">{spinsAllowed} giros/mes con tu membresía {userData?.membership === "white" ? "FRIEND" : userData?.membership === "yellow" ? "BESTIE" : userData?.membership === "pink" ? "BBF" : ""}</p>
         </div>
 
         <div className="flex justify-center gap-3 md:gap-4 mb-6">

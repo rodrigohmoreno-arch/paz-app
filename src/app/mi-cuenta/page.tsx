@@ -29,9 +29,9 @@ export default function MiCuenta() {
 
   const membershipConfig: Record<string, { bg: string; text: string; label: string; spins: number; discount: number }> = {
     none: { bg: "bg-gray-100 border-2 border-gray-200", text: "text-gray-700", label: "Sin membresía", spins: 0, discount: 0 },
-    white: { bg: "bg-white border-2 border-gray-200", text: "text-gray-700", label: "White - Básico", spins: 15, discount: 0 },
-    yellow: { bg: "bg-[#fef5e7] border-2 border-[#f5e6c8]", text: "text-[#2b2230]", label: "Yellow - Premium", spins: 30, discount: 10 },
-    pink: { bg: "bg-[#fde8ef] border-2 border-[#fcd5e3]", text: "text-[#2b2230]", label: "Pink - VIP", spins: 60, discount: 20 },
+    white: { bg: "bg-white border-2 border-gray-200", text: "text-gray-700", label: "Friend - Básico", spins: 15, discount: 0 },
+    yellow: { bg: "bg-[#faebc8] border-2 border-[#f0d99a]", text: "text-[#2b2230]", label: "Bestie - Premium", spins: 30, discount: 10 },
+    pink: { bg: "bg-[#fde8ef] border-2 border-[#fcd5e3]", text: "text-[#2b2230]", label: "BBF - VIP", spins: 60, discount: 20 },
   };
 
   const membership = membershipConfig[userData.membership] || membershipConfig.none;

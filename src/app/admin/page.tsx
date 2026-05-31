@@ -70,11 +70,11 @@ export default function AdminDashboard() {
               <p className="text-3xl font-bold text-[#2b2230]">{stats.totalProducts}</p>
             </div>
             <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
-              <p className="text-sm text-[#5f5668] mb-1">Miembros Yellow</p>
-              <p className="text-3xl font-bold text-[#f285af]">{stats.memberships.yellow}</p>
+              <p className="text-sm text-[#5f5668] mb-1">Miembros Bestie</p>
+              <p className="text-3xl font-bold text-[#c9a84c]">{stats.memberships.yellow}</p>
             </div>
             <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
-              <p className="text-sm text-[#5f5668] mb-1">Miembros Pink VIP</p>
+              <p className="text-sm text-[#5f5668] mb-1">Miembros BBF</p>
               <p className="text-3xl font-bold text-[#e85d95]">{stats.memberships.pink}</p>
             </div>
           </div>
@@ -93,7 +93,7 @@ export default function AdminDashboard() {
               </li>
               <li className="flex items-center gap-2">
                 <span className="text-[#e85d95] font-bold">&#10003;</span>
-                <strong>Membresías:</strong> White, Yellow, Pink con giros y descuentos
+                <strong>Membresías:</strong> Friend, Bestie, BBF con giros y descuentos
               </li>
               <li className="flex items-center gap-2">
                 <span className="text-[#e85d95] font-bold">&#10003;</span>
