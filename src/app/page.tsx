@@ -16,11 +16,8 @@ export default function Home() {
         <div className="absolute left-[-100px] top-[100px] w-[250px] h-[250px] bg-blush-200 rounded-full blur-3xl opacity-30" />
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 items-center gap-12 lg:gap-16 relative z-10">
           <div>
-            <p className="text-xl md:text-2xl lg:text-[28px] tracking-wide text-blush-400 mb-6 font-light italic leading-relaxed font-serif">
-              La magia está en los detalles
-            </p>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold leading-none mb-6 text-plum">
-              BIENVENIDOS
+              La magia está<br />en los detalles
             </h1>
             <div className="w-32 h-[3px] bg-gradient-to-r from-blush-400 to-blush-500 mb-6 rounded-full" />
             <p className="text-muted text-base md:text-lg leading-relaxed mb-8 max-w-lg">
@@ -75,43 +72,43 @@ export default function Home() {
             </div>
 
             {/* Yellow */}
-            <div className="membership-card rounded-[30px] bg-gradient-to-b from-[#f9adc9] to-[#f285af] text-white shadow-2xl p-8 md:p-10 md:py-12 relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-[#e85d95] text-xs font-bold px-4 py-1 rounded-full tracking-wider shadow-md">RECOMENDADO</div>
-              <div className="w-16 h-16 mx-auto rounded-full bg-white/20 border-2 border-white/40 shadow-inner flex items-center justify-center mb-6">
-                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" /></svg>
+            <div className="membership-card rounded-[30px] bg-[#fef5e7] border border-[#f5e6c8] text-[#2b2230] shadow-2xl p-8 md:p-10 md:py-12 relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#2b2230] text-white text-xs font-bold px-4 py-1 rounded-full tracking-wider shadow-md">RECOMENDADO</div>
+              <div className="w-16 h-16 mx-auto rounded-full bg-[#f5e6c8]/50 border-2 border-[#f5e6c8] shadow-inner flex items-center justify-center mb-6">
+                <svg className="w-7 h-7 text-[#c9a84c]" fill="currentColor" viewBox="0 0 24 24"><path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" /></svg>
               </div>
               <h3 className="text-2xl md:text-3xl font-serif font-semibold mb-2">Yellow</h3>
-              <p className="text-sm text-white/70 mb-4">Nivel Premium</p>
-              <div className="text-white text-3xl md:text-4xl font-light mb-6">$2.500 <span className="text-base text-white/60">/mes</span></div>
-              <ul className="space-y-3 text-left text-white/90 mb-8 text-sm">
-                <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> Todo lo de White</li>
-                <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> 10% de descuento en todas las compras</li>
-                <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> 30 giros de Club Hello PAZ por mes</li>
-                <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> Ofertas exclusivas vía newsletter</li>
+              <p className="text-sm text-[#5f5668] mb-4">Nivel Premium</p>
+              <div className="text-[#2b2230] text-3xl md:text-4xl font-light mb-6">$2.500 <span className="text-base text-[#5f5668]">/mes</span></div>
+              <ul className="space-y-3 text-left text-[#5f5668] mb-8 text-sm">
+                <li className="flex items-center gap-2"><span className="text-[#c9a84c] font-bold">&#10003;</span> Todo lo de White</li>
+                <li className="flex items-center gap-2"><span className="text-[#c9a84c] font-bold">&#10003;</span> 10% de descuento en todas las compras</li>
+                <li className="flex items-center gap-2"><span className="text-[#c9a84c] font-bold">&#10003;</span> 30 giros de Club Hello PAZ por mes</li>
+                <li className="flex items-center gap-2"><span className="text-[#c9a84c] font-bold">&#10003;</span> Ofertas exclusivas vía newsletter</li>
               </ul>
-              <button className="w-full bg-white text-[#e85d95] rounded-full py-3.5 text-sm font-bold hover:bg-pink-50 transition">Elegir Yellow</button>
+              <button className="w-full bg-[#2b2230] text-white rounded-full py-3.5 text-sm font-bold hover:bg-[#3d2f44] transition">Elegir Yellow</button>
             </div>
 
             {/* Pink VIP */}
-            <div className="membership-card rounded-[30px] bg-gradient-to-b from-blush-400 to-blush-600 text-white shadow-2xl p-8 md:p-10 md:py-14 relative">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-blush-500 text-xs font-bold px-5 py-1.5 rounded-full tracking-wider shadow-lg flex items-center gap-1">
+            <div className="membership-card rounded-[30px] bg-[#fde8ef] border border-[#fcd5e3] text-[#2b2230] shadow-2xl p-8 md:p-10 md:py-14 relative">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#2b2230] text-white text-xs font-bold px-5 py-1.5 rounded-full tracking-wider shadow-lg flex items-center gap-1">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
                 VIP
               </div>
-              <div className="w-16 h-16 mx-auto rounded-full bg-white/20 border-2 border-white/40 shadow-inner flex items-center justify-center mb-6">
-                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+              <div className="w-16 h-16 mx-auto rounded-full bg-[#f9adc9]/30 border-2 border-[#f9adc9] shadow-inner flex items-center justify-center mb-6">
+                <svg className="w-7 h-7 text-[#e85d95]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
               </div>
               <h3 className="text-2xl md:text-3xl font-serif font-semibold mb-2">Pink</h3>
-              <p className="text-sm text-white/70 mb-4">Nivel VIP Exclusivo</p>
-              <div className="text-white text-3xl md:text-4xl font-light mb-6">$5.000 <span className="text-base text-white/60">/mes</span></div>
-              <ul className="space-y-3 text-left text-white/80 mb-8 text-sm">
-                <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> Todo lo de Yellow</li>
-                <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> 20% de descuento en todas las compras</li>
-                <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> 60 giros de Club Hello PAZ por mes</li>
-                <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> Sorteo exclusivo de fin de año</li>
-                <li className="flex items-center gap-2"><span className="text-white font-bold">&#10003;</span> Puntos adicionales en compras físicas</li>
+              <p className="text-sm text-[#5f5668] mb-4">Nivel VIP Exclusivo</p>
+              <div className="text-[#2b2230] text-3xl md:text-4xl font-light mb-6">$5.000 <span className="text-base text-[#5f5668]">/mes</span></div>
+              <ul className="space-y-3 text-left text-[#5f5668] mb-8 text-sm">
+                <li className="flex items-center gap-2"><span className="text-[#e85d95] font-bold">&#10003;</span> Todo lo de Yellow</li>
+                <li className="flex items-center gap-2"><span className="text-[#e85d95] font-bold">&#10003;</span> 20% de descuento en todas las compras</li>
+                <li className="flex items-center gap-2"><span className="text-[#e85d95] font-bold">&#10003;</span> 60 giros de Club Hello PAZ por mes</li>
+                <li className="flex items-center gap-2"><span className="text-[#e85d95] font-bold">&#10003;</span> Sorteo exclusivo de fin de año</li>
+                <li className="flex items-center gap-2"><span className="text-[#e85d95] font-bold">&#10003;</span> Puntos adicionales en compras físicas</li>
               </ul>
-              <button className="w-full bg-white text-blush-500 rounded-full py-3.5 text-sm font-bold hover:bg-blush-50 transition shadow-lg">Elegir Pink VIP</button>
+              <button className="w-full bg-[#2b2230] text-white rounded-full py-3.5 text-sm font-bold hover:bg-[#3d2f44] transition shadow-lg">Elegir Pink VIP</button>
             </div>
           </div>
         </div>

@@ -58,7 +58,7 @@ export default function Navbar() {
               <Link href="/login" className="text-sm font-semibold text-[#2b2230] hover:text-[#e85d95] transition">
                 Iniciar Sesión
               </Link>
-              <Link href="/registro" className="bg-gradient-to-r from-[#f285af] to-[#e85d95] text-white px-6 py-2.5 rounded-full shadow-lg text-sm font-semibold hover:scale-105 transition">
+              <Link href="/registro" className="bg-[#fde8ef] text-[#e85d95] px-6 py-2.5 rounded-full shadow-sm border border-[#fcd5e3] text-sm font-semibold hover:bg-[#fcd5e3] transition">
                 Registrarse
               </Link>
             </div>
@@ -90,7 +90,7 @@ export default function Navbar() {
             ) : (
               <>
                 <Link href="/login" onClick={() => setMobileOpen(false)}>INICIAR SESIÓN</Link>
-                <Link href="/registro" onClick={() => setMobileOpen(false)} className="bg-gradient-to-r from-[#f285af] to-[#e85d95] text-white px-6 py-2.5 rounded-full shadow-lg text-sm font-semibold w-fit">
+                <Link href="/registro" onClick={() => setMobileOpen(false)} className="bg-[#fde8ef] text-[#e85d95] px-6 py-2.5 rounded-full shadow-sm border border-[#fcd5e3] text-sm font-semibold w-fit">
                   Registrarse
                 </Link>
               </>

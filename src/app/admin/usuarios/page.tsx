@@ -91,8 +91,8 @@ export default function AdminUsuarios() {
   const membershipColors: Record<string, string> = {
     none: "bg-gray-100 text-gray-600",
     white: "bg-gray-50 text-gray-700 border border-gray-200",
-    yellow: "bg-pink-100 text-pink-700",
-    pink: "bg-pink-100 text-pink-700",
+    yellow: "bg-[#fef5e7] text-[#c9a84c] border border-[#f5e6c8]",
+    pink: "bg-[#fde8ef] text-[#e85d95] border border-[#fcd5e3]",
   };
 
   return (
