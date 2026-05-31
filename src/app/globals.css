@@ -1,26 +1,83 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --color-cream: #fffdf8;
+  --color-olive: #f6f1cc;
+  --color-blush-50: #fef5f8;
+  --color-blush-100: #fde8ef;
+  --color-blush-200: #fcd5e3;
+  --color-blush-300: #f9adc9;
+  --color-blush-400: #f285af;
+  --color-blush-500: #e85d95;
+  --color-blush-600: #d43d78;
+  --color-plum: #2b2230;
+  --color-muted: #5f5668;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-cream);
+  color: var(--color-plum);
+  font-family: var(--font-sans);
+}
+
+.hero-gradient {
+  background: linear-gradient(135deg, #f6f1cc 0%, #fef5f8 50%, #f6f1cc 100%);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #f285af 0%, #e85d95 100%);
+  transition: all 0.3s ease;
+}
+.btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 40px rgba(232, 93, 149, 0.35);
+}
+
+.btn-outline {
+  border: 2px solid #f285af;
+  color: #e85d95;
+  transition: all 0.3s ease;
+}
+.btn-outline:hover {
+  background: #f285af;
+  color: white;
+  transform: scale(1.03);
+}
+
+.float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+.membership-card {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.membership-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.12);
+}
+
+.product-card {
+  transition: all 0.3s ease;
+}
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
