@@ -108,11 +108,8 @@ function inicializarHoja(nombre, hoja) {
         ['Version', '1.0'],
         ['', ''],
         ['UBICACIONES MESAS', ''],
-        ['Primer Piso', 'Mesa 1, Mesa 2, Mesa 3'],
-        ['Segundo Piso', 'Mesa 4, Mesa 5, Mesa 6'],
-        ['Cafeteria', 'Caf 1, Caf 2, Caf 3'],
-        ['Piscina', 'Pisc 1, Pisc 2'],
-        ['Servicio Habitacion', 'Hab'],
+        ['Salon', 'Mesa 1, Mesa 2, Mesa 3, Mesa 4, Mesa 5, Mesa 6'],
+        ['Consumos Externos', 'Ext 1, Ext 2, Ext 3, Ext 4, Ext 5, Ext 6'],
         ['', ''],
         ['TIPOS CLIENTE', ''],
         ['Alojado Epecuen MAP', 'Solo bebidas extra'],
@@ -193,23 +190,18 @@ function inicializarHoja(nombre, hoja) {
       hoja.getRange('A1:K1').setValues([['ID Mesa', 'Nombre', 'Ubicacion', 'Estado', 'ID Comanda Activa', 'Tipo Cliente', 'Nro Habitacion', 'Nombre Cliente', 'Hora Apertura', 'Observaciones', 'Cantidad Comensales']]);
       hoja.getRange('A1:K1').setFontWeight('bold').setBackground('#fbbc04').setFontColor('black');
       var mesasData = [
-        [1, 'Mesa 1', 'Primer Piso', 'LIBRE', '', '', '', '', '', '', ''],
-        [2, 'Mesa 2', 'Primer Piso', 'LIBRE', '', '', '', '', '', '', ''],
-        [3, 'Mesa 3', 'Primer Piso', 'LIBRE', '', '', '', '', '', '', ''],
-        [4, 'Mesa 4', 'Segundo Piso', 'LIBRE', '', '', '', '', '', '', ''],
-        [5, 'Mesa 5', 'Segundo Piso', 'LIBRE', '', '', '', '', '', '', ''],
-        [6, 'Mesa 6', 'Segundo Piso', 'LIBRE', '', '', '', '', '', '', ''],
-        [7, 'Caf 1', 'Cafeteria', 'LIBRE', '', '', '', '', '', '', ''],
-        [8, 'Caf 2', 'Cafeteria', 'LIBRE', '', '', '', '', '', '', ''],
-        [9, 'Caf 3', 'Cafeteria', 'LIBRE', '', '', '', '', '', '', ''],
-        [10, 'Pisc 1', 'Piscina', 'LIBRE', '', '', '', '', '', '', ''],
-        [11, 'Pisc 2', 'Piscina', 'LIBRE', '', '', '', '', '', '', ''],
-        [12, 'Hab', 'Servicio Habitacion', 'LIBRE', '', '', '', '', '', '', ''],
-        [13, 'Hab', 'Servicio Habitacion', 'LIBRE', '', '', '', '', '', '', ''],
-        [14, 'Hab', 'Servicio Habitacion', 'LIBRE', '', '', '', '', '', '', ''],
-        [15, 'Hab', 'Servicio Habitacion', 'LIBRE', '', '', '', '', '', '', ''],
-        [16, 'Hab', 'Servicio Habitacion', 'LIBRE', '', '', '', '', '', '', ''],
-        [17, 'Hab', 'Servicio Habitacion', 'LIBRE', '', '', '', '', '', '', '']
+        [1, 'Mesa 1', 'Salon', 'LIBRE', '', '', '', '', '', '', ''],
+        [2, 'Mesa 2', 'Salon', 'LIBRE', '', '', '', '', '', '', ''],
+        [3, 'Mesa 3', 'Salon', 'LIBRE', '', '', '', '', '', '', ''],
+        [4, 'Mesa 4', 'Salon', 'LIBRE', '', '', '', '', '', '', ''],
+        [5, 'Mesa 5', 'Salon', 'LIBRE', '', '', '', '', '', '', ''],
+        [6, 'Mesa 6', 'Salon', 'LIBRE', '', '', '', '', '', '', ''],
+        [7, 'Ext 1', 'Consumos Externos', 'LIBRE', '', '', '', '', '', '', ''],
+        [8, 'Ext 2', 'Consumos Externos', 'LIBRE', '', '', '', '', '', '', ''],
+        [9, 'Ext 3', 'Consumos Externos', 'LIBRE', '', '', '', '', '', '', ''],
+        [10, 'Ext 4', 'Consumos Externos', 'LIBRE', '', '', '', '', '', '', ''],
+        [11, 'Ext 5', 'Consumos Externos', 'LIBRE', '', '', '', '', '', '', ''],
+        [12, 'Ext 6', 'Consumos Externos', 'LIBRE', '', '', '', '', '', '', '']
       ];
       hoja.getRange(2, 1, mesasData.length, 11).setValues(mesasData);
       break;

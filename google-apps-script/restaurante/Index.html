@@ -315,11 +315,8 @@
     <div id="panelMozo" class="panel hidden">
       <div class="tabs">
         <button class="tab active" onclick="filtrarMesas('TODAS', this)">Todas</button>
-        <button class="tab" onclick="filtrarMesas('Primer Piso', this)">Primer Piso</button>
-        <button class="tab" onclick="filtrarMesas('Segundo Piso', this)">Segundo Piso</button>
-        <button class="tab" onclick="filtrarMesas('Cafeteria', this)">Cafeteria</button>
-        <button class="tab" onclick="filtrarMesas('Piscina', this)">Piscina</button>
-        <button class="tab" onclick="filtrarMesas('Servicio Habitacion', this)">Habitacion</button>
+        <button class="tab" onclick="filtrarMesas('Salon', this)">Salon</button>
+        <button class="tab" onclick="filtrarMesas('Consumos Externos', this)">Consumos Externos</button>
       </div>
       <div class="card">
         <div class="card-title">Estado de Mesas</div>
@@ -876,57 +873,80 @@
     </div>
   </div>
 
-  <!-- MODAL SERVICIO HABITACION -->
-  <div id="modalServicioHabitacion" class="modal-overlay hidden">
+  <!-- MODAL CONSUMOS EXTERNOS (Servicio Habitacion + Consumidor Final) -->
+  <div id="modalConsumosExternos" class="modal-overlay hidden">
     <div class="modal" style="max-width: 500px;">
       <div class="modal-header">
-        <h3>Servicio de Habitacion - <span id="shMesaNombre"></span></h3>
-        <button onclick="cerrarModal('modalServicioHabitacion')" style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;">&times;</button>
+        <h3>Consumo Externo - <span id="ceNombreMesa"></span></h3>
+        <button onclick="cerrarModal('modalConsumosExternos')" style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;">&times;</button>
       </div>
       <div class="modal-body">
-        <div class="form-row">
+        <div class="form-group">
+          <label>Tipo de Servicio *</label>
+          <select id="ceTipoServicio" onchange="cambiarTipoServicioCE()">
+            <option value="">Seleccionar...</option>
+            <option value="SERVICIO_HABITACION">Servicio a Habitacion (Huesped)</option>
+            <option value="EXTERNO">Consumidor Final</option>
+          </select>
+        </div>
+        <div id="camposCeHabitacion" class="hidden">
           <div class="form-group">
             <label>Nro Habitacion *</label>
-            <input type="text" id="shNroHabitacion" placeholder="Ej: 101">
+            <input type="text" id="ceNroHabitacion" placeholder="Ej: 101">
           </div>
-          <div class="form-group">
-            <label>Tipo Pension *</label>
-            <select id="shTipoPension">
-              <option value="MAP">Con MAP</option>
-              <option value="SIN_MAP">Sin MAP</option>
-            </select>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre del Huesped *</label>
+              <input type="text" id="ceNombreHuesped" placeholder="Nombre">
+            </div>
+            <div class="form-group">
+              <label>Apellido del Huesped *</label>
+              <input type="text" id="ceApellidoHuesped" placeholder="Apellido">
+            </div>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Nombre del Huesped *</label>
-            <input type="text" id="shNombreHuesped" placeholder="Nombre">
+        <div id="camposCeExterno" class="hidden">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre</label>
+              <input type="text" id="ceNombreExterno" placeholder="Nombre">
+            </div>
+            <div class="form-group">
+              <label>Apellido</label>
+              <input type="text" id="ceApellidoExterno" placeholder="Apellido">
+            </div>
           </div>
-          <div class="form-group">
-            <label>Apellido del Huesped *</label>
-            <input type="text" id="shApellidoHuesped" placeholder="Apellido">
+          <div class="form-row">
+            <div class="form-group">
+              <label>CUIT (opcional)</label>
+              <input type="text" id="ceCuitExterno" placeholder="Ej: 20-12345678-9">
+            </div>
+            <div class="form-group">
+              <label>Razon Social (opcional)</label>
+              <input type="text" id="ceRazonSocialExterno" placeholder="Ej: Empresa S.A.">
+            </div>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label>Cantidad de Comensales *</label>
-            <input type="number" id="shCantidadComensales" value="1" min="1" max="50">
+            <input type="number" id="ceCantidadComensales" value="1" min="1" max="50">
           </div>
           <div class="form-group">
             <label>Observaciones</label>
-            <input type="text" id="shObservaciones" placeholder="Opcional">
+            <input type="text" id="ceObservaciones" placeholder="Opcional">
           </div>
         </div>
         <div style="background: rgba(66,133,244,0.1); padding: 15px; border-radius: 10px; margin-top: 10px; border-left: 3px solid #4285f4;">
           <p style="font-size: 0.85rem; color: #aaa; margin: 0;">
-            <strong>Nota:</strong> Los consumos se vincularan a la habitacion del huesped. 
-            Al cerrar se imprimira ticket de consumo para firma del huesped.
+            <strong>Nota:</strong> Servicio a Habitacion: al cerrar se imprime ticket para firma del huesped.
+            Consumidor Final: al cerrar se envia a facturacion (CAJA cobra).
           </p>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn" onclick="cerrarModal('modalServicioHabitacion')" style="background:rgba(255,255,255,0.1);color:#fff;">Cancelar</button>
-        <button class="btn btn-success" onclick="confirmarServicioHabitacion()">Abrir Servicio</button>
+        <button class="btn" onclick="cerrarModal('modalConsumosExternos')" style="background:rgba(255,255,255,0.1);color:#fff;">Cancelar</button>
+        <button class="btn btn-success" onclick="confirmarConsumoExterno()">Abrir</button>
       </div>
     </div>
   </div>
@@ -1944,9 +1964,7 @@
         card.className = 'mesa-card ' + getEstadoClass(mesa.estado);
         card.onclick = (function(m) { return function() { clickMesa(m); }; })(mesa);
         var icono = 'M';
-        if (mesa.ubicacion === 'Cafeteria') icono = 'C';
-        else if (mesa.ubicacion === 'Piscina') icono = 'P';
-        else if (mesa.ubicacion === 'Servicio Habitacion') icono = 'H';
+        if (mesa.ubicacion === 'Consumos Externos') icono = 'E';
         var infoExtra = '';
         if (mesa.estado !== 'LIBRE') {
           infoExtra = '<div style="margin-top:8px; font-size:0.75rem; color:#ccc;">' +
@@ -2041,7 +2059,7 @@
 
     function filtrarMesas(ubicacion, btn) {
       ubicacionFiltro = ubicacion;
-      var tabs = document.querySelectorAll('.tab');
+      var tabs = document.querySelectorAll('#panelMozo .tabs .tab');
       for (var i = 0; i < tabs.length; i++) {
         tabs[i].classList.remove('active');
       }
@@ -2056,26 +2074,43 @@
         return;
       }
       if (mesa.estado === 'LIBRE') {
-        document.getElementById('abrirMesaNombre').value = mesa.nombre;
-        document.getElementById('abrirMesaUbicacion').value = mesa.ubicacion;
-        document.getElementById('tipoCliente').value = '';
-        document.getElementById('nroHabitacion').value = '';
-        document.getElementById('tipoPension').value = 'Con MAP (Media Pension)';
-        document.getElementById('nombreHuesped').value = '';
-        document.getElementById('apellidoHuesped').value = '';
-        document.getElementById('voucherCarhue').value = '';
-        document.getElementById('nombreCarhue').value = '';
-        document.getElementById('apellidoCarhue').value = '';
-        document.getElementById('habitacionCarhue').value = '';
-        document.getElementById('nombreExterno').value = '';
-        document.getElementById('apellidoExterno').value = '';
-        document.getElementById('cuitExterno').value = '';
-        document.getElementById('razonSocialExterno').value = '';
-        document.getElementById('observacionesMesa').value = '';
-        document.getElementById('camposEpecuen').classList.add('hidden');
-        document.getElementById('camposCarhue').classList.add('hidden');
-        document.getElementById('camposExterno').classList.add('hidden');
-        mostrarModal('modalAbrirMesa');
+        if (mesa.ubicacion === 'Consumos Externos') {
+          mostrarModal('modalConsumosExternos');
+          document.getElementById('ceNombreMesa').textContent = mesa.nombre;
+          document.getElementById('ceTipoServicio').value = '';
+          document.getElementById('ceNroHabitacion').value = '';
+          document.getElementById('ceNombreHuesped').value = '';
+          document.getElementById('ceApellidoHuesped').value = '';
+          document.getElementById('ceNombreExterno').value = '';
+          document.getElementById('ceApellidoExterno').value = '';
+          document.getElementById('ceCuitExterno').value = '';
+          document.getElementById('ceRazonSocialExterno').value = '';
+          document.getElementById('ceObservaciones').value = '';
+          document.getElementById('ceCantidadComensales').value = '1';
+          document.getElementById('camposCeHabitacion').classList.add('hidden');
+          document.getElementById('camposCeExterno').classList.add('hidden');
+        } else {
+          document.getElementById('abrirMesaNombre').value = mesa.nombre;
+          document.getElementById('abrirMesaUbicacion').value = mesa.ubicacion;
+          document.getElementById('tipoCliente').value = '';
+          document.getElementById('nroHabitacion').value = '';
+          document.getElementById('tipoPension').value = 'Con MAP (Media Pension)';
+          document.getElementById('nombreHuesped').value = '';
+          document.getElementById('apellidoHuesped').value = '';
+          document.getElementById('voucherCarhue').value = '';
+          document.getElementById('nombreCarhue').value = '';
+          document.getElementById('apellidoCarhue').value = '';
+          document.getElementById('habitacionCarhue').value = '';
+          document.getElementById('nombreExterno').value = '';
+          document.getElementById('apellidoExterno').value = '';
+          document.getElementById('cuitExterno').value = '';
+          document.getElementById('razonSocialExterno').value = '';
+          document.getElementById('observacionesMesa').value = '';
+          document.getElementById('camposEpecuen').classList.add('hidden');
+          document.getElementById('camposCarhue').classList.add('hidden');
+          document.getElementById('camposExterno').classList.add('hidden');
+          mostrarModal('modalAbrirMesa');
+        }
       } else {
         abrirComanda(mesa);
       }
@@ -2317,32 +2352,50 @@
       }
     }
 
-    function confirmarServicioHabitacion() {
-      var nroHab = document.getElementById('shNroHabitacion').value.trim();
-      var tipoPension = document.getElementById('shTipoPension').value;
-      var nombre = document.getElementById('shNombreHuesped').value.trim();
-      var apellido = document.getElementById('shApellidoHuesped').value.trim();
-      var cantComensales = parseInt(document.getElementById('shCantidadComensales').value) || 1;
-      var observaciones = document.getElementById('shObservaciones').value.trim();
-      if (!nroHab) { showToast('Debe ingresar el numero de habitacion', 'warning'); return; }
-      if (!nombre) { showToast('Debe ingresar el nombre del huesped', 'warning'); return; }
-      if (!apellido) { showToast('Debe ingresar el apellido del huesped', 'warning'); return; }
-      var tipoCliente = tipoPension === 'MAP' ? 'EPECUEN_MAP' : 'EPECUEN_SIN_MAP';
-      var datos = {
-        idMesa: mesaSeleccionada.id,
-        tipoCliente: tipoCliente,
-        nroHabitacion: nroHab,
-        nombreHuesped: nombre,
-        apellidoHuesped: apellido,
-        observaciones: observaciones,
-        cantidadComensales: cantComensales,
-        usuario: currentUser.usuario
-      };
+    function cambiarTipoServicioCE() {
+      var tipo = document.getElementById('ceTipoServicio').value;
+      document.getElementById('camposCeHabitacion').classList.add('hidden');
+      document.getElementById('camposCeExterno').classList.add('hidden');
+      if (tipo === 'SERVICIO_HABITACION') {
+        document.getElementById('camposCeHabitacion').classList.remove('hidden');
+      } else if (tipo === 'EXTERNO') {
+        document.getElementById('camposCeExterno').classList.remove('hidden');
+      }
+    }
+
+    function confirmarConsumoExterno() {
+      var tipo = document.getElementById('ceTipoServicio').value;
+      if (!tipo) { showToast('Seleccione tipo de servicio', 'warning'); return; }
+      var cantComensales = parseInt(document.getElementById('ceCantidadComensales').value) || 1;
+      var observaciones = document.getElementById('ceObservaciones').value.trim();
+      var datos = { idMesa: mesaSeleccionada.id, observaciones: observaciones, cantidadComensales: cantComensales, usuario: currentUser.usuario };
+
+      if (tipo === 'SERVICIO_HABITACION') {
+        var nroHab = document.getElementById('ceNroHabitacion').value.trim();
+        var nombre = document.getElementById('ceNombreHuesped').value.trim();
+        var apellido = document.getElementById('ceApellidoHuesped').value.trim();
+        if (!nroHab) { showToast('Ingrese nro de habitacion', 'warning'); return; }
+        if (!nombre) { showToast('Ingrese nombre del huesped', 'warning'); return; }
+        if (!apellido) { showToast('Ingrese apellido del huesped', 'warning'); return; }
+        datos.tipoCliente = 'EPECUEN_SIN_MAP';
+        datos.nroHabitacion = nroHab;
+        datos.nombreHuesped = nombre;
+        datos.apellidoHuesped = apellido;
+      } else {
+        var nombre = document.getElementById('ceNombreExterno').value.trim();
+        var apellido = document.getElementById('ceApellidoExterno').value.trim();
+        datos.tipoCliente = 'EXTERNO';
+        datos.nombreHuesped = nombre;
+        datos.apellidoHuesped = apellido;
+        datos.cuit = document.getElementById('ceCuitExterno').value.trim();
+        datos.razonSocial = document.getElementById('ceRazonSocialExterno').value.trim();
+      }
+
       google.script.run
         .withSuccessHandler(function(result) {
           if (result.success) {
-            showToast('Servicio de habitacion abierto', 'success');
-            cerrarModal('modalServicioHabitacion');
+            showToast('Consumo externo abierto', 'success');
+            cerrarModal('modalConsumosExternos');
             setTimeout(function() { cargarMesas(); }, 1500);
           } else {
             showToast(result.error, 'error');
@@ -3308,6 +3361,12 @@
         if (e.target === this) cerrarModal(this.id);
       });
     }
+    // Auto-detectar hash #carhue para mostrar login Carhue directamente
+    (function() {
+      if (window.location.hash === '#carhue' || window.location.hash.indexOf('carhue') !== -1) {
+        mostrarLoginCarhue();
+      }
+    })();
   </script>
 </body>
 </html>
