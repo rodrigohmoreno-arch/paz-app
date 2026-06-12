@@ -17,7 +17,9 @@ const CONFIG = {
     'guardarReceta': ['CHEF', 'ADMIN'],
     'agregarPlato': ['CHEF', 'ADMIN'],
     'crearVoucherCarhue': ['CARHUE_RECEPCION', 'ADMIN'],
-    'enviarListadoDiarioCarhue': ['CARHUE_RECEPCION', 'ADMIN']
+    'enviarListadoDiarioCarhue': ['CARHUE_RECEPCION', 'ADMIN'],
+    'agregarMesa': ['ADMIN'],
+    'eliminarMesa': ['ADMIN']
   }
 };
 
@@ -108,7 +110,8 @@ function inicializarHoja(nombre, hoja) {
         ['Version', '1.0'],
         ['', ''],
         ['UBICACIONES MESAS', ''],
-        ['Salon', 'Mesa 1, Mesa 2, Mesa 3, Mesa 4, Mesa 5, Mesa 6'],
+        ['Salon Primer Piso', 'Mesa 1, Mesa 2, Mesa 3'],
+        ['Salon Segundo Piso', 'Mesa 4, Mesa 5, Mesa 6'],
         ['Consumos Externos', 'Ext 1, Ext 2, Ext 3, Ext 4, Ext 5, Ext 6'],
         ['', ''],
         ['TIPOS CLIENTE', ''],
@@ -190,12 +193,12 @@ function inicializarHoja(nombre, hoja) {
       hoja.getRange('A1:K1').setValues([['ID Mesa', 'Nombre', 'Ubicacion', 'Estado', 'ID Comanda Activa', 'Tipo Cliente', 'Nro Habitacion', 'Nombre Cliente', 'Hora Apertura', 'Observaciones', 'Cantidad Comensales']]);
       hoja.getRange('A1:K1').setFontWeight('bold').setBackground('#fbbc04').setFontColor('black');
       var mesasData = [
-        [1, 'Mesa 1', 'Salon', 'LIBRE', '', '', '', '', '', '', ''],
-        [2, 'Mesa 2', 'Salon', 'LIBRE', '', '', '', '', '', '', ''],
-        [3, 'Mesa 3', 'Salon', 'LIBRE', '', '', '', '', '', '', ''],
-        [4, 'Mesa 4', 'Salon', 'LIBRE', '', '', '', '', '', '', ''],
-        [5, 'Mesa 5', 'Salon', 'LIBRE', '', '', '', '', '', '', ''],
-        [6, 'Mesa 6', 'Salon', 'LIBRE', '', '', '', '', '', '', ''],
+        [1, 'Mesa 1', 'Salon Primer Piso', 'LIBRE', '', '', '', '', '', '', ''],
+        [2, 'Mesa 2', 'Salon Primer Piso', 'LIBRE', '', '', '', '', '', '', ''],
+        [3, 'Mesa 3', 'Salon Primer Piso', 'LIBRE', '', '', '', '', '', '', ''],
+        [4, 'Mesa 4', 'Salon Segundo Piso', 'LIBRE', '', '', '', '', '', '', ''],
+        [5, 'Mesa 5', 'Salon Segundo Piso', 'LIBRE', '', '', '', '', '', '', ''],
+        [6, 'Mesa 6', 'Salon Segundo Piso', 'LIBRE', '', '', '', '', '', '', ''],
         [7, 'Ext 1', 'Consumos Externos', 'LIBRE', '', '', '', '', '', '', ''],
         [8, 'Ext 2', 'Consumos Externos', 'LIBRE', '', '', '', '', '', '', ''],
         [9, 'Ext 3', 'Consumos Externos', 'LIBRE', '', '', '', '', '', '', ''],
@@ -418,6 +421,47 @@ function getMesas() {
   } catch(e) {
     Logger.log('Error getMesas: ' + e);
     return [];
+  }
+}
+
+function agregarMesa(datos) {
+  var auth = verificarAutorizacion(datos, 'agregarMesa');
+  if (!auth.autorizado) return { success: false, error: auth.error };
+  try {
+    var hoja = getHoja('Mesas');
+    if (!hoja) return { success: false, error: 'Hoja Mesas no encontrada' };
+    var filas = hoja.getDataRange().getValues();
+    var maxId = 0;
+    for (var i = 1; i < filas.length; i++) {
+      if (filas[i][0] > maxId) maxId = filas[i][0];
+    }
+    var nuevoId = maxId + 1;
+    hoja.appendRow([nuevoId, datos.nombre, datos.ubicacion, 'LIBRE', '', '', '', '', '', '', '']);
+    return { success: true, idMesa: nuevoId };
+  } catch(e) {
+    return { success: false, error: e.toString() };
+  }
+}
+
+function eliminarMesa(datos) {
+  var auth = verificarAutorizacion(datos, 'eliminarMesa');
+  if (!auth.autorizado) return { success: false, error: auth.error };
+  try {
+    var hoja = getHoja('Mesas');
+    if (!hoja) return { success: false, error: 'Hoja Mesas no encontrada' };
+    var filas = hoja.getDataRange().getValues();
+    for (var i = 1; i < filas.length; i++) {
+      if (filas[i][0] == datos.idMesa) {
+        if (filas[i][3] && String(filas[i][3]).trim() !== 'LIBRE') {
+          return { success: false, error: 'No se puede eliminar una mesa en uso' };
+        }
+        hoja.deleteRow(i + 1);
+        return { success: true };
+      }
+    }
+    return { success: false, error: 'Mesa no encontrada' };
+  } catch(e) {
+    return { success: false, error: e.toString() };
   }
 }
 
@@ -1165,31 +1209,68 @@ function getStock() {
   var hojaStock = ss.getSheetByName('Stock');
   var hojaProductos = ss.getSheetByName('Productos');
   if (!hojaStock) throw new Error('Hoja Stock no encontrada');
-  var datos = hojaStock.getDataRange().getValues();
-  if (datos.length <= 1) return [];
+
+  // Leer productos para sector y datos base
+  var productosMap = {};
   var sectores = {};
   if (hojaProductos) {
     try {
       var prods = hojaProductos.getDataRange().getValues();
       for (var j = 1; j < prods.length; j++) {
+        if (!prods[j][0]) continue;
         var prodId = prods[j][0];
-        sectores[prodId] = prods[j][8] || ((['Bebidas','Tragos','Vinos','Cervezas'].indexOf(prods[j][1]) !== -1) ? 'MOSTRADOR' : 'COCINA');
-        sectores[String(prodId)] = sectores[prodId];
+        var cat = String(prods[j][1] || '');
+        var sector = prods[j][8] || ((['Bebidas','Tragos','Vinos','Cervezas'].indexOf(cat) !== -1) ? 'MOSTRADOR' : 'COCINA');
+        sectores[prodId] = sector;
+        sectores[String(prodId)] = sector;
+        productosMap[prodId] = { nombre: prods[j][2] || '', precioCosto: Number(prods[j][4]) || 0, sector: sector };
+        productosMap[String(prodId)] = productosMap[prodId];
       }
-    } catch(e) {}
+    } catch(e) {
+      Logger.log('Error leyendo productos para stock: ' + e);
+    }
   }
+
+  var datos = hojaStock.getDataRange().getValues();
   var stock = [];
-  for (var i = 1; i < datos.length; i++) {
-    if (!datos[i][0] && !datos[i][1]) continue;
-    stock.push({
-      idProducto: datos[i][0],
-      producto: datos[i][1] || '',
-      stockActual: Number(datos[i][2]) || 0,
-      stockMinimo: Number(datos[i][3]) || 0,
-      ultimaCompra: datos[i][4] || '',
-      precioCosto: Number(datos[i][5]) || 0,
-      sector: sectores[datos[i][0]] || sectores[String(datos[i][0])] || 'COCINA'
-    });
+
+  // Si la hoja Stock tiene datos (mas que solo header)
+  if (datos.length > 1) {
+    for (var i = 1; i < datos.length; i++) {
+      if (!datos[i][0] && !datos[i][1]) continue;
+      var id = datos[i][0];
+      var fechaCompra = '';
+      try {
+        if (datos[i][4]) {
+          var d = datos[i][4];
+          fechaCompra = (d instanceof Date) ? d.toISOString() : String(d);
+        }
+      } catch(fe) {}
+      stock.push({
+        idProducto: id,
+        producto: datos[i][1] || (productosMap[id] ? productosMap[id].nombre : ''),
+        stockActual: Number(datos[i][2]) || 0,
+        stockMinimo: Number(datos[i][3]) || 0,
+        ultimaCompra: fechaCompra,
+        precioCosto: Number(datos[i][5]) || 0,
+        sector: sectores[id] || sectores[String(id)] || 'COCINA'
+      });
+    }
+  } else {
+    // Stock vacio: generar desde Productos
+    for (var pid in productosMap) {
+      if (pid !== String(Number(pid))) continue; // evitar duplicados (solo numeric keys)
+      var p = productosMap[pid];
+      stock.push({
+        idProducto: Number(pid),
+        producto: p.nombre,
+        stockActual: 0,
+        stockMinimo: 0,
+        ultimaCompra: '',
+        precioCosto: p.precioCosto,
+        sector: p.sector
+      });
+    }
   }
   return stock;
 }

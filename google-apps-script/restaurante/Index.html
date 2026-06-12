@@ -315,7 +315,8 @@
     <div id="panelMozo" class="panel hidden">
       <div class="tabs">
         <button class="tab active" onclick="filtrarMesas('TODAS', this)">Todas</button>
-        <button class="tab" onclick="filtrarMesas('Salon', this)">Salon</button>
+        <button class="tab" onclick="filtrarMesas('Salon Primer Piso', this)">Primer Piso</button>
+        <button class="tab" onclick="filtrarMesas('Salon Segundo Piso', this)">Segundo Piso</button>
         <button class="tab" onclick="filtrarMesas('Consumos Externos', this)">Consumos Externos</button>
       </div>
       <div class="card">
@@ -588,6 +589,7 @@
         <button class="tab" onclick="mostrarTabAdmin('comensales', this)">Comensales</button>
         <button class="tab" onclick="mostrarTabAdmin('carhue', this)">Hotel Carhue</button>
         <button class="tab" onclick="mostrarTabAdmin('listadosCarhue', this)">Listados Diarios Carhue</button>
+        <button class="tab" onclick="mostrarTabAdmin('mesas', this)">Mesas</button>
       </div>
 
       <!-- TAB AUDITORIA -->
@@ -681,6 +683,35 @@
         </div>
         <div id="listadoCarhueContainer">
           <p style="color: #888; text-align: center; padding: 40px;">Seleccione una fecha para ver los listados recibidos</p>
+        </div>
+      </div>
+
+      <!-- TAB MESAS (ADMIN) -->
+      <div id="tabAdminMesas" class="card hidden">
+        <div class="card-title">Gestion de Mesas</div>
+        <div style="margin-bottom: 20px; padding: 15px; background: rgba(66,133,244,0.1); border-radius: 10px; border-left: 3px solid #4285f4;">
+          <h4 style="margin: 0 0 10px;">Agregar Nueva Mesa</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre de la Mesa *</label>
+              <input type="text" id="adminNuevaMesaNombre" placeholder="Ej: Mesa 7, Ext 7">
+            </div>
+            <div class="form-group">
+              <label>Ubicacion *</label>
+              <select id="adminNuevaMesaUbicacion">
+                <option value="Salon Primer Piso">Salon Primer Piso</option>
+                <option value="Salon Segundo Piso">Salon Segundo Piso</option>
+                <option value="Consumos Externos">Consumos Externos</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-success" onclick="adminAgregarMesa()" style="max-width: 250px;">Agregar Mesa</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>ID</th><th>Nombre</th><th>Ubicacion</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="tbodyAdminMesas"></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -1461,16 +1492,22 @@
 
     function cargarStockActual() {
       var tbody = document.getElementById('tbodyStock');
+      if (!tbody) { console.error('tbodyStock no encontrado'); return; }
       tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#888;">Cargando stock...</td></tr>';
       google.script.run
         .withSuccessHandler(function(data) {
-          console.log('Stock recibido:', data ? data.length : 0, 'items');
+          console.log('Stock recibido:', JSON.stringify(data ? data.length : 'null'));
+          if (data === null || data === undefined) {
+            tbody.innerHTML = '<tr><td colspan="8" style="color:#ea4335;">Error: servidor retorno null. Verifique la hoja Stock.</td></tr>';
+            return;
+          }
           stockData = data || [];
           renderStockTable(stockData);
         })
         .withFailureHandler(function(e) {
           console.error('Error cargando stock:', e);
-          tbody.innerHTML = '<tr><td colspan="8" style="color:#ea4335;">Error al cargar stock: ' + escapeHtml(e.message || e.toString()) + '</td></tr>';
+          var msg = (e && e.message) ? e.message : (e ? String(e) : 'Error desconocido');
+          tbody.innerHTML = '<tr><td colspan="8" style="color:#ea4335;">Error al cargar stock: ' + escapeHtml(msg) + '</td></tr>';
         })
         .getStock();
     }
@@ -2843,6 +2880,7 @@
       document.getElementById('tabComensales').classList.add('hidden');
       document.getElementById('tabCarhue').classList.add('hidden');
       document.getElementById('tabListadosCarhue').classList.add('hidden');
+      document.getElementById('tabAdminMesas').classList.add('hidden');
 
       if (tab === 'auditoria') {
         document.getElementById('tabAuditoria').classList.remove('hidden');
@@ -2856,6 +2894,9 @@
         document.getElementById('tabListadosCarhue').classList.remove('hidden');
         document.getElementById('filtroFechaListadoCarhue').valueAsDate = new Date();
         cargarListadosDiariosCarhue();
+      } else if (tab === 'mesas') {
+        document.getElementById('tabAdminMesas').classList.remove('hidden');
+        cargarMesasAdmin();
       }
     }
 
@@ -3257,28 +3298,22 @@
     function imprimirTicketConsumoHuespedYCerrar(datosClose, totalGeneral) {
       if (comandaActual.length === 0) { showToast('No hay items', 'warning'); return; }
       var ticketHTML = generarTicketConsumoHuespedHTML();
-      // Imprimir original
-      imprimirHTML(ticketHTML, function() {
-        // Imprimir duplicado
-        var ticketDup = ticketHTML.replace('</body>', '<div style="margin-top:10px;text-align:center;font-size:10px;border-top:1px dashed #000;padding-top:4px;">DUPLICADO</div></body>');
-        imprimirHTML(ticketDup, function() {
-          // Cerrar mesa en backend despues de imprimir
-          google.script.run
-            .withSuccessHandler(function(result) {
-              if (result.success) {
-                showToast('Mesa cerrada - Total: $' + totalGeneral.toFixed(2), 'success');
-                cerrarModal('modalComanda');
-                setTimeout(function() { cargarMesas(); }, 500);
-              } else {
-                showToast(result.error || 'Error al cerrar mesa', 'error');
-              }
-            })
-            .withFailureHandler(function(error) {
-              showToast('Error: ' + error.message, 'error');
-            })
-            .cerrarMesaSinCobro(datosClose);
-        });
-      });
+      // Imprimir ticket y cerrar mesa en paralelo
+      imprimirHTML(ticketHTML);
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Mesa cerrada - Total: $' + totalGeneral.toFixed(2), 'success');
+            cerrarModal('modalComanda');
+            setTimeout(function() { cargarMesas(); }, 500);
+          } else {
+            showToast(result.error || 'Error al cerrar mesa', 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error: ' + error.message, 'error');
+        })
+        .cerrarMesaSinCobro(datosClose);
     }
 
         function cerrarMesa() {
@@ -3384,6 +3419,74 @@
       toast.textContent = mensaje;
       document.body.appendChild(toast);
       setTimeout(function() { toast.remove(); }, 3000);
+    }
+
+    // === ADMIN MESAS ===
+    function cargarMesasAdmin() {
+      var tbody = document.getElementById('tbodyAdminMesas');
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#888;">Cargando mesas...</td></tr>';
+      google.script.run
+        .withSuccessHandler(function(mesas) {
+          if (!mesas || mesas.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#888;">No hay mesas configuradas</td></tr>';
+            return;
+          }
+          var html = '';
+          for (var i = 0; i < mesas.length; i++) {
+            var m = mesas[i];
+            var estadoColor = m.estado === 'LIBRE' ? '#34a853' : '#ea4335';
+            html += '<tr>';
+            html += '<td>' + m.id + '</td>';
+            html += '<td>' + escapeHtml(m.nombre) + '</td>';
+            html += '<td>' + escapeHtml(m.ubicacion) + '</td>';
+            html += '<td style="color:' + estadoColor + ';">' + escapeHtml(m.estado) + '</td>';
+            html += '<td>';
+            if (m.estado === 'LIBRE') {
+              html += '<button class="btn btn-danger" onclick="adminEliminarMesa(' + m.id + ')" style="width:auto;padding:5px 15px;font-size:0.8rem;">Eliminar</button>';
+            } else {
+              html += '<span style="color:#888;font-size:0.8rem;">En uso</span>';
+            }
+            html += '</td></tr>';
+          }
+          tbody.innerHTML = html;
+        })
+        .withFailureHandler(function(e) {
+          tbody.innerHTML = '<tr><td colspan="5" style="color:#ea4335;">Error: ' + escapeHtml(e.message || '') + '</td></tr>';
+        })
+        .getMesas();
+    }
+
+    function adminAgregarMesa() {
+      var nombre = document.getElementById('adminNuevaMesaNombre').value.trim();
+      var ubicacion = document.getElementById('adminNuevaMesaUbicacion').value;
+      if (!nombre) { showToast('Ingrese el nombre de la mesa', 'warning'); return; }
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Mesa "' + nombre + '" agregada (ID: ' + result.idMesa + ')', 'success');
+            document.getElementById('adminNuevaMesaNombre').value = '';
+            cargarMesasAdmin();
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'error'); })
+        .agregarMesa({ nombre: nombre, ubicacion: ubicacion, usuario: currentUser.usuario });
+    }
+
+    function adminEliminarMesa(idMesa) {
+      if (!confirm('Eliminar esta mesa? Solo se pueden eliminar mesas en estado LIBRE.')) return;
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Mesa eliminada', 'success');
+            cargarMesasAdmin();
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'error'); })
+        .eliminarMesa({ idMesa: idMesa, usuario: currentUser.usuario });
     }
 
     var modals = document.querySelectorAll('.modal-overlay');
