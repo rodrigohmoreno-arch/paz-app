@@ -1001,7 +1001,7 @@
       <div class="modal-footer">
         <button class="btn" onclick="cerrarModal('modalComanda')" style="background:rgba(255,255,255,0.1);color:#fff;">Volver</button>
         <button class="btn btn-info" onclick="imprimirComandaCocina()">Comanda Cocina</button>
-        <button class="btn btn-warning" onclick="imprimirComandaMostrador()">Comanda Mostrador</button>
+        <button class="btn btn-warning" onclick="imprimirComandaMostrador()">Comanda Bebidas</button>
         <button class="btn btn-danger" onclick="cerrarMesa()">Cerrar Mesa</button>
       </div>
     </div>
@@ -1098,7 +1098,7 @@
     }
 
     // Imprimir HTML via iframe oculto
-    function imprimirHTML(html) {
+    function imprimirHTML(html, callback) {
       var iframe = document.createElement('iframe');
       iframe.style.position = 'absolute';
       iframe.style.left = '-9999px';
@@ -1114,6 +1114,7 @@
         iframe.contentWindow.print();
         setTimeout(function() {
           document.body.removeChild(iframe);
+          if (callback) callback();
         }, 1000);
       }, 500);
     }
@@ -3167,7 +3168,13 @@
 
     function getSectorProducto(idProducto) {
       for (var i = 0; i < productosData.length; i++) {
-        if (productosData[i].id == idProducto) return productosData[i].sector || 'COCINA';
+        if (productosData[i].id == idProducto) {
+          var p = productosData[i];
+          if (p.sector && p.sector !== '') return p.sector;
+          var cat = (p.categoria || '').toLowerCase();
+          if (cat === 'bebidas' || cat === 'tragos' || cat === 'vinos' || cat === 'cervezas') return 'MOSTRADOR';
+          return 'COCINA';
+        }
       }
       return 'COCINA';
     }
@@ -3180,11 +3187,12 @@
       }
       var items = [];
       for (var i = 0; i < comandaActual.length; i++) {
-        if (getSectorProducto(comandaActual[i].idProducto) === sector) items.push(comandaActual[i]);
+        var itemSector = getSectorProducto(comandaActual[i].idProducto);
+        if (itemSector === sector) items.push(comandaActual[i]);
       }
       if (items.length === 0) { showToast('No hay items para ' + sector, 'warning'); return; }
       var fecha = new Date().toLocaleString();
-      var titulo = sector === 'COCINA' ? 'COMANDA COCINA' : 'COMANDA MOSTRADOR';
+      var titulo = sector === 'COCINA' ? 'COMANDA COCINA' : 'COMANDA BEBIDAS';
       var ticketHTML = '<html><head><title>' + titulo + '</title>';
       ticketHTML += '<style>' + getTicketCSS80mm() + '</style></head><body>';
       ticketHTML += '<div class="header"><h2>' + titulo + '</h2><p>' + fecha + '</p></div>';
@@ -3204,8 +3212,7 @@
     function imprimirComandaCocina() { imprimirComandaSector('COCINA'); }
     function imprimirComandaMostrador() { imprimirComandaSector('MOSTRADOR'); }
 
-    function imprimirTicketConsumoHuesped() {
-      if (comandaActual.length === 0) { showToast('No hay items', 'warning'); return; }
+    function generarTicketConsumoHuespedHTML() {
       var comanda = null;
       for (var i = 0; i < mesasData.length; i++) {
         if (mesasData[i].idComanda == comandaActivaId) { comanda = mesasData[i]; break; }
@@ -3231,10 +3238,35 @@
       ticketHTML += '<div class="total"><div class="line"><span>TOTAL</span><span>$' + total.toFixed(2) + '</span></div></div>';
       ticketHTML += '<div class="firma"><p>Firma del huesped</p><p>____________________</p>';
       ticketHTML += '<p>Hab: ' + escapeHtml(comanda ? comanda.nroHabitacion || '' : '') + '</p></div>';
-      ticketHTML += '<div style="margin-top:10px;text-align:center;font-size:10px;border-top:1px dashed #000;padding-top:4px;">DUPLICADO</div>';
       ticketHTML += '</body></html>';
-      imprimirHTML(ticketHTML);
-      setTimeout(function() { imprimirHTML(ticketHTML); }, 1000);
+      return ticketHTML;
+    }
+
+    function imprimirTicketConsumoHuespedYCerrar(datosClose, totalGeneral) {
+      if (comandaActual.length === 0) { showToast('No hay items', 'warning'); return; }
+      var ticketHTML = generarTicketConsumoHuespedHTML();
+      // Imprimir original
+      imprimirHTML(ticketHTML, function() {
+        // Imprimir duplicado
+        var ticketDup = ticketHTML.replace('</body>', '<div style="margin-top:10px;text-align:center;font-size:10px;border-top:1px dashed #000;padding-top:4px;">DUPLICADO</div></body>');
+        imprimirHTML(ticketDup, function() {
+          // Cerrar mesa en backend despues de imprimir
+          google.script.run
+            .withSuccessHandler(function(result) {
+              if (result.success) {
+                showToast('Mesa cerrada - Total: $' + totalGeneral.toFixed(2), 'success');
+                cerrarModal('modalComanda');
+                setTimeout(function() { cargarMesas(); }, 500);
+              } else {
+                showToast(result.error || 'Error al cerrar mesa', 'error');
+              }
+            })
+            .withFailureHandler(function(error) {
+              showToast('Error: ' + error.message, 'error');
+            })
+            .cerrarMesaSinCobro(datosClose);
+        });
+      });
     }
 
         function cerrarMesa() {
@@ -3287,32 +3319,19 @@
       if (comanda.tipoCliente === 'EPECUEN_MAP' || comanda.tipoCliente === 'EPECUEN_SIN_MAP' || comanda.tipoCliente === 'CARHUE') {
         var tipoLabel = comanda.tipoCliente === 'EPECUEN_MAP' ? 'Huesped MAP' :
                         comanda.tipoCliente === 'EPECUEN_SIN_MAP' ? 'Huesped Sin MAP' : 'Hotel Carhue';
-        var msgCierre = 'Cerrar mesa?\n\n' + tipoLabel + '\nTotal: $' + totalGeneral.toFixed(2) + '\n\nSe imprimira ticket de consumo en duplicado para firma del huesped.\nLa mesa pasara a LIBRE.';
+        var msgCierre = 'Cerrar mesa?\n\n' + tipoLabel + '\nTotal: $' + totalGeneral.toFixed(2) + '\n\nSe imprimira ticket de consumo para firma del huesped.\nLa mesa pasara a LIBRE.';
         if (!confirm(msgCierre)) return;
 
-        imprimirTicketConsumoHuesped();
+        var datosClose = {
+          idComanda: comandaActivaId,
+          tipoCliente: comanda.tipoCliente,
+          totalBebidas: totalBebidas,
+          totalComidas: totalComidas,
+          cantidadComensales: cantidadComensales,
+          usuario: currentUser.usuario
+        };
 
-        google.script.run
-          .withSuccessHandler(function(result) {
-            if (result.success) {
-              showToast('Mesa cerrada - Total: $' + totalGeneral.toFixed(2), 'success');
-              cerrarModal('modalComanda');
-              setTimeout(function() { cargarMesas(); }, 500);
-            } else {
-              showToast(result.error || 'Error al cerrar mesa', 'error');
-            }
-          })
-          .withFailureHandler(function(error) {
-            showToast('Error: ' + error.message, 'error');
-          })
-          .cerrarMesaSinCobro({
-            idComanda: comandaActivaId,
-            tipoCliente: comanda.tipoCliente,
-            totalBebidas: totalBebidas,
-            totalComidas: totalComidas,
-            cantidadComensales: cantidadComensales,
-            usuario: currentUser.usuario
-          });
+        imprimirTicketConsumoHuespedYCerrar(datosClose, totalGeneral);
         return;
       }
 

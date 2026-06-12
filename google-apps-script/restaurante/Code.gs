@@ -425,6 +425,26 @@ function getProductos() {
   const hoja = getHoja('Productos');
   if (!hoja) return [];
   try {
+    // Asegurar columna Sector (I) existe
+    var header = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0];
+    if (header.length < 9 || header[8] !== 'Sector') {
+      hoja.getRange(1, 9).setValue('Sector');
+      // Asignar sector a productos existentes sin sector
+      var lastRow = hoja.getLastRow();
+      if (lastRow > 1) {
+        var cats = hoja.getRange(2, 2, lastRow - 1, 1).getValues();
+        var secs = hoja.getRange(2, 9, lastRow - 1, 1).getValues();
+        var updated = false;
+        for (var j = 0; j < secs.length; j++) {
+          if (!secs[j][0] || secs[j][0] === '') {
+            var cat = cats[j][0];
+            secs[j][0] = (['Bebidas','Tragos','Vinos','Cervezas'].indexOf(cat) !== -1) ? 'MOSTRADOR' : 'COCINA';
+            updated = true;
+          }
+        }
+        if (updated) hoja.getRange(2, 9, secs.length, 1).setValues(secs);
+      }
+    }
     var datos = hoja.getDataRange().getValues();
     var productos = [];
     for (var i = 1; i < datos.length; i++) {
@@ -436,7 +456,7 @@ function getProductos() {
           unidad: datos[i][3],
           precioCosto: datos[i][4],
           precioVenta: datos[i][5],
-          sector: datos[i][8] || (datos[i][1] === 'Bebidas' ? 'MOSTRADOR' : 'COCINA')
+          sector: datos[i][8] || ((['Bebidas','Tragos','Vinos','Cervezas'].indexOf(datos[i][1]) !== -1) ? 'MOSTRADOR' : 'COCINA')
         });
       }
     }
@@ -1151,7 +1171,7 @@ function getStock() {
     if (hojaProductos) {
       var prods = hojaProductos.getDataRange().getValues();
       for (var j = 1; j < prods.length; j++) {
-        sectores[prods[j][0]] = prods[j][8] || (prods[j][1] === 'Bebidas' ? 'MOSTRADOR' : 'COCINA');
+        sectores[prods[j][0]] = prods[j][8] || ((['Bebidas','Tragos','Vinos','Cervezas'].indexOf(prods[j][1]) !== -1) ? 'MOSTRADOR' : 'COCINA');
       }
     }
     var stock = [];
