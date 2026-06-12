@@ -2618,21 +2618,36 @@
       }
 
       // ===== HUESPEDES (EPECUEN_MAP, EPECUEN_SIN_MAP, CARHUE, Servicio Habitacion) =====
-      // Estos SIEMPRE cierran sin cobro, imprimen ticket para firma del huesped
+      // Estos cierran sin cobro. El ticket ya fue impreso (requisito previo).
       if (comanda.tipoCliente === 'EPECUEN_MAP' || comanda.tipoCliente === 'EPECUEN_SIN_MAP' || comanda.tipoCliente === 'CARHUE' || comanda.ubicacion === 'Servicio Habitacion') {
-        // Imprimir ticket de consumo para firma del huesped
-        imprimirTicketConsumo();
+        var msgCierre = 'Cerrar mesa?\n\n';
+        if (comanda.tipoCliente === 'EPECUEN_MAP') {
+          msgCierre += 'Huesped MAP - Comida incluida\n';
+          if (montoExcedente > 0) {
+            msgCierre += 'Bebidas excedentes: $' + montoExcedente.toFixed(2) + '\n';
+          }
+        } else if (comanda.tipoCliente === 'EPECUEN_SIN_MAP') {
+          msgCierre += 'Huesped Sin MAP\nTotal: $' + (totalBebidas + totalComidas).toFixed(2) + '\n';
+        } else if (comanda.tipoCliente === 'CARHUE') {
+          msgCierre += 'Hotel Carhue\nTotal: $' + (totalBebidas + totalComidas).toFixed(2) + '\n';
+        } else {
+          msgCierre += 'Servicio Habitacion\nTotal: $' + (totalBebidas + totalComidas).toFixed(2) + '\n';
+        }
+        if (!confirm(msgCierre + '\nLa mesa pasara a LIBRE.')) return;
 
-        // Cerrar mesa sin cobro (guarda en ConsumosHuespedes para vinculacion con habitacion)
         google.script.run
           .withSuccessHandler(function(result) {
-            if (comanda.tipoCliente === 'EPECUEN_MAP' && montoExcedente > 0) {
-              showToast('Mesa cerrada - Bebidas excedentes: $' + montoExcedente.toFixed(2), 'success');
+            if (result.success) {
+              if (comanda.tipoCliente === 'EPECUEN_MAP' && montoExcedente > 0) {
+                showToast('Mesa cerrada - Bebidas excedentes: $' + montoExcedente.toFixed(2), 'success');
+              } else {
+                showToast('Mesa cerrada correctamente', 'success');
+              }
+              cerrarModal('modalComanda');
+              setTimeout(function() { cargarMesas(); }, 500);
             } else {
-              showToast('Mesa cerrada - Ticket impreso para firma del huesped', 'success');
+              showToast(result.error || 'Error al cerrar mesa', 'error');
             }
-            cerrarModal('modalComanda');
-            cargarMesas();
           })
           .withFailureHandler(function(error) {
             showToast('Error: ' + error.message, 'error');

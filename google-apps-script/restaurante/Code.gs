@@ -715,8 +715,10 @@ function cerrarMesaSinCobro(datos) {
         break;
       }
     }
+    SpreadsheetApp.flush();
     return { success: true };
   } catch(e) {
+    Logger.log('Error cerrarMesaSinCobro: ' + e);
     return { success: false, error: e.toString() };
   }
 }
