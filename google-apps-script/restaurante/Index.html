@@ -379,17 +379,199 @@
 
     <!-- PANEL STOCK -->
     <div id="panelStock" class="panel hidden">
-      <div class="card">
-        <div class="card-title">Gestion de Stock</div>
-        <p style="color: #aaa;">Panel de stock - En desarrollo (Parte 4)</p>
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button class="tab active" onclick="mostrarTabStock('stock', this)">Stock Actual</button>
+        <button class="tab" onclick="mostrarTabStock('faltantes', this)">Faltantes</button>
+        <button class="tab" onclick="mostrarTabStock('ingreso', this)">Ingreso Mercaderia</button>
+        <button class="tab" onclick="mostrarTabStock('nuevoProducto', this)">Nuevo Producto</button>
+        <button class="tab" onclick="mostrarTabStock('historial', this)">Historial</button>
+      </div>
+
+      <!-- TAB STOCK ACTUAL -->
+      <div id="tabStockActual" class="card">
+        <div class="card-title">Stock Actual</div>
+        <div class="form-group" style="max-width:300px;margin-bottom:15px;">
+          <input type="text" id="filtroStockBuscar" placeholder="Buscar producto..." oninput="filtrarTablaStock()">
+        </div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>ID</th><th>Producto</th><th>Stock Actual</th><th>Stock Minimo</th><th>Ultima Compra</th><th>Precio Costo</th><th>Estado</th></tr></thead>
+            <tbody id="tbodyStock"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB FALTANTES -->
+      <div id="tabStockFaltantes" class="card hidden">
+        <div class="card-title">Productos Faltantes / Bajo Stock</div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>ID</th><th>Producto</th><th>Stock Actual</th><th>Stock Minimo</th><th>Diferencia</th></tr></thead>
+            <tbody id="tbodyFaltantes"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB INGRESO MERCADERIA -->
+      <div id="tabStockIngreso" class="card hidden">
+        <div class="card-title">Ingreso / Ajuste de Stock</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Producto *</label>
+            <select id="stockProductoSelect">
+              <option value="">Seleccionar producto...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tipo Movimiento *</label>
+            <select id="stockTipoMovimiento">
+              <option value="COMPRA">Compra</option>
+              <option value="AJUSTE_POSITIVO">Ajuste Positivo</option>
+              <option value="AJUSTE_NEGATIVO">Ajuste Negativo</option>
+              <option value="MERMA">Merma / Perdida</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Cantidad *</label>
+            <input type="number" id="stockCantidad" min="1" value="1">
+          </div>
+          <div class="form-group">
+            <label>Nuevo Precio Costo (opcional)</label>
+            <input type="number" id="stockNuevoPrecio" step="0.01" placeholder="Dejar vacio si no cambia">
+          </div>
+        </div>
+        <button class="btn btn-success" onclick="confirmarMovimientoStock()" style="max-width:300px;">Registrar Movimiento</button>
+      </div>
+
+      <!-- TAB NUEVO PRODUCTO -->
+      <div id="tabStockNuevoProducto" class="card hidden">
+        <div class="card-title">Agregar Nuevo Producto</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre *</label>
+            <input type="text" id="npNombre" placeholder="Nombre del producto">
+          </div>
+          <div class="form-group">
+            <label>Categoria *</label>
+            <select id="npCategoria">
+              <option value="Bebidas">Bebidas</option>
+              <option value="Platos Principales">Platos Principales</option>
+              <option value="Entradas">Entradas</option>
+              <option value="Postres">Postres</option>
+              <option value="Cafeteria">Cafeteria</option>
+              <option value="Insumos">Insumos</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Unidad</label>
+            <select id="npUnidad">
+              <option value="Unidad">Unidad</option>
+              <option value="Kg">Kg</option>
+              <option value="Litro">Litro</option>
+              <option value="Botella">Botella</option>
+              <option value="Paquete">Paquete</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Precio Costo *</label>
+            <input type="number" id="npPrecioCosto" step="0.01" min="0" value="0">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Precio Venta *</label>
+            <input type="number" id="npPrecioVenta" step="0.01" min="0" value="0">
+          </div>
+          <div class="form-group">
+            <label>Stock Inicial</label>
+            <input type="number" id="npStockInicial" min="0" value="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Stock Minimo</label>
+          <input type="number" id="npStockMinimo" min="0" value="5" style="max-width:200px;">
+        </div>
+        <button class="btn btn-success" onclick="confirmarNuevoProducto()" style="max-width:300px;">Agregar Producto</button>
+      </div>
+
+      <!-- TAB HISTORIAL -->
+      <div id="tabStockHistorial" class="card hidden">
+        <div class="card-title">Historial de Movimientos</div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Stock Anterior</th><th>Stock Nuevo</th><th>Usuario</th></tr></thead>
+            <tbody id="tbodyHistorialStock"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
     <!-- PANEL CHEF -->
     <div id="panelChef" class="panel hidden">
-      <div class="card">
-        <div class="card-title">Recetas y Costos</div>
-        <p style="color: #aaa;">Panel del chef - En desarrollo (Parte 5)</p>
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button class="tab active" onclick="mostrarTabChef('platos', this)">Platos</button>
+        <button class="tab" onclick="mostrarTabChef('nuevoPlato', this)">Nuevo Plato</button>
+        <button class="tab" onclick="mostrarTabChef('receta', this)">Editar Receta</button>
+      </div>
+
+      <!-- TAB PLATOS -->
+      <div id="tabChefPlatos" class="card">
+        <div class="card-title">Listado de Platos</div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>ID</th><th>Nombre</th><th>Categoria</th><th>Precio Venta</th><th>Costo</th><th>Margen</th><th>Acciones</th></tr></thead>
+            <tbody id="tbodyPlatos"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB NUEVO PLATO -->
+      <div id="tabChefNuevoPlato" class="card hidden">
+        <div class="card-title">Agregar Nuevo Plato</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre del Plato *</label>
+            <input type="text" id="chefNombrePlato" placeholder="Ej: Milanesa Napolitana">
+          </div>
+          <div class="form-group">
+            <label>Categoria *</label>
+            <select id="chefCategoriaPlato">
+              <option value="Platos Principales">Platos Principales</option>
+              <option value="Entradas">Entradas</option>
+              <option value="Postres">Postres</option>
+              <option value="Cafeteria">Cafeteria</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="max-width:300px;">
+          <label>Precio Venta *</label>
+          <input type="number" id="chefPrecioPlato" step="0.01" min="0" value="0">
+        </div>
+        <button class="btn btn-success" onclick="confirmarNuevoPlato()" style="max-width:300px;">Agregar Plato</button>
+      </div>
+
+      <!-- TAB EDITAR RECETA -->
+      <div id="tabChefReceta" class="card hidden">
+        <div class="card-title">Editar Receta</div>
+        <div class="form-group">
+          <label>Seleccionar Plato *</label>
+          <select id="chefPlatoReceta" onchange="cargarRecetaPlato()">
+            <option value="">Seleccionar plato...</option>
+          </select>
+        </div>
+        <div id="recetaEditor" class="hidden">
+          <div class="card-title" style="margin-top:15px;">Ingredientes</div>
+          <div id="recetaIngredientes"></div>
+          <div style="display:flex;gap:10px;margin-top:15px;">
+            <button class="btn btn-info" onclick="agregarIngrediente()" style="width:auto;padding:10px 20px;">+ Agregar Ingrediente</button>
+            <button class="btn btn-success" onclick="guardarRecetaActual()" style="width:auto;padding:10px 20px;">Guardar Receta</button>
+          </div>
+          <div id="costoRecetaInfo" style="margin-top:15px;padding:10px;background:rgba(255,255,255,0.05);border-radius:10px;"></div>
+        </div>
       </div>
     </div>
 
@@ -1218,6 +1400,416 @@
       a.click();
     }
 
+    // === PANEL STOCK ===
+    var stockData = [];
+    function mostrarTabStock(tab, btn) {
+      var tabs = document.querySelectorAll('#panelStock .tab');
+      for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+      if (btn) btn.classList.add('active');
+      document.getElementById('tabStockActual').classList.add('hidden');
+      document.getElementById('tabStockFaltantes').classList.add('hidden');
+      document.getElementById('tabStockIngreso').classList.add('hidden');
+      document.getElementById('tabStockNuevoProducto').classList.add('hidden');
+      document.getElementById('tabStockHistorial').classList.add('hidden');
+      if (tab === 'stock') {
+        document.getElementById('tabStockActual').classList.remove('hidden');
+        cargarStockActual();
+      } else if (tab === 'faltantes') {
+        document.getElementById('tabStockFaltantes').classList.remove('hidden');
+        cargarFaltantes();
+      } else if (tab === 'ingreso') {
+        document.getElementById('tabStockIngreso').classList.remove('hidden');
+        cargarSelectProductosStock();
+      } else if (tab === 'nuevoProducto') {
+        document.getElementById('tabStockNuevoProducto').classList.remove('hidden');
+      } else if (tab === 'historial') {
+        document.getElementById('tabStockHistorial').classList.remove('hidden');
+        cargarHistorialStock();
+      }
+    }
+
+    function cargarStockActual() {
+      var tbody = document.getElementById('tbodyStock');
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">Cargando...</td></tr>';
+      google.script.run
+        .withSuccessHandler(function(data) {
+          stockData = data || [];
+          renderStockTable(stockData);
+        })
+        .withFailureHandler(function(e) { tbody.innerHTML = '<tr><td colspan="7" style="color:#ea4335;">Error: ' + escapeHtml(e.message) + '</td></tr>'; })
+        .getStock();
+    }
+
+    function renderStockTable(data) {
+      var tbody = document.getElementById('tbodyStock');
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">No hay productos en stock</td></tr>';
+        return;
+      }
+      var html = '';
+      for (var i = 0; i < data.length; i++) {
+        var s = data[i];
+        var bajo = s.stockActual <= s.stockMinimo;
+        var estadoHtml = bajo ? '<span style="color:#ea4335;font-weight:600;">BAJO</span>' : '<span style="color:#34a853;">OK</span>';
+        var fechaCompra = s.ultimaCompra ? new Date(s.ultimaCompra).toLocaleDateString() : '-';
+        html += '<tr style="' + (bajo ? 'background:rgba(234,67,53,0.1);' : '') + '">';
+        html += '<td>' + s.idProducto + '</td>';
+        html += '<td>' + escapeHtml(s.producto) + '</td>';
+        html += '<td style="font-weight:600;' + (bajo ? 'color:#ea4335;' : '') + '">' + s.stockActual + '</td>';
+        html += '<td>' + s.stockMinimo + '</td>';
+        html += '<td>' + fechaCompra + '</td>';
+        html += '<td>$' + (s.precioCosto || 0).toFixed(2) + '</td>';
+        html += '<td>' + estadoHtml + '</td></tr>';
+      }
+      tbody.innerHTML = html;
+    }
+
+    function filtrarTablaStock() {
+      var filtro = document.getElementById('filtroStockBuscar').value.toLowerCase();
+      if (!filtro) { renderStockTable(stockData); return; }
+      var filtrados = stockData.filter(function(s) { return s.producto.toLowerCase().indexOf(filtro) !== -1; });
+      renderStockTable(filtrados);
+    }
+
+    function cargarFaltantes() {
+      var tbody = document.getElementById('tbodyFaltantes');
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#888;">Cargando...</td></tr>';
+      google.script.run
+        .withSuccessHandler(function(data) {
+          if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#888;">No hay productos faltantes</td></tr>';
+            return;
+          }
+          var html = '';
+          for (var i = 0; i < data.length; i++) {
+            var s = data[i];
+            html += '<tr style="background:rgba(234,67,53,0.1);">';
+            html += '<td>' + s.idProducto + '</td>';
+            html += '<td>' + escapeHtml(s.producto) + '</td>';
+            html += '<td style="color:#ea4335;font-weight:600;">' + s.stockActual + '</td>';
+            html += '<td>' + s.stockMinimo + '</td>';
+            html += '<td style="color:#ea4335;">' + (s.stockActual - s.stockMinimo) + '</td></tr>';
+          }
+          tbody.innerHTML = html;
+        })
+        .withFailureHandler(function(e) { tbody.innerHTML = '<tr><td colspan="5" style="color:#ea4335;">Error</td></tr>'; })
+        .getFaltantes();
+    }
+
+    function cargarSelectProductosStock() {
+      var sel = document.getElementById('stockProductoSelect');
+      if (sel.options.length > 1) return;
+      google.script.run
+        .withSuccessHandler(function(data) {
+          sel.innerHTML = '<option value="">Seleccionar producto...</option>';
+          for (var i = 0; i < data.length; i++) {
+            sel.innerHTML += '<option value="' + data[i].idProducto + '">' + escapeHtml(data[i].producto) + ' (Stock: ' + data[i].stockActual + ')</option>';
+          }
+        })
+        .getStock();
+    }
+
+    function confirmarMovimientoStock() {
+      var idProducto = document.getElementById('stockProductoSelect').value;
+      var tipoMov = document.getElementById('stockTipoMovimiento').value;
+      var cantidad = parseInt(document.getElementById('stockCantidad').value) || 0;
+      var nuevoPrecio = parseFloat(document.getElementById('stockNuevoPrecio').value) || null;
+      if (!idProducto) { showToast('Seleccione un producto', 'warning'); return; }
+      if (cantidad <= 0) { showToast('Ingrese una cantidad valida', 'warning'); return; }
+      var cantidadFinal = cantidad;
+      if (tipoMov === 'AJUSTE_NEGATIVO' || tipoMov === 'MERMA') cantidadFinal = -cantidad;
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Stock actualizado. Nuevo stock: ' + result.stockNuevo, 'success');
+            document.getElementById('stockCantidad').value = '1';
+            document.getElementById('stockNuevoPrecio').value = '';
+            document.getElementById('stockProductoSelect').options.length = 1;
+            cargarSelectProductosStock();
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'error'); })
+        .actualizarStock({
+          idProducto: parseInt(idProducto),
+          tipoMovimiento: tipoMov,
+          cantidad: cantidadFinal,
+          nuevoPrecio: nuevoPrecio,
+          usuario: currentUser.usuario
+        });
+    }
+
+    function confirmarNuevoProducto() {
+      var nombre = document.getElementById('npNombre').value.trim();
+      var categoria = document.getElementById('npCategoria').value;
+      var unidad = document.getElementById('npUnidad').value;
+      var precioCosto = parseFloat(document.getElementById('npPrecioCosto').value) || 0;
+      var precioVenta = parseFloat(document.getElementById('npPrecioVenta').value) || 0;
+      var stockInicial = parseInt(document.getElementById('npStockInicial').value) || 0;
+      var stockMinimo = parseInt(document.getElementById('npStockMinimo').value) || 5;
+      if (!nombre) { showToast('Ingrese nombre del producto', 'warning'); return; }
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Producto #' + result.idProducto + ' agregado', 'success');
+            document.getElementById('npNombre').value = '';
+            document.getElementById('npPrecioCosto').value = '0';
+            document.getElementById('npPrecioVenta').value = '0';
+            document.getElementById('npStockInicial').value = '0';
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'error'); })
+        .agregarProducto({
+          nombre: nombre,
+          categoria: categoria,
+          unidad: unidad,
+          precioCosto: precioCosto,
+          precioVenta: precioVenta,
+          stockInicial: stockInicial,
+          stockMinimo: stockMinimo,
+          usuario: currentUser.usuario
+        });
+    }
+
+    function cargarHistorialStock() {
+      var tbody = document.getElementById('tbodyHistorialStock');
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">Cargando...</td></tr>';
+      google.script.run
+        .withSuccessHandler(function(data) {
+          if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">No hay movimientos registrados</td></tr>';
+            return;
+          }
+          var html = '';
+          for (var i = data.length - 1; i >= 0; i--) {
+            var h = data[i];
+            html += '<tr>';
+            html += '<td>' + (h.fecha ? new Date(h.fecha).toLocaleString() : '-') + '</td>';
+            html += '<td>' + escapeHtml(h.producto) + '</td>';
+            html += '<td>' + escapeHtml(h.tipo) + '</td>';
+            html += '<td style="color:' + (h.cantidad >= 0 ? '#34a853' : '#ea4335') + ';font-weight:600;">' + (h.cantidad >= 0 ? '+' : '') + h.cantidad + '</td>';
+            html += '<td>' + h.stockAnterior + '</td>';
+            html += '<td>' + h.stockNuevo + '</td>';
+            html += '<td>' + escapeHtml(h.usuario) + '</td></tr>';
+          }
+          tbody.innerHTML = html;
+        })
+        .withFailureHandler(function(e) { tbody.innerHTML = '<tr><td colspan="7" style="color:#ea4335;">Error</td></tr>'; })
+        .getHistorialStock();
+    }
+
+    // === PANEL CHEF ===
+    var platosChefData = [];
+    var productosChefData = [];
+    var recetaActual = [];
+
+    function mostrarTabChef(tab, btn) {
+      var tabs = document.querySelectorAll('#panelChef .tab');
+      for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+      if (btn) btn.classList.add('active');
+      document.getElementById('tabChefPlatos').classList.add('hidden');
+      document.getElementById('tabChefNuevoPlato').classList.add('hidden');
+      document.getElementById('tabChefReceta').classList.add('hidden');
+      if (tab === 'platos') {
+        document.getElementById('tabChefPlatos').classList.remove('hidden');
+        cargarPlatosChef();
+      } else if (tab === 'nuevoPlato') {
+        document.getElementById('tabChefNuevoPlato').classList.remove('hidden');
+      } else if (tab === 'receta') {
+        document.getElementById('tabChefReceta').classList.remove('hidden');
+        cargarSelectPlatosReceta();
+        cargarProductosParaReceta();
+      }
+    }
+
+    function cargarPlatosChef() {
+      var tbody = document.getElementById('tbodyPlatos');
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">Cargando...</td></tr>';
+      google.script.run
+        .withSuccessHandler(function(data) {
+          platosChefData = data || [];
+          if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">No hay platos</td></tr>';
+            return;
+          }
+          var html = '';
+          for (var i = 0; i < data.length; i++) {
+            var p = data[i];
+            var margenColor = p.margen >= 50 ? '#34a853' : p.margen >= 30 ? '#fbbc04' : '#ea4335';
+            html += '<tr>';
+            html += '<td>' + p.id + '</td>';
+            html += '<td>' + escapeHtml(p.nombre) + '</td>';
+            html += '<td>' + escapeHtml(p.categoria) + '</td>';
+            html += '<td>$' + (p.precioVenta || 0).toFixed(2) + '</td>';
+            html += '<td>$' + (p.costoTotal || 0).toFixed(2) + '</td>';
+            html += '<td style="color:' + margenColor + ';font-weight:600;">' + (p.margen || 0) + '%</td>';
+            html += '<td><button class="btn btn-info" onclick="verRecetaDesdeListado(' + p.id + ')" style="width:auto;padding:5px 12px;font-size:0.8rem;">Ver Receta</button></td>';
+            html += '</tr>';
+          }
+          tbody.innerHTML = html;
+        })
+        .withFailureHandler(function(e) { tbody.innerHTML = '<tr><td colspan="7" style="color:#ea4335;">Error</td></tr>'; })
+        .getPlatos();
+    }
+
+    function verRecetaDesdeListado(idPlato) {
+      var tabs = document.querySelectorAll('#panelChef .tab');
+      for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+      tabs[2].classList.add('active');
+      document.getElementById('tabChefPlatos').classList.add('hidden');
+      document.getElementById('tabChefNuevoPlato').classList.add('hidden');
+      document.getElementById('tabChefReceta').classList.remove('hidden');
+      cargarSelectPlatosReceta(function() {
+        document.getElementById('chefPlatoReceta').value = idPlato;
+        cargarRecetaPlato();
+      });
+      cargarProductosParaReceta();
+    }
+
+    function confirmarNuevoPlato() {
+      var nombre = document.getElementById('chefNombrePlato').value.trim();
+      var categoria = document.getElementById('chefCategoriaPlato').value;
+      var precio = parseFloat(document.getElementById('chefPrecioPlato').value) || 0;
+      if (!nombre) { showToast('Ingrese nombre del plato', 'warning'); return; }
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Plato #' + result.idPlato + ' agregado', 'success');
+            document.getElementById('chefNombrePlato').value = '';
+            document.getElementById('chefPrecioPlato').value = '0';
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'error'); })
+        .agregarPlato({
+          nombre: nombre,
+          categoria: categoria,
+          precioVenta: precio,
+          usuario: currentUser.usuario
+        });
+    }
+
+    function cargarSelectPlatosReceta(callback) {
+      var sel = document.getElementById('chefPlatoReceta');
+      google.script.run
+        .withSuccessHandler(function(data) {
+          sel.innerHTML = '<option value="">Seleccionar plato...</option>';
+          for (var i = 0; i < data.length; i++) {
+            sel.innerHTML += '<option value="' + data[i].id + '">' + escapeHtml(data[i].nombre) + '</option>';
+          }
+          if (callback) callback();
+        })
+        .getPlatos();
+    }
+
+    function cargarProductosParaReceta() {
+      google.script.run
+        .withSuccessHandler(function(data) { productosChefData = data || []; })
+        .getProductos();
+    }
+
+    function cargarRecetaPlato() {
+      var idPlato = document.getElementById('chefPlatoReceta').value;
+      if (!idPlato) {
+        document.getElementById('recetaEditor').classList.add('hidden');
+        return;
+      }
+      document.getElementById('recetaEditor').classList.remove('hidden');
+      google.script.run
+        .withSuccessHandler(function(data) {
+          recetaActual = data || [];
+          renderRecetaEditor();
+        })
+        .getReceta(parseInt(idPlato));
+    }
+
+    function renderRecetaEditor() {
+      var container = document.getElementById('recetaIngredientes');
+      if (recetaActual.length === 0) {
+        container.innerHTML = '<p style="color:#888;">No hay ingredientes. Agregue ingredientes a la receta.</p>';
+        document.getElementById('costoRecetaInfo').innerHTML = '<p style="color:#888;">Agregue ingredientes para ver el costo</p>';
+        return;
+      }
+      var html = '';
+      var costoTotal = 0;
+      for (var i = 0; i < recetaActual.length; i++) {
+        var ing = recetaActual[i];
+        costoTotal += (ing.costo || 0);
+        html += '<div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;">';
+        html += '<select class="receta-producto" data-index="' + i + '" style="flex:2;padding:8px;border:1px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(0,0,0,0.3);color:#fff;">';
+        html += '<option value="">Seleccionar...</option>';
+        for (var j = 0; j < productosChefData.length; j++) {
+          var sel = productosChefData[j].id == ing.idProducto ? ' selected' : '';
+          html += '<option value="' + productosChefData[j].id + '"' + sel + '>' + escapeHtml(productosChefData[j].nombre) + '</option>';
+        }
+        html += '</select>';
+        html += '<input type="number" class="receta-cantidad" data-index="' + i + '" value="' + (ing.cantidad || 1) + '" min="0.01" step="0.01" style="flex:1;padding:8px;border:1px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(0,0,0,0.3);color:#fff;" placeholder="Cant">';
+        html += '<span style="flex:0.5;text-align:center;">' + escapeHtml(ing.unidad || '') + '</span>';
+        html += '<span style="flex:0.5;text-align:right;">$' + (ing.costo || 0).toFixed(2) + '</span>';
+        html += '<button onclick="quitarIngrediente(' + i + ')" style="background:#ea4335;border:none;color:#fff;padding:5px 10px;border-radius:8px;cursor:pointer;">X</button>';
+        html += '</div>';
+      }
+      container.innerHTML = html;
+      document.getElementById('costoRecetaInfo').innerHTML = '<strong>Costo total receta: $' + costoTotal.toFixed(2) + '</strong>';
+    }
+
+    function agregarIngrediente() {
+      recetaActual.push({ idProducto: '', producto: '', cantidad: 1, unidad: '', costo: 0 });
+      renderRecetaEditor();
+    }
+
+    function quitarIngrediente(index) {
+      recetaActual.splice(index, 1);
+      renderRecetaEditor();
+    }
+
+    function guardarRecetaActual() {
+      var idPlato = document.getElementById('chefPlatoReceta').value;
+      if (!idPlato) { showToast('Seleccione un plato', 'warning'); return; }
+      var ingredientes = [];
+      var selects = document.querySelectorAll('.receta-producto');
+      var cantidades = document.querySelectorAll('.receta-cantidad');
+      for (var i = 0; i < selects.length; i++) {
+        var idProd = selects[i].value;
+        var cant = parseFloat(cantidades[i].value) || 0;
+        if (!idProd || cant <= 0) continue;
+        var nombreProd = '';
+        var unidadProd = '';
+        for (var j = 0; j < productosChefData.length; j++) {
+          if (productosChefData[j].id == idProd) {
+            nombreProd = productosChefData[j].nombre;
+            unidadProd = productosChefData[j].unidad;
+            break;
+          }
+        }
+        ingredientes.push({ idProducto: parseInt(idProd), nombre: nombreProd, cantidad: cant, unidad: unidadProd });
+      }
+      if (ingredientes.length === 0) { showToast('Agregue al menos un ingrediente', 'warning'); return; }
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Receta guardada. Costo: $' + result.costoTotal.toFixed(2), 'success');
+            cargarRecetaPlato();
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'error'); })
+        .guardarReceta({
+          idPlato: parseInt(idPlato),
+          ingredientes: ingredientes,
+          usuario: currentUser.usuario
+        });
+    }
+
     function mostrarPanel(rol) {
       document.getElementById('loginScreen').classList.add('hidden');
       document.getElementById('mainApp').classList.remove('hidden');
@@ -1238,8 +1830,10 @@
         cargarMesasPorCobrar();
       } else if (rol === 'STOCK') {
         document.getElementById('panelStock').classList.remove('hidden');
+        cargarStockActual();
       } else if (rol === 'CHEF') {
         document.getElementById('panelChef').classList.remove('hidden');
+        cargarPlatosChef();
       } else if (rol === 'ADMIN') {
         document.getElementById('panelAdmin').classList.remove('hidden');
         cargarMesasParaFiltroAdmin();

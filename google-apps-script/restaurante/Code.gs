@@ -1229,6 +1229,30 @@ function actualizarStock(datos) {
   }
 }
 
+function getHistorialStock() {
+  var hoja = getHoja('HistorialStock');
+  if (!hoja) return [];
+  try {
+    var datos = hoja.getDataRange().getValues();
+    var historial = [];
+    for (var i = 1; i < datos.length; i++) {
+      historial.push({
+        fecha: datos[i][0],
+        idProducto: datos[i][1],
+        producto: datos[i][2],
+        tipo: datos[i][3],
+        cantidad: datos[i][4],
+        stockAnterior: datos[i][5],
+        stockNuevo: datos[i][6],
+        usuario: datos[i][7]
+      });
+    }
+    return historial;
+  } catch(e) {
+    return [];
+  }
+}
+
 function agregarProducto(datos) {
   var auth = verificarAutorizacion(datos, 'agregarProducto');
   if (!auth.autorizado) return { success: false, error: auth.error };
