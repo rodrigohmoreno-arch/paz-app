@@ -1,0 +1,3506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Epecuen - Restaurante</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      color: #fff;
+    }
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    .login-container {
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh;
+    }
+    .login-box {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+      width: 100%; max-width: 400px;
+      text-align: center;
+    }
+    .login-box h1 {
+      font-size: 2rem; margin-bottom: 10px;
+      background: linear-gradient(45deg, #fbbc04, #ea4335);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .login-box .subtitle { color: #aaa; margin-bottom: 30px; }
+    .input-group { margin-bottom: 20px; text-align: left; }
+    .input-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: #ccc; }
+    .input-group input {
+      width: 100%; padding: 12px 15px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px; background: rgba(0,0,0,0.3);
+      color: #fff; font-size: 1rem;
+    }
+    .input-group input:focus { outline: none; border-color: #fbbc04; }
+    .btn {
+      width: 100%; padding: 14px;
+      border: none; border-radius: 10px;
+      font-size: 1rem; font-weight: 600; cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background: linear-gradient(45deg, #fbbc04, #ea4335);
+      color: #fff;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(251,188,4,0.3); }
+    .btn-success { background: linear-gradient(45deg, #34a853, #0f9d58); color: #fff; }
+    .btn-danger { background: linear-gradient(45deg, #ea4335, #c5221f); color: #fff; }
+    .btn-info { background: linear-gradient(45deg, #4285f4, #1a73e8); color: #fff; }
+    .btn-warning { background: linear-gradient(45deg, #fbbc04, #f9ab00); color: #000; }
+    .btn-purple { background: linear-gradient(45deg, #9333ea, #7c3aed); color: #fff; }
+    .hidden { display: none !important; }
+    .header {
+      background: rgba(0,0,0,0.3);
+      padding: 15px 30px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .header h2 { font-size: 1.5rem; }
+    .header .user-info { display: flex; align-items: center; gap: 15px; }
+    .rol-badge {
+      padding: 5px 15px; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 600;
+    }
+    .rol-mozo { background: #4285f4; }
+    .rol-caja { background: #34a853; }
+    .rol-stock { background: #fbbc04; color: #000; }
+    .rol-chef { background: #ea4335; }
+    .rol-admin { background: #9333ea; }
+    .card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .card-title {
+      font-size: 1.2rem; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .mesas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 15px;
+    }
+    .mesa-card {
+      padding: 20px; border-radius: 15px;
+      text-align: center; cursor: pointer;
+      transition: all 0.3s; border: 2px solid transparent;
+    }
+    .mesa-card:hover { transform: translateY(-5px); }
+    .mesa-libre { background: rgba(52,168,83,0.2); border-color: #34a853; }
+    .mesa-ocupada { background: rgba(234,67,53,0.2); border-color: #ea4335; }
+    .mesa-cuenta { background: rgba(251,188,4,0.2); border-color: #fbbc04; }
+    .mesa-facturacion { background: rgba(147,51,234,0.2); border-color: #9333ea; }
+    .mesa-nombre { font-size: 1.3rem; font-weight: 700; margin-bottom: 5px; }
+    .mesa-ubicacion { font-size: 0.8rem; color: #aaa; margin-bottom: 10px; }
+    .mesa-estado {
+      padding: 4px 12px; border-radius: 10px;
+      font-size: 0.75rem; font-weight: 600;
+    }
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 1000; padding: 20px;
+    }
+    .modal {
+      background: #1a1a2e;
+      border-radius: 20px;
+      width: 100%; max-width: 700px;
+      max-height: 90vh; overflow-y: auto;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .modal-header {
+      padding: 25px; border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-body { padding: 25px; }
+    .modal-footer {
+      padding: 20px 25px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex; gap: 10px; justify-content: flex-end;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: #ccc; }
+    .form-group select, .form-group input {
+      width: 100%; padding: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px; background: rgba(0,0,0,0.3);
+      color: #fff; font-size: 1rem;
+    }
+    .form-group select option { background: #1a1a2e; color: #fff; }
+    .table-container { overflow-x: auto; }
+    table {
+      width: 100%; border-collapse: collapse;
+      background: rgba(0,0,0,0.2); border-radius: 10px;
+    }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    th { background: rgba(255,255,255,0.1); font-weight: 600; }
+    tr:hover { background: rgba(255,255,255,0.05); }
+    .tabs { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab {
+      padding: 10px 20px; border-radius: 10px;
+      cursor: pointer; background: rgba(255,255,255,0.1);
+      border: none; color: #fff; font-size: 0.9rem;
+    }
+    .tab.active { background: #4285f4; }
+    .text-success { color: #34a853; }
+    .text-danger { color: #ea4335; }
+    .text-warning { color: #fbbc04; }
+    .text-info { color: #4285f4; }
+    .text-purple { color: #9333ea; }
+    .badge {
+      padding: 3px 10px; border-radius: 8px;
+      font-size: 0.75rem; font-weight: 600;
+    }
+    .ticket {
+      background: #fff; color: #000;
+      padding: 20px; border-radius: 10px;
+      font-family: 'Courier New', monospace;
+      max-width: 300px; margin: 0 auto;
+    }
+    .ticket-header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
+    .ticket-line { display: flex; justify-content: space-between; margin: 5px 0; }
+    .ticket-total { border-top: 2px solid #000; padding-top: 10px; margin-top: 10px; font-weight: bold; }
+    @media (max-width: 768px) {
+      .form-row { grid-template-columns: 1fr; }
+      .mesas-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+      .header { flex-direction: column; gap: 10px; text-align: center; }
+    }
+    .loading {
+      display: inline-block; width: 20px; height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%; border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast {
+      position: fixed; bottom: 20px; right: 20px;
+      padding: 15px 25px; border-radius: 10px;
+      color: #fff; font-weight: 600;
+      z-index: 2000; animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    .toast-success { background: #34a853; }
+    .toast-error { background: #ea4335; }
+    .toast-warning { background: #fbbc04; color: #000; }
+    .filtros-admin {
+      display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .filtros-admin .form-group { margin-bottom: 0; flex: 1; min-width: 200px; }
+    .registro-eliminacion {
+      background: rgba(234,67,53,0.1);
+      border-left: 3px solid #ea4335;
+      padding: 10px 15px;
+      margin: 5px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .historial-mesa {
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    .historial-mesa-header {
+      display: flex; justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    /* Login Carhue */
+    .login-carhue .login-box { border-color: rgba(52,168,83,0.4); }
+    .login-carhue .login-box h1 {
+      background: linear-gradient(45deg, #34a853, #0f9d58);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .rol-carhue_recepcion { background: #0f9d58; }
+    .voucher-card {
+      background: rgba(52,168,83,0.1);
+      border: 1px solid rgba(52,168,83,0.3);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 10px;
+    }
+    .voucher-card .voucher-id {
+      font-size: 1.1rem; font-weight: 700; color: #34a853;
+    }
+    .voucher-card .voucher-estado {
+      padding: 3px 10px; border-radius: 8px;
+      font-size: 0.75rem; font-weight: 600;
+      display: inline-block;
+    }
+    .voucher-pendiente { background: #fbbc04; color: #000; }
+    .voucher-usado { background: #4285f4; color: #fff; }
+    .voucher-enviado { background: #34a853; color: #fff; }
+    .listado-card {
+      background: rgba(52,168,83,0.1);
+      border-left: 3px solid #34a853;
+      padding: 15px;
+      margin: 8px 0;
+      border-radius: 0 10px 10px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN RESTAURANTE -->
+  <div id="loginScreen" class="login-container">
+    <div class="login-box">
+      <h1>Hotel Epecuen</h1>
+      <p class="subtitle">Sistema de Restaurante</p>
+      <div class="input-group">
+        <label>Usuario</label>
+        <input type="text" id="loginUser" placeholder="Usuario">
+      </div>
+      <div class="input-group">
+        <label>Contrasena</label>
+        <input type="password" id="loginPass" placeholder="Contrasena">
+      </div>
+      <button class="btn btn-primary" onclick="doLogin()">
+        <span id="loginText">Ingresar</span>
+      </button>
+      <p style="margin-top: 20px;"><a href="#" onclick="mostrarLoginCarhue()" style="color: #34a853; font-size: 0.85rem;">Acceso Hotel Carhue</a></p>
+    </div>
+  </div>
+
+  <!-- LOGIN CARHUE -->
+  <div id="loginCarhue" class="login-container login-carhue hidden">
+    <div class="login-box">
+      <h1>Hotel Carhue</h1>
+      <p class="subtitle">Sistema de Vouchers</p>
+      <div class="input-group">
+        <label>Usuario</label>
+        <input type="text" id="loginCarhueUser" placeholder="Usuario">
+      </div>
+      <div class="input-group">
+        <label>Contrasena</label>
+        <input type="password" id="loginCarhuePass" placeholder="Contrasena">
+      </div>
+      <button class="btn btn-success" onclick="doLoginCarhue()">
+        <span id="loginCarhueText">Ingresar</span>
+      </button>
+      <p style="margin-top: 20px;"><a href="#" onclick="mostrarLoginRestaurante()" style="color: #fbbc04; font-size: 0.85rem;">Volver al Restaurante</a></p>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="mainApp" class="container hidden">
+    <div class="header">
+      <div>
+        <h2>Hotel Epecuen - Restaurante</h2>
+        <span style="color: #aaa; font-size: 0.9rem;">Sistema de Gestion Integral</span>
+      </div>
+      <div class="user-info">
+        <span id="userName">Usuario</span>
+        <span id="userRol" class="rol-badge">ROL</span>
+        <button class="btn btn-danger" style="width: auto; padding: 8px 20px;" onclick="logout()">Salir</button>
+      </div>
+    </div>
+
+    <!-- PANEL MOZO -->
+    <div id="panelMozo" class="panel hidden">
+      <div class="tabs">
+        <button class="tab active" onclick="filtrarMesas('TODAS', this)">Todas</button>
+        <button class="tab" onclick="filtrarMesas('Salon Primer Piso', this)">Primer Piso</button>
+        <button class="tab" onclick="filtrarMesas('Salon Segundo Piso', this)">Segundo Piso</button>
+        <button class="tab" onclick="filtrarMesas('Consumos Externos', this)">Consumos Externos</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Estado de Mesas</div>
+        <div id="mesasGrid" class="mesas-grid"></div>
+      </div>
+    </div>
+
+    <!-- PANEL CAJA -->
+    <div id="panelCaja" class="panel hidden">
+      <div class="tabs">
+        <button class="tab active" onclick="mostrarTabCaja('cobros', this)">Mesas por Cobrar</button>
+        <button class="tab" onclick="mostrarTabCaja('historial', this)">Historial de Cobros</button>
+      </div>
+
+      <div id="tabCobros" class="caja-tab">
+        <div class="card">
+          <div class="card-title">Cobros y Facturacion</div>
+          <div id="mesasPorCobrar" class="mesas-grid"></div>
+        </div>
+      </div>
+
+      <div id="tabHistorial" class="caja-tab hidden">
+        <div class="card">
+          <div class="card-title">Historial de Cobros</div>
+          <div class="filtros-admin">
+            <div class="form-group">
+              <label>Fecha</label>
+              <input type="date" id="filtroFechaCobros" onchange="cargarHistorialCobros()">
+            </div>
+            <div class="form-group">
+              <label>Medio de Pago</label>
+              <select id="filtroMedioPagoCobros" onchange="cargarHistorialCobros()">
+                <option value="">Todos</option>
+                <option value="EFECTIVO">Efectivo</option>
+                <option value="DEBITO">Debito</option>
+                <option value="CREDITO">Credito</option>
+                <option value="TRANSFERENCIA">Transferencia</option>
+              </select>
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+              <button class="btn btn-info" onclick="cargarHistorialCobros()" style="width: auto; padding: 12px 20px;">Actualizar</button>
+            </div>
+          </div>
+          <div id="historialCobrosContainer">
+            <p style="color: #888; text-align: center; padding: 40px;">Seleccione una fecha para ver el historial</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Resumen por Medio de Pago</div>
+          <div id="resumenMediosPago" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <p style="color: #888; text-align: center; grid-column: 1/-1;">Seleccione una fecha para ver el resumen</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL STOCK -->
+    <div id="panelStock" class="panel hidden">
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button class="tab active" onclick="mostrarTabStock('stock', this)">Stock Actual</button>
+        <button class="tab" onclick="mostrarTabStock('faltantes', this)">Faltantes</button>
+        <button class="tab" onclick="mostrarTabStock('ingreso', this)">Ingreso Mercaderia</button>
+        <button class="tab" onclick="mostrarTabStock('nuevoProducto', this)">Nuevo Producto</button>
+        <button class="tab" onclick="mostrarTabStock('historial', this)">Historial</button>
+      </div>
+
+      <!-- TAB STOCK ACTUAL -->
+      <div id="tabStockActual" class="card">
+        <div class="card-title">Stock Actual</div>
+        <div class="form-group" style="max-width:300px;margin-bottom:15px;">
+          <input type="text" id="filtroStockBuscar" placeholder="Buscar producto..." oninput="filtrarTablaStock()">
+        </div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>ID</th><th>Producto</th><th>Sector</th><th>Stock Actual</th><th>Stock Minimo</th><th>Ultima Compra</th><th>Precio Costo</th><th>Estado</th></tr></thead>
+            <tbody id="tbodyStock"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB FALTANTES -->
+      <div id="tabStockFaltantes" class="card hidden">
+        <div class="card-title">Productos Faltantes / Bajo Stock</div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>ID</th><th>Producto</th><th>Stock Actual</th><th>Stock Minimo</th><th>Diferencia</th></tr></thead>
+            <tbody id="tbodyFaltantes"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB INGRESO MERCADERIA -->
+      <div id="tabStockIngreso" class="card hidden">
+        <div class="card-title">Ingreso / Ajuste de Stock</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Producto *</label>
+            <select id="stockProductoSelect">
+              <option value="">Seleccionar producto...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tipo Movimiento *</label>
+            <select id="stockTipoMovimiento">
+              <option value="COMPRA">Compra</option>
+              <option value="AJUSTE_POSITIVO">Ajuste Positivo</option>
+              <option value="AJUSTE_NEGATIVO">Ajuste Negativo</option>
+              <option value="MERMA">Merma / Perdida</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Cantidad *</label>
+            <input type="number" id="stockCantidad" min="1" value="1">
+          </div>
+          <div class="form-group">
+            <label>Nuevo Precio Costo (opcional)</label>
+            <input type="number" id="stockNuevoPrecio" step="0.01" placeholder="Dejar vacio si no cambia">
+          </div>
+        </div>
+        <button class="btn btn-success" onclick="confirmarMovimientoStock()" style="max-width:300px;">Registrar Movimiento</button>
+      </div>
+
+      <!-- TAB NUEVO PRODUCTO -->
+      <div id="tabStockNuevoProducto" class="card hidden">
+        <div class="card-title">Agregar Nuevo Producto</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre *</label>
+            <input type="text" id="npNombre" placeholder="Nombre del producto">
+          </div>
+          <div class="form-group">
+            <label>Categoria *</label>
+            <select id="npCategoria">
+              <option value="Bebidas">Bebidas</option>
+              <option value="Platos Principales">Platos Principales</option>
+              <option value="Entradas">Entradas</option>
+              <option value="Postres">Postres</option>
+              <option value="Cafeteria">Cafeteria</option>
+              <option value="Insumos">Insumos</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Unidad</label>
+            <select id="npUnidad">
+              <option value="Unidad">Unidad</option>
+              <option value="Kg">Kg</option>
+              <option value="Litro">Litro</option>
+              <option value="Botella">Botella</option>
+              <option value="Paquete">Paquete</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Precio Costo *</label>
+            <input type="number" id="npPrecioCosto" step="0.01" min="0" value="0">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Precio Venta *</label>
+            <input type="number" id="npPrecioVenta" step="0.01" min="0" value="0">
+          </div>
+          <div class="form-group">
+            <label>Stock Inicial</label>
+            <input type="number" id="npStockInicial" min="0" value="0">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Stock Minimo</label>
+            <input type="number" id="npStockMinimo" min="0" value="5">
+          </div>
+          <div class="form-group">
+            <label>Sector *</label>
+            <select id="npSector">
+              <option value="COCINA">Cocina</option>
+              <option value="MOSTRADOR">Mostrador (Bebidas)</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-success" onclick="confirmarNuevoProducto()" style="max-width:300px;">Agregar Producto</button>
+      </div>
+
+      <!-- TAB HISTORIAL -->
+      <div id="tabStockHistorial" class="card hidden">
+        <div class="card-title">Historial de Movimientos</div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Stock Anterior</th><th>Stock Nuevo</th><th>Usuario</th></tr></thead>
+            <tbody id="tbodyHistorialStock"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL CHEF -->
+    <div id="panelChef" class="panel hidden">
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button class="tab active" onclick="mostrarTabChef('platos', this)">Platos</button>
+        <button class="tab" onclick="mostrarTabChef('nuevoPlato', this)">Nuevo Plato</button>
+        <button class="tab" onclick="mostrarTabChef('receta', this)">Editar Receta</button>
+      </div>
+
+      <!-- TAB PLATOS -->
+      <div id="tabChefPlatos" class="card">
+        <div class="card-title">Listado de Platos</div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>ID</th><th>Nombre</th><th>Categoria</th><th>Precio Venta</th><th>Costo</th><th>Margen</th><th>Acciones</th></tr></thead>
+            <tbody id="tbodyPlatos"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB NUEVO PLATO -->
+      <div id="tabChefNuevoPlato" class="card hidden">
+        <div class="card-title">Agregar Nuevo Plato</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre del Plato *</label>
+            <input type="text" id="chefNombrePlato" placeholder="Ej: Milanesa Napolitana">
+          </div>
+          <div class="form-group">
+            <label>Categoria *</label>
+            <select id="chefCategoriaPlato">
+              <option value="Platos Principales">Platos Principales</option>
+              <option value="Entradas">Entradas</option>
+              <option value="Postres">Postres</option>
+              <option value="Cafeteria">Cafeteria</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="max-width:300px;">
+          <label>Precio Venta *</label>
+          <input type="number" id="chefPrecioPlato" step="0.01" min="0" value="0">
+        </div>
+        <button class="btn btn-success" onclick="confirmarNuevoPlato()" style="max-width:300px;">Agregar Plato</button>
+      </div>
+
+      <!-- TAB EDITAR RECETA -->
+      <div id="tabChefReceta" class="card hidden">
+        <div class="card-title">Editar Receta</div>
+        <div class="form-group">
+          <label>Seleccionar Plato *</label>
+          <select id="chefPlatoReceta" onchange="cargarRecetaPlato()">
+            <option value="">Seleccionar plato...</option>
+          </select>
+        </div>
+        <div id="recetaEditor" class="hidden">
+          <div class="card-title" style="margin-top:15px;">Ingredientes</div>
+          <div id="recetaIngredientes"></div>
+          <div style="display:flex;gap:10px;margin-top:15px;">
+            <button class="btn btn-info" onclick="agregarIngrediente()" style="width:auto;padding:10px 20px;">+ Agregar Ingrediente</button>
+            <button class="btn btn-success" onclick="guardarRecetaActual()" style="width:auto;padding:10px 20px;">Guardar Receta</button>
+          </div>
+          <div id="costoRecetaInfo" style="margin-top:15px;padding:10px;background:rgba(255,255,255,0.05);border-radius:10px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL ADMIN -->
+    <div id="panelAdmin" class="panel hidden">
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button class="tab active" onclick="mostrarTabAdmin('auditoria', this)">Auditoria</button>
+        <button class="tab" onclick="mostrarTabAdmin('comensales', this)">Comensales</button>
+        <button class="tab" onclick="mostrarTabAdmin('carhue', this)">Hotel Carhue</button>
+        <button class="tab" onclick="mostrarTabAdmin('listadosCarhue', this)">Listados Diarios Carhue</button>
+        <button class="tab" onclick="mostrarTabAdmin('mesas', this)">Mesas</button>
+      </div>
+
+      <!-- TAB AUDITORIA -->
+      <div id="tabAuditoria" class="card">
+        <div class="card-title">Auditoria - Historial de Eliminaciones</div>
+        <div class="filtros-admin">
+          <div class="form-group">
+            <label>Fecha</label>
+            <input type="date" id="filtroFechaEliminaciones" onchange="cargarHistorialEliminaciones()">
+          </div>
+          <div class="form-group">
+            <label>Mesa (opcional)</label>
+            <select id="filtroMesaEliminaciones" onchange="cargarHistorialEliminaciones()">
+              <option value="">Todas las mesas</option>
+            </select>
+          </div>
+          <div style="display: flex; align-items: flex-end;">
+            <button class="btn btn-info" onclick="cargarHistorialEliminaciones()" style="width: auto; padding: 12px 20px;">Actualizar</button>
+          </div>
+        </div>
+        <div id="historialEliminacionesContainer">
+          <p style="color: #888; text-align: center; padding: 40px;">Seleccione una fecha para ver el historial</p>
+        </div>
+      </div>
+
+      <!-- TAB COMENSALES -->
+      <div id="tabComensales" class="card hidden">
+        <div class="card-title">Reporte de Comensales</div>
+        <div class="filtros-admin">
+          <div class="form-group">
+            <label>Fecha</label>
+            <input type="date" id="filtroFechaComensales" onchange="cargarReporteComensales()">
+          </div>
+          <div class="form-group">
+            <label>Tipo Cliente</label>
+            <select id="filtroTipoClienteComensales" onchange="cargarReporteComensales()">
+              <option value="">Todos</option>
+              <option value="EPECUEN_MAP">Epecuen Con MAP</option>
+              <option value="EPECUEN_SIN_MAP">Epecuen Sin MAP</option>
+              <option value="CARHUE">Hotel Carhue</option>
+              <option value="EXTERNO">Consumidor Final</option>
+            </select>
+          </div>
+        </div>
+        <div id="resumenComensales" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+          <p style="color: #888; text-align: center; grid-column: 1/-1;">Seleccione una fecha para ver el resumen</p>
+        </div>
+        <div id="tablaComensalesContainer">
+          <p style="color: #888; text-align: center; padding: 40px;">Seleccione una fecha para ver el reporte</p>
+        </div>
+      </div>
+
+      <!-- TAB CARHUE -->
+      <div id="tabCarhue" class="card hidden">
+        <div class="card-title">Reporte Hotel Carhue</div>
+        <div class="filtros-admin">
+          <div class="form-group">
+            <label>Mes</label>
+            <input type="month" id="filtroMesCarhue" onchange="cargarReporteCarhue()">
+          </div>
+          <div class="form-group">
+            <label>Cliente (opcional)</label>
+            <input type="text" id="filtroClienteCarhue" placeholder="Buscar por nombre...">
+          </div>
+          <div style="display: flex; align-items: flex-end; gap: 10px;">
+            <button class="btn btn-info" onclick="cargarReporteCarhue()" style="width: auto; padding: 12px 20px;">Buscar</button>
+            <button class="btn btn-warning" onclick="imprimirReporteCarhue()" style="width: auto; padding: 12px 20px;">Imprimir</button>
+          </div>
+        </div>
+        <div id="resumenCarhue" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+          <p style="color: #888; text-align: center; grid-column: 1/-1;">Seleccione un mes para ver el resumen</p>
+        </div>
+        <div id="tablaCarhueContainer">
+          <p style="color: #888; text-align: center; padding: 40px;">Seleccione un mes para ver el reporte</p>
+        </div>
+      </div>
+
+      <!-- TAB LISTADOS DIARIOS CARHUE -->
+      <div id="tabListadosCarhue" class="card hidden">
+        <div class="card-title">Listados Diarios - Hotel Carhue</div>
+        <div class="filtros-admin">
+          <div class="form-group">
+            <label>Fecha</label>
+            <input type="date" id="filtroFechaListadoCarhue" onchange="cargarListadosDiariosCarhue()">
+          </div>
+          <div style="display: flex; align-items: flex-end; gap: 10px;">
+            <button class="btn btn-info" onclick="cargarListadosDiariosCarhue()" style="width: auto; padding: 12px 20px;">Buscar</button>
+            <button class="btn btn-warning" onclick="imprimirListadoCarhue()" style="width: auto; padding: 12px 20px;">Imprimir</button>
+            <button class="btn btn-success" onclick="descargarListadoCarhue()" style="width: auto; padding: 12px 20px;">Descargar</button>
+          </div>
+        </div>
+        <div id="listadoCarhueContainer">
+          <p style="color: #888; text-align: center; padding: 40px;">Seleccione una fecha para ver los listados recibidos</p>
+        </div>
+      </div>
+
+      <!-- TAB MESAS (ADMIN) -->
+      <div id="tabAdminMesas" class="card hidden">
+        <div class="card-title">Gestion de Mesas</div>
+        <div style="margin-bottom: 20px; padding: 15px; background: rgba(66,133,244,0.1); border-radius: 10px; border-left: 3px solid #4285f4;">
+          <h4 style="margin: 0 0 10px;">Agregar Nueva Mesa</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre de la Mesa *</label>
+              <input type="text" id="adminNuevaMesaNombre" placeholder="Ej: Mesa 7, Ext 7">
+            </div>
+            <div class="form-group">
+              <label>Ubicacion *</label>
+              <select id="adminNuevaMesaUbicacion">
+                <option value="Salon Primer Piso">Salon Primer Piso</option>
+                <option value="Salon Segundo Piso">Salon Segundo Piso</option>
+                <option value="Consumos Externos">Consumos Externos</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-success" onclick="adminAgregarMesa()" style="max-width: 250px;">Agregar Mesa</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>ID</th><th>Nombre</th><th>Ubicacion</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="tbodyAdminMesas"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARHUE APP (pantalla independiente) -->
+  <div id="carhueApp" class="container hidden">
+    <div class="header" style="border-left: 3px solid #34a853;">
+      <div>
+        <h2>Hotel Carhue - Vouchers</h2>
+        <span style="color: #aaa; font-size: 0.9rem;">Sistema de Gestion de Vouchers</span>
+      </div>
+      <div class="user-info">
+        <span id="carhueUserName"></span>
+        <span class="rol-badge rol-carhue_recepcion" id="carhueUserRol">CARHUE</span>
+        <button class="btn btn-danger" onclick="logoutCarhue()" style="width:auto; padding:8px 20px; font-size:0.85rem;">Salir</button>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+      <button class="tab active" onclick="mostrarTabCarhue('vouchers', this)">Crear Voucher</button>
+      <button class="tab" onclick="mostrarTabCarhue('listado', this)">Vouchers del Dia</button>
+      <button class="tab" onclick="mostrarTabCarhue('enviar', this)">Enviar Listado Diario</button>
+    </div>
+
+    <!-- TAB CREAR VOUCHER -->
+    <div id="tabCarhueVouchers" class="card">
+      <div class="card-title">Nuevo Voucher</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input type="text" id="voucherNombre" placeholder="Nombre del huesped">
+        </div>
+        <div class="form-group">
+          <label>Apellido *</label>
+          <input type="text" id="voucherApellido" placeholder="Apellido del huesped">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nro Habitacion Carhue *</label>
+          <input type="text" id="voucherHabitacion" placeholder="Ej: 201">
+        </div>
+        <div class="form-group">
+          <label>Tipo Pension</label>
+          <select id="voucherTipoPension">
+            <option value="MAP">Media Pension (MAP)</option>
+            <option value="SIN_MAP">Sin MAP</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Cantidad Comensales</label>
+          <input type="number" id="voucherComensales" value="1" min="1">
+        </div>
+        <div class="form-group">
+          <label>Observaciones</label>
+          <input type="text" id="voucherObservaciones" placeholder="Opcional">
+        </div>
+      </div>
+      <button class="btn btn-success" onclick="crearVoucher()" style="max-width: 300px;">Crear Voucher</button>
+    </div>
+
+    <!-- TAB VOUCHERS DEL DIA -->
+    <div id="tabCarhueListado" class="card hidden">
+      <div class="card-title">Vouchers del Dia</div>
+      <div id="vouchersDelDiaContainer">
+        <p style="color: #888; text-align: center; padding: 40px;">Cargando vouchers...</p>
+      </div>
+    </div>
+
+    <!-- TAB ENVIAR LISTADO -->
+    <div id="tabCarhueEnviar" class="card hidden">
+      <div class="card-title">Enviar Listado Diario al Restaurante</div>
+      <p style="color: #aaa; margin-bottom: 15px;">Envia el listado de huespedes con media pension que utilizaran el restaurante hoy. El admin de Hotel Epecuen recibira este listado.</p>
+      <div id="resumenEnvioContainer">
+        <p style="color: #888; text-align: center; padding: 20px;">Cargando resumen...</p>
+      </div>
+      <button class="btn btn-success" onclick="enviarListadoDiario()" style="max-width: 400px; margin-top: 15px;">Enviar Listado al Restaurante Epecuen</button>
+    </div>
+  </div>
+
+  <!-- MODAL ABRIR MESA -->
+  <div id="modalAbrirMesa" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Abrir Mesa</h3>
+        <button onclick="cerrarModal('modalAbrirMesa')" style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Mesa</label>
+            <input type="text" id="abrirMesaNombre" readonly style="background:rgba(255,255,255,0.1);">
+          </div>
+          <div class="form-group">
+            <label>Ubicacion</label>
+            <input type="text" id="abrirMesaUbicacion" readonly style="background:rgba(255,255,255,0.1);">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Tipo de Cliente *</label>
+          <select id="tipoCliente" onchange="cambiarTipoCliente()">
+            <option value="">Seleccionar...</option>
+            <option value="EPECUEN_MAP">Alojado Hotel Epecuen (Con MAP)</option>
+            <option value="EPECUEN_SIN_MAP">Alojado Hotel Epecuen (SIN MAP)</option>
+            <option value="CARHUE">Hotel Carhue</option>
+            <option value="EXTERNO">Consumidor Final</option>
+          </select>
+        </div>
+        <div id="camposEpecuen" class="hidden">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nro Habitacion *</label>
+              <input type="text" id="nroHabitacion" placeholder="Ej: 101">
+            </div>
+            <div class="form-group">
+              <label>Pension</label>
+              <input type="text" id="tipoPension" readonly style="background:rgba(255,255,255,0.1);">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre del Huesped *</label>
+              <input type="text" id="nombreHuesped" placeholder="Nombre">
+            </div>
+            <div class="form-group">
+              <label>Apellido del Huesped *</label>
+              <input type="text" id="apellidoHuesped" placeholder="Apellido">
+            </div>
+          </div>
+        </div>
+        <div id="camposCarhue" class="hidden">
+          <div class="form-group">
+            <label>ID Voucher Carhue *</label>
+            <input type="text" id="voucherCarhue" placeholder="Ingrese ID del voucher">
+            <small style="color: #888; display:block; margin-top:5px;">El cliente debe entregar voucher con nombre, apellido y nro de habitacion de Hotel Carhue</small>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre</label>
+              <input type="text" id="nombreCarhue" placeholder="Nombre">
+            </div>
+            <div class="form-group">
+              <label>Apellido</label>
+              <input type="text" id="apellidoCarhue" placeholder="Apellido">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Nro Habitacion Carhue</label>
+            <input type="text" id="habitacionCarhue" placeholder="Ej: 205">
+          </div>
+        </div>
+        <div id="camposExterno" class="hidden">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre</label>
+              <input type="text" id="nombreExterno" placeholder="Nombre">
+            </div>
+            <div class="form-group">
+              <label>Apellido</label>
+              <input type="text" id="apellidoExterno" placeholder="Apellido">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>CUIT (opcional, para factura)</label>
+              <input type="text" id="cuitExterno" placeholder="Ej: 20-12345678-9">
+            </div>
+            <div class="form-group">
+              <label>Razon Social (opcional)</label>
+              <input type="text" id="razonSocialExterno" placeholder="Ej: Empresa S.A.">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Observaciones</label>
+          <input type="text" id="observacionesMesa" placeholder="Observaciones opcionales">
+        </div>
+        <div class="form-group">
+          <label>Cantidad de Comensales *</label>
+          <input type="number" id="cantidadComensales" value="1" min="1" max="50" placeholder="Ej: 4">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="cerrarModal('modalAbrirMesa')" style="background:rgba(255,255,255,0.1);color:#fff;">Cancelar</button>
+        <button class="btn btn-success" onclick="confirmarAbrirMesa()">Abrir Mesa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CONSUMOS EXTERNOS (Servicio Habitacion + Consumidor Final) -->
+  <div id="modalConsumosExternos" class="modal-overlay hidden">
+    <div class="modal" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3>Consumo Externo - <span id="ceNombreMesa"></span></h3>
+        <button onclick="cerrarModal('modalConsumosExternos')" style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Tipo de Servicio *</label>
+          <select id="ceTipoServicio" onchange="cambiarTipoServicioCE()">
+            <option value="">Seleccionar...</option>
+            <option value="SERVICIO_HABITACION">Servicio a Habitacion (Huesped)</option>
+            <option value="EXTERNO">Consumidor Final</option>
+          </select>
+        </div>
+        <div id="camposCeHabitacion" class="hidden">
+          <div class="form-group">
+            <label>Nro Habitacion *</label>
+            <input type="text" id="ceNroHabitacion" placeholder="Ej: 101">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre del Huesped *</label>
+              <input type="text" id="ceNombreHuesped" placeholder="Nombre">
+            </div>
+            <div class="form-group">
+              <label>Apellido del Huesped *</label>
+              <input type="text" id="ceApellidoHuesped" placeholder="Apellido">
+            </div>
+          </div>
+        </div>
+        <div id="camposCeExterno" class="hidden">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre</label>
+              <input type="text" id="ceNombreExterno" placeholder="Nombre">
+            </div>
+            <div class="form-group">
+              <label>Apellido</label>
+              <input type="text" id="ceApellidoExterno" placeholder="Apellido">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>CUIT (opcional)</label>
+              <input type="text" id="ceCuitExterno" placeholder="Ej: 20-12345678-9">
+            </div>
+            <div class="form-group">
+              <label>Razon Social (opcional)</label>
+              <input type="text" id="ceRazonSocialExterno" placeholder="Ej: Empresa S.A.">
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Cantidad de Comensales *</label>
+            <input type="number" id="ceCantidadComensales" value="1" min="1" max="50">
+          </div>
+          <div class="form-group">
+            <label>Observaciones</label>
+            <input type="text" id="ceObservaciones" placeholder="Opcional">
+          </div>
+        </div>
+        <div style="background: rgba(66,133,244,0.1); padding: 15px; border-radius: 10px; margin-top: 10px; border-left: 3px solid #4285f4;">
+          <p style="font-size: 0.85rem; color: #aaa; margin: 0;">
+            <strong>Nota:</strong> Servicio a Habitacion: al cerrar se imprime ticket para firma del huesped.
+            Consumidor Final: al cerrar se envia a facturacion (CAJA cobra).
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="cerrarModal('modalConsumosExternos')" style="background:rgba(255,255,255,0.1);color:#fff;">Cancelar</button>
+        <button class="btn btn-success" onclick="confirmarConsumoExterno()">Abrir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL COMANDA -->
+  <div id="modalComanda" class="modal-overlay hidden">
+    <div class="modal" style="max-width: 900px;">
+      <div class="modal-header">
+        <div>
+          <h3>Comanda - <span id="comandaMesaNombre"></span></h3>
+          <small id="comandaInfoCliente" style="color: #aaa;"></small>
+        </div>
+        <button onclick="cerrarModal('modalComanda')" style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group" style="flex: 2;">
+            <label>Producto</label>
+            <select id="productoSelect">
+              <option value="">Seleccionar producto...</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label>Cantidad</label>
+            <input type="number" id="cantidadProducto" value="1" min="1">
+          </div>
+          <div style="display: flex; align-items: flex-end;">
+            <button class="btn btn-success" onclick="agregarItem()">Agregar</button>
+          </div>
+        </div>
+        <div class="card" style="background: rgba(0,0,0,0.3);">
+          <div class="card-title">Items de la Comanda</div>
+          <div class="table-container">
+            <table id="tablaComanda">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Precio Unit.</th>
+                  <th>Subtotal</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyComanda"></tbody>
+            </table>
+          </div>
+        </div>
+        <div style="text-align: right; margin-top: 20px; font-size: 1.3rem;">
+          <strong>Total: $<span id="totalComanda">0.00</span></strong>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="cerrarModal('modalComanda')" style="background:rgba(255,255,255,0.1);color:#fff;">Volver</button>
+        <button class="btn btn-info" onclick="imprimirComandaCocina()">Comanda Cocina</button>
+        <button class="btn btn-warning" onclick="imprimirComandaMostrador()">Comanda Bebidas</button>
+        <button class="btn btn-danger" onclick="cerrarMesa()">Cerrar Mesa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL REIMPRIMIR TICKET (PARA CAJA) -->
+  <div id="modalReimprimir" class="modal-overlay hidden">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3>Reimprimir Ticket</h3>
+        <button onclick="cerrarModal('modalReimprimir')" style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align:center;">
+        <p style="margin-bottom:20px;">Mesa: <strong id="reimprimirMesaNombre"></strong></p>
+        <p style="color:#888; margin-bottom:20px; font-size:0.9rem;">Se imprimira el ticket de consumo actual</p>
+        <button class="btn btn-warning" onclick="confirmarReimprimirTicket()" style="width:auto; padding:12px 30px;">
+          <span style="font-size:1.2rem;">🖨️</span> Imprimir Ticket
+        </button>
+      </div>
+      <div class="modal-footer" style="justify-content:center;">
+        <button class="btn" onclick="cerrarModal('modalReimprimir')" style="background:rgba(255,255,255,0.1);color:#fff; width:auto;">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FACTURACION (PARA CAJA) -->
+  <div id="modalFacturacion" class="modal-overlay hidden">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>Facturar Mesa - <span id="facturarMesaNombre"></span></h3>
+        <button onclick="cerrarModal('modalFacturacion')" style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="facturacionInfoCliente" style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px;"></div>
+        <div class="card" style="background: rgba(0,0,0,0.3);">
+          <div class="card-title">Items a Facturar</div>
+          <div class="table-container">
+            <table id="tablaFacturacion">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Precio</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyFacturacion"></tbody>
+            </table>
+          </div>
+        </div>
+        <div style="text-align: right; margin-top: 20px; font-size: 1.3rem;">
+          <strong>Total a Facturar: $<span id="totalFacturacion">0.00</span></strong>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="cerrarModal('modalFacturacion')" style="background:rgba(255,255,255,0.1);color:#fff;">Cancelar</button>
+        <button class="btn btn-success" onclick="confirmarFacturacion()">Confirmar Facturacion</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Funcion para prevenir XSS al insertar texto en HTML
+    function escapeHtml(text) {
+      if (text === null || text === undefined) return '';
+      var div = document.createElement('div');
+      div.textContent = String(text);
+      return div.innerHTML;
+    }
+
+    // CSS optimizado para impresora termica 80mm (72mm area imprimible)
+    function getTicketCSS80mm() {
+      return '@page{margin:0;size:80mm auto;}' +
+        '*{margin:0;padding:0;box-sizing:border-box;}' +
+        'body{font-family:"Courier New",Courier,monospace;font-size:12px;width:72mm;max-width:72mm;margin:0 auto;padding:2mm;line-height:1.3;color:#000;}' +
+        'h2{font-size:16px;margin:0;}' +
+        'p{margin:2px 0;}' +
+        'hr{border:none;border-top:1px dashed #000;margin:4px 0;}' +
+        '.header{text-align:center;padding-bottom:4px;margin-bottom:4px;border-bottom:1px dashed #000;}' +
+        '.header h2{margin-bottom:2px;}' +
+        '.line{display:flex;justify-content:space-between;margin:2px 0;font-size:12px;}' +
+        '.line span:first-child{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:4px;}' +
+        '.line span:last-child{white-space:nowrap;text-align:right;}' +
+        '.total{border-top:1px solid #000;padding-top:4px;margin-top:4px;font-weight:bold;}' +
+        '.total .line{font-size:14px;}' +
+        '.info{margin:4px 0;padding:4px 0;border-top:1px dashed #000;font-size:11px;}' +
+        '.info p{margin:1px 0;}' +
+        '.footer{margin-top:6px;text-align:center;font-size:10px;border-top:1px dashed #000;padding-top:4px;}' +
+        '.reprint{text-align:center;font-size:11px;margin:2px 0;font-weight:bold;}' +
+        '.firma{margin-top:10px;border-top:1px solid #000;padding-top:4px;text-align:center;font-size:11px;}' +
+        '.firma p{margin:2px 0;}' +
+        '.cliente-info{margin:4px 0;padding:4px;border:1px dashed #000;font-size:11px;}' +
+        '.cliente-info p{margin:1px 0;}';
+    }
+
+    // Imprimir HTML via iframe oculto
+    function imprimirHTML(html, callback) {
+      var iframe = document.createElement('iframe');
+      iframe.style.position = 'absolute';
+      iframe.style.left = '-9999px';
+      iframe.style.width = '1px';
+      iframe.style.height = '1px';
+      document.body.appendChild(iframe);
+      var doc = iframe.contentWindow.document;
+      doc.open();
+      doc.write(html);
+      doc.close();
+      setTimeout(function() {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        setTimeout(function() {
+          document.body.removeChild(iframe);
+          if (callback) callback();
+        }, 1000);
+      }, 500);
+    }
+
+    var currentUser = null;
+    var mesasData = [];
+    var productosData = [];
+    var comandaActual = [];
+    var mesaSeleccionada = null;
+    var ubicacionFiltro = 'TODAS';
+    var comandaActivaId = null;
+    var mesaPorFacturar = null;
+    var ticketComandaImpreso = false;
+
+    function doLogin() {
+      var user = document.getElementById('loginUser').value;
+      var pass = document.getElementById('loginPass').value;
+      var btn = document.getElementById('loginText');
+      btn.innerHTML = '<span class="loading"></span>';
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            currentUser = result;
+            mostrarPanel(result.rol);
+          } else {
+            showToast(result.error, 'error');
+            btn.textContent = 'Ingresar';
+          }
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error de conexion: ' + error.message, 'error');
+          btn.textContent = 'Ingresar';
+        })
+        .login(user, pass);
+    }
+
+    function logout() {
+      currentUser = null;
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('mainApp').classList.add('hidden');
+      document.getElementById('carhueApp').classList.add('hidden');
+      var panels = document.querySelectorAll('.panel');
+      for (var i = 0; i < panels.length; i++) {
+        panels[i].classList.add('hidden');
+      }
+      var btn = document.getElementById('loginText');
+      if (btn) btn.textContent = 'Ingresar';
+      document.getElementById('loginUser').value = '';
+      document.getElementById('loginPass').value = '';
+    }
+
+    // === LOGIN CARHUE ===
+    function mostrarLoginCarhue() {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('loginCarhue').classList.remove('hidden');
+    }
+    function mostrarLoginRestaurante() {
+      document.getElementById('loginCarhue').classList.add('hidden');
+      document.getElementById('loginScreen').classList.remove('hidden');
+    }
+    function doLoginCarhue() {
+      var user = document.getElementById('loginCarhueUser').value;
+      var pass = document.getElementById('loginCarhuePass').value;
+      var btn = document.getElementById('loginCarhueText');
+      btn.innerHTML = '<span class="loading"></span>';
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success && result.rol === 'CARHUE_RECEPCION') {
+            currentUser = result;
+            document.getElementById('loginCarhue').classList.add('hidden');
+            document.getElementById('carhueApp').classList.remove('hidden');
+            document.getElementById('carhueUserName').textContent = result.nombre;
+            cargarVouchersDelDia();
+            cargarResumenEnvio();
+          } else if (result.success && result.rol !== 'CARHUE_RECEPCION') {
+            showToast('Este acceso es solo para usuarios Hotel Carhue', 'error');
+            btn.textContent = 'Ingresar';
+          } else {
+            showToast(result.error, 'error');
+            btn.textContent = 'Ingresar';
+          }
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error de conexion: ' + error.message, 'error');
+          btn.textContent = 'Ingresar';
+        })
+        .login(user, pass);
+    }
+    function logoutCarhue() {
+      currentUser = null;
+      document.getElementById('carhueApp').classList.add('hidden');
+      document.getElementById('loginCarhue').classList.remove('hidden');
+      document.getElementById('loginCarhueUser').value = '';
+      document.getElementById('loginCarhuePass').value = '';
+      var btn = document.getElementById('loginCarhueText');
+      if (btn) btn.textContent = 'Ingresar';
+    }
+
+    // === CARHUE TABS ===
+    function mostrarTabCarhue(tab, btn) {
+      var tabs = document.querySelectorAll('#carhueApp .tab');
+      for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+      if (btn) btn.classList.add('active');
+      document.getElementById('tabCarhueVouchers').classList.add('hidden');
+      document.getElementById('tabCarhueListado').classList.add('hidden');
+      document.getElementById('tabCarhueEnviar').classList.add('hidden');
+      if (tab === 'vouchers') {
+        document.getElementById('tabCarhueVouchers').classList.remove('hidden');
+      } else if (tab === 'listado') {
+        document.getElementById('tabCarhueListado').classList.remove('hidden');
+        cargarVouchersDelDia();
+      } else if (tab === 'enviar') {
+        document.getElementById('tabCarhueEnviar').classList.remove('hidden');
+        cargarResumenEnvio();
+      }
+    }
+
+    // === CREAR VOUCHER ===
+    function crearVoucher() {
+      var nombre = document.getElementById('voucherNombre').value.trim();
+      var apellido = document.getElementById('voucherApellido').value.trim();
+      var habitacion = document.getElementById('voucherHabitacion').value.trim();
+      var tipoPension = document.getElementById('voucherTipoPension').value;
+      var comensales = parseInt(document.getElementById('voucherComensales').value) || 1;
+      var observaciones = document.getElementById('voucherObservaciones').value.trim();
+      if (!nombre) { showToast('Ingrese el nombre', 'warning'); return; }
+      if (!apellido) { showToast('Ingrese el apellido', 'warning'); return; }
+      if (!habitacion) { showToast('Ingrese nro de habitacion', 'warning'); return; }
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Voucher #' + result.idVoucher + ' creado', 'success');
+            document.getElementById('voucherNombre').value = '';
+            document.getElementById('voucherApellido').value = '';
+            document.getElementById('voucherHabitacion').value = '';
+            document.getElementById('voucherComensales').value = '1';
+            document.getElementById('voucherObservaciones').value = '';
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error: ' + error.message, 'error');
+        })
+        .crearVoucherCarhue({
+          nombre: nombre,
+          apellido: apellido,
+          habitacion: habitacion,
+          tipoPension: tipoPension,
+          comensales: comensales,
+          observaciones: observaciones,
+          usuario: currentUser.usuario
+        });
+    }
+
+    // === VOUCHERS DEL DIA ===
+    function cargarVouchersDelDia() {
+      var container = document.getElementById('vouchersDelDiaContainer');
+      container.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Cargando...</p>';
+      google.script.run
+        .withSuccessHandler(function(vouchers) {
+          if (!vouchers || vouchers.length === 0) {
+            container.innerHTML = '<p style="color:#888;text-align:center;padding:40px;">No hay vouchers creados hoy</p>';
+            return;
+          }
+          var html = '';
+          for (var i = 0; i < vouchers.length; i++) {
+            var v = vouchers[i];
+            var estadoClass = v.estado === 'PENDIENTE' ? 'voucher-pendiente' : v.estado === 'USADO' ? 'voucher-usado' : 'voucher-enviado';
+            html += '<div class="voucher-card">';
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+            html += '<span class="voucher-id">Voucher #' + v.id + '</span>';
+            html += '<span class="voucher-estado ' + estadoClass + '">' + escapeHtml(v.estado) + '</span>';
+            html += '</div>';
+            html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:0.9rem;">';
+            html += '<div><strong>Huesped:</strong> ' + escapeHtml(v.nombre) + ' ' + escapeHtml(v.apellido) + '</div>';
+            html += '<div><strong>Hab Carhue:</strong> ' + escapeHtml(v.habitacion) + '</div>';
+            html += '<div><strong>Pension:</strong> ' + escapeHtml(v.tipoPension) + '</div>';
+            html += '<div><strong>Comensales:</strong> ' + v.comensales + '</div>';
+            if (v.observaciones) html += '<div style="grid-column:1/-1;"><strong>Obs:</strong> ' + escapeHtml(v.observaciones) + '</div>';
+            html += '</div></div>';
+          }
+          container.innerHTML = html;
+        })
+        .withFailureHandler(function(error) {
+          container.innerHTML = '<p style="color:#ea4335;text-align:center;">Error: ' + escapeHtml(error.message) + '</p>';
+        })
+        .getVouchersDelDia();
+    }
+
+    // === RESUMEN ENVIO ===
+    function cargarResumenEnvio() {
+      var container = document.getElementById('resumenEnvioContainer');
+      container.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Cargando...</p>';
+      google.script.run
+        .withSuccessHandler(function(vouchers) {
+          if (!vouchers || vouchers.length === 0) {
+            container.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">No hay vouchers para enviar hoy. Cree vouchers primero.</p>';
+            return;
+          }
+          var html = '<table><thead><tr><th>Voucher</th><th>Huesped</th><th>Hab</th><th>Pension</th><th>Comensales</th><th>Estado</th></tr></thead><tbody>';
+          for (var i = 0; i < vouchers.length; i++) {
+            var v = vouchers[i];
+            html += '<tr>';
+            html += '<td>#' + v.id + '</td>';
+            html += '<td>' + escapeHtml(v.nombre) + ' ' + escapeHtml(v.apellido) + '</td>';
+            html += '<td>' + escapeHtml(v.habitacion) + '</td>';
+            html += '<td>' + escapeHtml(v.tipoPension) + '</td>';
+            html += '<td>' + v.comensales + '</td>';
+            html += '<td>' + escapeHtml(v.estado) + '</td>';
+            html += '</tr>';
+          }
+          html += '</tbody></table>';
+          container.innerHTML = html;
+        })
+        .withFailureHandler(function(error) {
+          container.innerHTML = '<p style="color:#ea4335;">Error: ' + escapeHtml(error.message) + '</p>';
+        })
+        .getVouchersDelDia();
+    }
+
+    // === ENVIAR LISTADO DIARIO ===
+    function enviarListadoDiario() {
+      if (!confirm('Enviar el listado de vouchers de hoy al restaurante Hotel Epecuen?')) return;
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Listado enviado correctamente (' + result.cantidad + ' huespedes)', 'success');
+            cargarVouchersDelDia();
+            cargarResumenEnvio();
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error: ' + error.message, 'error');
+        })
+        .enviarListadoDiarioCarhue({ usuario: currentUser.usuario });
+    }
+
+    // === ADMIN: LISTADOS DIARIOS CARHUE ===
+    var listadoCarhueData = [];
+    function cargarListadosDiariosCarhue() {
+      var fecha = document.getElementById('filtroFechaListadoCarhue').value;
+      if (!fecha) { showToast('Seleccione una fecha', 'warning'); return; }
+      var container = document.getElementById('listadoCarhueContainer');
+      container.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Cargando...</p>';
+      google.script.run
+        .withSuccessHandler(function(listados) {
+          listadoCarhueData = listados || [];
+          if (!listados || listados.length === 0) {
+            container.innerHTML = '<p style="color:#888;text-align:center;padding:40px;">No se recibieron listados para esta fecha</p>';
+            return;
+          }
+          var html = '<table><thead><tr><th>#</th><th>Voucher</th><th>Huesped</th><th>Hab Carhue</th><th>Pension</th><th>Comensales</th><th>Estado</th></tr></thead><tbody>';
+          for (var i = 0; i < listados.length; i++) {
+            var l = listados[i];
+            html += '<tr>';
+            html += '<td>' + (i + 1) + '</td>';
+            html += '<td>#' + l.idVoucher + '</td>';
+            html += '<td>' + escapeHtml(l.nombre) + ' ' + escapeHtml(l.apellido) + '</td>';
+            html += '<td>' + escapeHtml(l.habitacion) + '</td>';
+            html += '<td>' + escapeHtml(l.tipoPension) + '</td>';
+            html += '<td>' + l.comensales + '</td>';
+            html += '<td>' + escapeHtml(l.estado) + '</td>';
+            html += '</tr>';
+          }
+          html += '</tbody></table>';
+          container.innerHTML = html;
+        })
+        .withFailureHandler(function(error) {
+          container.innerHTML = '<p style="color:#ea4335;">Error: ' + escapeHtml(error.message) + '</p>';
+        })
+        .getListadosDiariosCarhue(fecha);
+    }
+
+    function imprimirListadoCarhue() {
+      if (!listadoCarhueData || listadoCarhueData.length === 0) {
+        showToast('No hay datos para imprimir', 'warning'); return;
+      }
+      var fecha = document.getElementById('filtroFechaListadoCarhue').value;
+      var html = '<html><head><title>Listado Carhue - ' + fecha + '</title>';
+      html += '<style>' + getTicketCSS80mm();
+      html += 'table{width:100%;border-collapse:collapse;font-size:10px;}th,td{padding:3px 2px;border-bottom:1px solid #000;text-align:left;}th{font-weight:bold;border-bottom:2px solid #000;}';
+      html += '</style></head><body>';
+      html += '<div class="header"><h2>Hotel Epecuen</h2><p>Listado Diario Carhue</p><p>' + fecha + '</p></div>';
+      html += '<table><thead><tr><th>Voucher</th><th>Huesped</th><th>Hab</th><th>Pension</th><th>Com</th></tr></thead><tbody>';
+      for (var i = 0; i < listadoCarhueData.length; i++) {
+        var l = listadoCarhueData[i];
+        html += '<tr><td>#' + l.idVoucher + '</td><td>' + escapeHtml(l.nombre) + ' ' + escapeHtml(l.apellido) + '</td><td>' + escapeHtml(l.habitacion) + '</td><td>' + escapeHtml(l.tipoPension) + '</td><td>' + l.comensales + '</td></tr>';
+      }
+      html += '</tbody></table>';
+      var totalCom = 0;
+      for (var j = 0; j < listadoCarhueData.length; j++) totalCom += (listadoCarhueData[j].comensales || 1);
+      html += '<div class="total"><p>Total huespedes: ' + listadoCarhueData.length + ' | Total comensales: ' + totalCom + '</p></div>';
+      html += '</body></html>';
+      imprimirHTML(html);
+    }
+
+    function descargarListadoCarhue() {
+      if (!listadoCarhueData || listadoCarhueData.length === 0) {
+        showToast('No hay datos para descargar', 'warning'); return;
+      }
+      var fecha = document.getElementById('filtroFechaListadoCarhue').value;
+      var csv = 'Voucher,Nombre,Apellido,Habitacion,Pension,Comensales,Estado\n';
+      for (var i = 0; i < listadoCarhueData.length; i++) {
+        var l = listadoCarhueData[i];
+        csv += l.idVoucher + ',' + l.nombre + ',' + l.apellido + ',' + l.habitacion + ',' + l.tipoPension + ',' + l.comensales + ',' + l.estado + '\n';
+      }
+      var blob = new Blob([csv], { type: 'text/csv' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'listado-carhue-' + fecha + '.csv';
+      a.click();
+    }
+
+    // === PANEL STOCK ===
+    var stockData = [];
+    function mostrarTabStock(tab, btn) {
+      var tabs = document.querySelectorAll('#panelStock .tab');
+      for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+      if (btn) btn.classList.add('active');
+      document.getElementById('tabStockActual').classList.add('hidden');
+      document.getElementById('tabStockFaltantes').classList.add('hidden');
+      document.getElementById('tabStockIngreso').classList.add('hidden');
+      document.getElementById('tabStockNuevoProducto').classList.add('hidden');
+      document.getElementById('tabStockHistorial').classList.add('hidden');
+      if (tab === 'stock') {
+        document.getElementById('tabStockActual').classList.remove('hidden');
+        cargarStockActual();
+      } else if (tab === 'faltantes') {
+        document.getElementById('tabStockFaltantes').classList.remove('hidden');
+        cargarFaltantes();
+      } else if (tab === 'ingreso') {
+        document.getElementById('tabStockIngreso').classList.remove('hidden');
+        cargarSelectProductosStock();
+      } else if (tab === 'nuevoProducto') {
+        document.getElementById('tabStockNuevoProducto').classList.remove('hidden');
+      } else if (tab === 'historial') {
+        document.getElementById('tabStockHistorial').classList.remove('hidden');
+        cargarHistorialStock();
+      }
+    }
+
+    function cargarStockActual() {
+      var tbody = document.getElementById('tbodyStock');
+      if (!tbody) { console.error('tbodyStock no encontrado'); return; }
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#888;">Cargando stock...</td></tr>';
+      google.script.run
+        .withSuccessHandler(function(data) {
+          console.log('Stock recibido:', JSON.stringify(data ? data.length : 'null'));
+          if (data === null || data === undefined) {
+            tbody.innerHTML = '<tr><td colspan="8" style="color:#ea4335;">Error: servidor retorno null. Verifique la hoja Stock.</td></tr>';
+            return;
+          }
+          stockData = data || [];
+          renderStockTable(stockData);
+        })
+        .withFailureHandler(function(e) {
+          console.error('Error cargando stock:', e);
+          var msg = (e && e.message) ? e.message : (e ? String(e) : 'Error desconocido');
+          tbody.innerHTML = '<tr><td colspan="8" style="color:#ea4335;">Error al cargar stock: ' + escapeHtml(msg) + '</td></tr>';
+        })
+        .getStock();
+    }
+
+    function renderStockTable(data) {
+      var tbody = document.getElementById('tbodyStock');
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#888;">No hay productos en stock</td></tr>';
+        return;
+      }
+      var html = '';
+      for (var i = 0; i < data.length; i++) {
+        try {
+          var s = data[i];
+          var stockActual = parseFloat(s.stockActual) || 0;
+          var stockMinimo = parseFloat(s.stockMinimo) || 0;
+          var bajo = stockActual <= stockMinimo;
+          var estadoHtml = bajo ? '<span style="color:#ea4335;font-weight:600;">BAJO</span>' : '<span style="color:#34a853;">OK</span>';
+          var fechaCompra = '-';
+          try { if (s.ultimaCompra) fechaCompra = new Date(s.ultimaCompra).toLocaleDateString(); } catch(fe) {}
+          var precio = parseFloat(s.precioCosto) || 0;
+          var sectorColor = s.sector === 'MOSTRADOR' ? '#fbbc04' : '#4285f4';
+          html += '<tr style="' + (bajo ? 'background:rgba(234,67,53,0.1);' : '') + '">';
+          html += '<td>' + (s.idProducto || '') + '</td>';
+          html += '<td>' + escapeHtml(s.producto || '') + '</td>';
+          html += '<td style="color:' + sectorColor + ';font-weight:600;">' + escapeHtml(s.sector || '') + '</td>';
+          html += '<td style="font-weight:600;' + (bajo ? 'color:#ea4335;' : '') + '">' + stockActual + '</td>';
+          html += '<td>' + stockMinimo + '</td>';
+          html += '<td>' + fechaCompra + '</td>';
+          html += '<td>$' + precio.toFixed(2) + '</td>';
+          html += '<td>' + estadoHtml + '</td></tr>';
+        } catch(rowErr) {
+          html += '<tr><td colspan="8" style="color:#ea4335;">Error en fila ' + (i+1) + '</td></tr>';
+        }
+      }
+      tbody.innerHTML = html;
+    }
+
+    function filtrarTablaStock() {
+      var filtro = document.getElementById('filtroStockBuscar').value.toLowerCase();
+      if (!filtro) { renderStockTable(stockData); return; }
+      var filtrados = stockData.filter(function(s) { return s.producto.toLowerCase().indexOf(filtro) !== -1; });
+      renderStockTable(filtrados);
+    }
+
+    function cargarFaltantes() {
+      var tbody = document.getElementById('tbodyFaltantes');
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#888;">Cargando...</td></tr>';
+      google.script.run
+        .withSuccessHandler(function(data) {
+          if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#888;">No hay productos faltantes</td></tr>';
+            return;
+          }
+          var html = '';
+          for (var i = 0; i < data.length; i++) {
+            var s = data[i];
+            html += '<tr style="background:rgba(234,67,53,0.1);">';
+            html += '<td>' + s.idProducto + '</td>';
+            html += '<td>' + escapeHtml(s.producto) + '</td>';
+            html += '<td style="color:#ea4335;font-weight:600;">' + s.stockActual + '</td>';
+            html += '<td>' + s.stockMinimo + '</td>';
+            html += '<td style="color:#ea4335;">' + (s.stockActual - s.stockMinimo) + '</td></tr>';
+          }
+          tbody.innerHTML = html;
+        })
+        .withFailureHandler(function(e) { tbody.innerHTML = '<tr><td colspan="5" style="color:#ea4335;">Error</td></tr>'; })
+        .getFaltantes();
+    }
+
+    function cargarSelectProductosStock() {
+      var sel = document.getElementById('stockProductoSelect');
+      if (sel.options.length > 1) return;
+      google.script.run
+        .withSuccessHandler(function(data) {
+          sel.innerHTML = '<option value="">Seleccionar producto...</option>';
+          for (var i = 0; i < data.length; i++) {
+            sel.innerHTML += '<option value="' + data[i].idProducto + '">' + escapeHtml(data[i].producto) + ' [' + (data[i].sector || '') + '] (Stock: ' + data[i].stockActual + ')</option>';
+          }
+        })
+        .getStock();
+    }
+
+    function confirmarMovimientoStock() {
+      var idProducto = document.getElementById('stockProductoSelect').value;
+      var tipoMov = document.getElementById('stockTipoMovimiento').value;
+      var cantidad = parseInt(document.getElementById('stockCantidad').value) || 0;
+      var nuevoPrecio = parseFloat(document.getElementById('stockNuevoPrecio').value) || null;
+      if (!idProducto) { showToast('Seleccione un producto', 'warning'); return; }
+      if (cantidad <= 0) { showToast('Ingrese una cantidad valida', 'warning'); return; }
+      var cantidadFinal = cantidad;
+      if (tipoMov === 'AJUSTE_NEGATIVO' || tipoMov === 'MERMA') cantidadFinal = -cantidad;
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Stock actualizado. Nuevo stock: ' + result.stockNuevo, 'success');
+            document.getElementById('stockCantidad').value = '1';
+            document.getElementById('stockNuevoPrecio').value = '';
+            document.getElementById('stockProductoSelect').options.length = 1;
+            cargarSelectProductosStock();
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'error'); })
+        .actualizarStock({
+          idProducto: parseInt(idProducto),
+          tipoMovimiento: tipoMov,
+          cantidad: cantidadFinal,
+          nuevoPrecio: nuevoPrecio,
+          usuario: currentUser.usuario
+        });
+    }
+
+    function confirmarNuevoProducto() {
+      var nombre = document.getElementById('npNombre').value.trim();
+      var categoria = document.getElementById('npCategoria').value;
+      var unidad = document.getElementById('npUnidad').value;
+      var precioCosto = parseFloat(document.getElementById('npPrecioCosto').value) || 0;
+      var precioVenta = parseFloat(document.getElementById('npPrecioVenta').value) || 0;
+      var stockInicial = parseInt(document.getElementById('npStockInicial').value) || 0;
+      var stockMinimo = parseInt(document.getElementById('npStockMinimo').value) || 5;
+      var sector = document.getElementById('npSector').value;
+      if (!nombre) { showToast('Ingrese nombre del producto', 'warning'); return; }
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Producto #' + result.idProducto + ' agregado', 'success');
+            document.getElementById('npNombre').value = '';
+            document.getElementById('npPrecioCosto').value = '0';
+            document.getElementById('npPrecioVenta').value = '0';
+            document.getElementById('npStockInicial').value = '0';
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'error'); })
+        .agregarProducto({
+          nombre: nombre,
+          categoria: categoria,
+          unidad: unidad,
+          precioCosto: precioCosto,
+          precioVenta: precioVenta,
+          stockInicial: stockInicial,
+          stockMinimo: stockMinimo,
+          sector: sector,
+          usuario: currentUser.usuario
+        });
+    }
+
+    function cargarHistorialStock() {
+      var tbody = document.getElementById('tbodyHistorialStock');
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">Cargando...</td></tr>';
+      google.script.run
+        .withSuccessHandler(function(data) {
+          if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">No hay movimientos registrados</td></tr>';
+            return;
+          }
+          var html = '';
+          for (var i = data.length - 1; i >= 0; i--) {
+            var h = data[i];
+            html += '<tr>';
+            html += '<td>' + (h.fecha ? new Date(h.fecha).toLocaleString() : '-') + '</td>';
+            html += '<td>' + escapeHtml(h.producto) + '</td>';
+            html += '<td>' + escapeHtml(h.tipo) + '</td>';
+            html += '<td style="color:' + (h.cantidad >= 0 ? '#34a853' : '#ea4335') + ';font-weight:600;">' + (h.cantidad >= 0 ? '+' : '') + h.cantidad + '</td>';
+            html += '<td>' + h.stockAnterior + '</td>';
+            html += '<td>' + h.stockNuevo + '</td>';
+            html += '<td>' + escapeHtml(h.usuario) + '</td></tr>';
+          }
+          tbody.innerHTML = html;
+        })
+        .withFailureHandler(function(e) { tbody.innerHTML = '<tr><td colspan="7" style="color:#ea4335;">Error</td></tr>'; })
+        .getHistorialStock();
+    }
+
+    // === PANEL CHEF ===
+    var platosChefData = [];
+    var productosChefData = [];
+    var recetaActual = [];
+
+    function mostrarTabChef(tab, btn) {
+      var tabs = document.querySelectorAll('#panelChef .tab');
+      for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+      if (btn) btn.classList.add('active');
+      document.getElementById('tabChefPlatos').classList.add('hidden');
+      document.getElementById('tabChefNuevoPlato').classList.add('hidden');
+      document.getElementById('tabChefReceta').classList.add('hidden');
+      if (tab === 'platos') {
+        document.getElementById('tabChefPlatos').classList.remove('hidden');
+        cargarPlatosChef();
+      } else if (tab === 'nuevoPlato') {
+        document.getElementById('tabChefNuevoPlato').classList.remove('hidden');
+      } else if (tab === 'receta') {
+        document.getElementById('tabChefReceta').classList.remove('hidden');
+        cargarSelectPlatosReceta();
+        cargarProductosParaReceta();
+      }
+    }
+
+    function cargarPlatosChef() {
+      var tbody = document.getElementById('tbodyPlatos');
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">Cargando...</td></tr>';
+      google.script.run
+        .withSuccessHandler(function(data) {
+          platosChefData = data || [];
+          if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">No hay platos</td></tr>';
+            return;
+          }
+          var html = '';
+          for (var i = 0; i < data.length; i++) {
+            var p = data[i];
+            var margenColor = p.margen >= 50 ? '#34a853' : p.margen >= 30 ? '#fbbc04' : '#ea4335';
+            html += '<tr>';
+            html += '<td>' + p.id + '</td>';
+            html += '<td>' + escapeHtml(p.nombre) + '</td>';
+            html += '<td>' + escapeHtml(p.categoria) + '</td>';
+            html += '<td>$' + (p.precioVenta || 0).toFixed(2) + '</td>';
+            html += '<td>$' + (p.costoTotal || 0).toFixed(2) + '</td>';
+            html += '<td style="color:' + margenColor + ';font-weight:600;">' + (p.margen || 0) + '%</td>';
+            html += '<td><button class="btn btn-info" onclick="verRecetaDesdeListado(' + p.id + ')" style="width:auto;padding:5px 12px;font-size:0.8rem;">Ver Receta</button></td>';
+            html += '</tr>';
+          }
+          tbody.innerHTML = html;
+        })
+        .withFailureHandler(function(e) { tbody.innerHTML = '<tr><td colspan="7" style="color:#ea4335;">Error</td></tr>'; })
+        .getPlatos();
+    }
+
+    function verRecetaDesdeListado(idPlato) {
+      var tabs = document.querySelectorAll('#panelChef .tab');
+      for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+      tabs[2].classList.add('active');
+      document.getElementById('tabChefPlatos').classList.add('hidden');
+      document.getElementById('tabChefNuevoPlato').classList.add('hidden');
+      document.getElementById('tabChefReceta').classList.remove('hidden');
+      cargarSelectPlatosReceta(function() {
+        document.getElementById('chefPlatoReceta').value = idPlato;
+        cargarRecetaPlato();
+      });
+      cargarProductosParaReceta();
+    }
+
+    function confirmarNuevoPlato() {
+      var nombre = document.getElementById('chefNombrePlato').value.trim();
+      var categoria = document.getElementById('chefCategoriaPlato').value;
+      var precio = parseFloat(document.getElementById('chefPrecioPlato').value) || 0;
+      if (!nombre) { showToast('Ingrese nombre del plato', 'warning'); return; }
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Plato #' + result.idPlato + ' agregado', 'success');
+            document.getElementById('chefNombrePlato').value = '';
+            document.getElementById('chefPrecioPlato').value = '0';
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'error'); })
+        .agregarPlato({
+          nombre: nombre,
+          categoria: categoria,
+          precioVenta: precio,
+          usuario: currentUser.usuario
+        });
+    }
+
+    function cargarSelectPlatosReceta(callback) {
+      var sel = document.getElementById('chefPlatoReceta');
+      google.script.run
+        .withSuccessHandler(function(data) {
+          sel.innerHTML = '<option value="">Seleccionar plato...</option>';
+          for (var i = 0; i < data.length; i++) {
+            sel.innerHTML += '<option value="' + data[i].id + '">' + escapeHtml(data[i].nombre) + '</option>';
+          }
+          if (callback) callback();
+        })
+        .getPlatos();
+    }
+
+    function cargarProductosParaReceta() {
+      google.script.run
+        .withSuccessHandler(function(data) { productosChefData = data || []; })
+        .getProductos();
+    }
+
+    function cargarRecetaPlato() {
+      var idPlato = document.getElementById('chefPlatoReceta').value;
+      if (!idPlato) {
+        document.getElementById('recetaEditor').classList.add('hidden');
+        return;
+      }
+      document.getElementById('recetaEditor').classList.remove('hidden');
+      google.script.run
+        .withSuccessHandler(function(data) {
+          recetaActual = data || [];
+          renderRecetaEditor();
+        })
+        .getReceta(parseInt(idPlato));
+    }
+
+    function renderRecetaEditor() {
+      var container = document.getElementById('recetaIngredientes');
+      if (recetaActual.length === 0) {
+        container.innerHTML = '<p style="color:#888;">No hay ingredientes. Agregue ingredientes a la receta.</p>';
+        document.getElementById('costoRecetaInfo').innerHTML = '<p style="color:#888;">Agregue ingredientes para ver el costo</p>';
+        return;
+      }
+      var html = '';
+      var costoTotal = 0;
+      for (var i = 0; i < recetaActual.length; i++) {
+        var ing = recetaActual[i];
+        costoTotal += (ing.costo || 0);
+        html += '<div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;">';
+        html += '<select class="receta-producto" data-index="' + i + '" style="flex:2;padding:8px;border:1px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(0,0,0,0.3);color:#fff;">';
+        html += '<option value="">Seleccionar...</option>';
+        for (var j = 0; j < productosChefData.length; j++) {
+          var sel = productosChefData[j].id == ing.idProducto ? ' selected' : '';
+          html += '<option value="' + productosChefData[j].id + '"' + sel + '>' + escapeHtml(productosChefData[j].nombre) + '</option>';
+        }
+        html += '</select>';
+        html += '<input type="number" class="receta-cantidad" data-index="' + i + '" value="' + (ing.cantidad || 1) + '" min="0.01" step="0.01" style="flex:1;padding:8px;border:1px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(0,0,0,0.3);color:#fff;" placeholder="Cant">';
+        html += '<span style="flex:0.5;text-align:center;">' + escapeHtml(ing.unidad || '') + '</span>';
+        html += '<span style="flex:0.5;text-align:right;">$' + (ing.costo || 0).toFixed(2) + '</span>';
+        html += '<button onclick="quitarIngrediente(' + i + ')" style="background:#ea4335;border:none;color:#fff;padding:5px 10px;border-radius:8px;cursor:pointer;">X</button>';
+        html += '</div>';
+      }
+      container.innerHTML = html;
+      document.getElementById('costoRecetaInfo').innerHTML = '<strong>Costo total receta: $' + costoTotal.toFixed(2) + '</strong>';
+    }
+
+    function agregarIngrediente() {
+      recetaActual.push({ idProducto: '', producto: '', cantidad: 1, unidad: '', costo: 0 });
+      renderRecetaEditor();
+    }
+
+    function quitarIngrediente(index) {
+      recetaActual.splice(index, 1);
+      renderRecetaEditor();
+    }
+
+    function guardarRecetaActual() {
+      var idPlato = document.getElementById('chefPlatoReceta').value;
+      if (!idPlato) { showToast('Seleccione un plato', 'warning'); return; }
+      var ingredientes = [];
+      var selects = document.querySelectorAll('.receta-producto');
+      var cantidades = document.querySelectorAll('.receta-cantidad');
+      for (var i = 0; i < selects.length; i++) {
+        var idProd = selects[i].value;
+        var cant = parseFloat(cantidades[i].value) || 0;
+        if (!idProd || cant <= 0) continue;
+        var nombreProd = '';
+        var unidadProd = '';
+        for (var j = 0; j < productosChefData.length; j++) {
+          if (productosChefData[j].id == idProd) {
+            nombreProd = productosChefData[j].nombre;
+            unidadProd = productosChefData[j].unidad;
+            break;
+          }
+        }
+        ingredientes.push({ idProducto: parseInt(idProd), nombre: nombreProd, cantidad: cant, unidad: unidadProd });
+      }
+      if (ingredientes.length === 0) { showToast('Agregue al menos un ingrediente', 'warning'); return; }
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Receta guardada. Costo: $' + result.costoTotal.toFixed(2), 'success');
+            cargarRecetaPlato();
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'error'); })
+        .guardarReceta({
+          idPlato: parseInt(idPlato),
+          ingredientes: ingredientes,
+          usuario: currentUser.usuario
+        });
+    }
+
+    function mostrarPanel(rol) {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+      document.getElementById('userName').textContent = currentUser.nombre;
+      var rolBadge = document.getElementById('userRol');
+      rolBadge.textContent = rol;
+      rolBadge.className = 'rol-badge rol-' + rol.toLowerCase();
+      var panels = document.querySelectorAll('.panel');
+      for (var i = 0; i < panels.length; i++) {
+        panels[i].classList.add('hidden');
+      }
+      if (rol === 'MOZO') {
+        document.getElementById('panelMozo').classList.remove('hidden');
+        cargarMesas();
+        cargarProductos();
+      } else if (rol === 'CAJA') {
+        document.getElementById('panelCaja').classList.remove('hidden');
+        cargarMesasPorCobrar();
+      } else if (rol === 'STOCK') {
+        document.getElementById('panelStock').classList.remove('hidden');
+        cargarStockActual();
+      } else if (rol === 'CHEF') {
+        document.getElementById('panelChef').classList.remove('hidden');
+        cargarPlatosChef();
+      } else if (rol === 'ADMIN') {
+        document.getElementById('panelAdmin').classList.remove('hidden');
+        cargarMesasParaFiltroAdmin();
+        document.getElementById('filtroFechaEliminaciones').valueAsDate = new Date();
+        cargarHistorialEliminaciones();
+        // Inicializar filtros de comensales
+        document.getElementById('filtroFechaComensales').valueAsDate = new Date();
+        var hoy = new Date();
+        document.getElementById('filtroMesCarhue').value = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0');
+      }
+    }
+
+    function cargarMesas() {
+      console.log('Cargando mesas...');
+      var grid = document.getElementById('mesasGrid');
+      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding:40px;">Cargando...</div>';
+      google.script.run
+        .withSuccessHandler(function(mesas) {
+          console.log('Mesas recibidas:', mesas.length);
+          mesasData = mesas;
+          renderizarMesas();
+        })
+        .withFailureHandler(function(error) {
+          console.error('Error al cargar mesas:', error);
+          showToast('Error al cargar mesas: ' + error.message, 'error');
+        })
+        .getMesas();
+    }
+
+    function cargarMesasPorCobrar() {
+      var grid = document.getElementById('mesasPorCobrar');
+      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding:40px;">Cargando...</div>';
+      google.script.run
+        .withSuccessHandler(function(mesas) {
+          mesasData = mesas;
+          renderizarMesasCaja();
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error al cargar mesas: ' + error.message, 'error');
+        })
+        .getMesasPorCobrar();
+    }
+
+    function cargarProductos() {
+      google.script.run
+        .withSuccessHandler(function(productos) {
+          productosData = productos;
+          var select = document.getElementById('productoSelect');
+          select.innerHTML = '<option value="">Seleccionar producto...</option>';
+          var categoriaActual = '';
+          for (var i = 0; i < productos.length; i++) {
+            var p = productos[i];
+            if (p.categoria !== categoriaActual) {
+              if (categoriaActual !== '') select.innerHTML += '</optgroup>';
+              categoriaActual = p.categoria;
+              select.innerHTML += '<optgroup label="' + escapeHtml(p.categoria) + '">';
+            }
+            select.innerHTML += '<option value="' + p.id + '" data-precio="' + p.precioVenta + '" data-nombre="' + escapeHtml(p.nombre) + '">' + escapeHtml(p.nombre) + ' - $' + p.precioVenta + '</option>';
+          }
+          if (categoriaActual !== '') select.innerHTML += '</optgroup>';
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error al cargar productos: ' + error.message, 'error');
+        })
+        .getProductos();
+    }
+
+    function renderizarMesas() {
+      var grid = document.getElementById('mesasGrid');
+      if (!grid) {
+        console.error('No se encontro mesasGrid');
+        return;
+      }
+      console.log('Renderizando mesas, total:', mesasData.length);
+      grid.innerHTML = '';
+      var mesasFiltradas;
+      if (ubicacionFiltro === 'TODAS') {
+        mesasFiltradas = mesasData;
+      } else {
+        mesasFiltradas = [];
+        for (var i = 0; i < mesasData.length; i++) {
+          if (mesasData[i].ubicacion === ubicacionFiltro) {
+            mesasFiltradas.push(mesasData[i]);
+          }
+        }
+      }
+      if (mesasFiltradas.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding:40px;">No hay mesas en esta ubicacion</div>';
+        return;
+      }
+      for (var i = 0; i < mesasFiltradas.length; i++) {
+        var mesa = mesasFiltradas[i];
+        var card = document.createElement('div');
+        card.className = 'mesa-card ' + getEstadoClass(mesa.estado);
+        card.onclick = (function(m) { return function() { clickMesa(m); }; })(mesa);
+        var icono = 'M';
+        if (mesa.ubicacion === 'Consumos Externos') icono = 'E';
+        var infoExtra = '';
+        if (mesa.estado !== 'LIBRE') {
+          infoExtra = '<div style="margin-top:8px; font-size:0.75rem; color:#ccc;">' +
+            '<div>' + escapeHtml(mesa.tipoCliente || '') + '</div>' +
+            '<div>Hab: ' + escapeHtml(mesa.nroHabitacion || '-') + '</div>' +
+            '<div>' + escapeHtml(mesa.nombreCliente || '') + '</div>' +
+          '</div>';
+        }
+        card.innerHTML = 
+          '<div style="font-size: 1.5rem; margin-bottom: 5px;">' + icono + '</div>' +
+          '<div class="mesa-nombre">' + escapeHtml(mesa.nombre) + '</div>' +
+          '<div class="mesa-ubicacion">' + escapeHtml(mesa.ubicacion) + '</div>' +
+          '<div class="mesa-estado" style="background: ' + getEstadoColor(mesa.estado) + '; display:inline-block; margin-top:5px; padding:4px 12px; border-radius:10px; font-size:0.75rem; font-weight:600;">' +
+            getEstadoTexto(mesa.estado) +
+          '</div>' +
+          infoExtra;
+        grid.appendChild(card);
+      }
+    }
+
+    function renderizarMesasCaja() {
+      var grid = document.getElementById('mesasPorCobrar');
+      grid.innerHTML = '';
+      var mesasFacturacion = [];
+      for (var i = 0; i < mesasData.length; i++) {
+        if (mesasData[i].estado === 'FACTURACION') {
+          mesasFacturacion.push(mesasData[i]);
+        }
+      }
+      if (mesasFacturacion.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding:40px;">No hay mesas pendientes de facturacion</div>';
+        return;
+      }
+      for (var i = 0; i < mesasFacturacion.length; i++) {
+        var mesa = mesasFacturacion[i];
+        var card = document.createElement('div');
+        card.className = 'mesa-card mesa-facturacion';
+
+        // Boton de facturacion principal
+        var facturarBtn = document.createElement('div');
+        facturarBtn.style.cursor = 'pointer';
+        facturarBtn.onclick = (function(m) { return function(e) { e.stopPropagation(); clickMesaFacturacion(m); }; })(mesa);
+        facturarBtn.innerHTML = 
+          '<div style="font-size: 1.5rem; margin-bottom: 5px;">F</div>' +
+          '<div class="mesa-nombre">' + escapeHtml(mesa.nombre) + '</div>' +
+          '<div class="mesa-ubicacion">' + escapeHtml(mesa.ubicacion) + '</div>' +
+          '<div class="mesa-estado" style="background: #9333ea; display:inline-block; margin-top:5px; padding:4px 12px; border-radius:10px; font-size:0.75rem; font-weight:600;">' +
+            'ENVIADA A FACTURACION' +
+          '</div>' +
+          '<div style="margin-top:8px; font-size:0.75rem; color:#ccc;">' +
+            '<div>' + escapeHtml(mesa.tipoCliente || '') + '</div>' +
+            '<div>Total: $' + (mesa.totalCuenta || '0.00') + '</div>' +
+            (mesa.cantidadComensales ? '<div>Comensales: ' + mesa.cantidadComensales + '</div>' : '') +
+          '</div>';
+
+        // Boton de reimprimir
+        var reimprimirBtn = document.createElement('button');
+        reimprimirBtn.className = 'btn btn-warning';
+        reimprimirBtn.style.cssText = 'width:auto; padding:6px 12px; font-size:0.75rem; margin-top:10px;';
+        reimprimirBtn.innerHTML = '🖨️ Reimprimir Ticket';
+        reimprimirBtn.onclick = (function(m) { return function(e) { e.stopPropagation(); abrirReimprimirTicket(m); }; })(mesa);
+
+        card.appendChild(facturarBtn);
+        card.appendChild(reimprimirBtn);
+        grid.appendChild(card);
+      }
+    }
+
+    function getEstadoClass(estado) {
+      if (estado === 'LIBRE') return 'mesa-libre';
+      if (estado === 'OCUPADA') return 'mesa-ocupada';
+      if (estado === 'CUENTA') return 'mesa-cuenta';
+      if (estado === 'FACTURACION') return 'mesa-facturacion';
+      return 'mesa-libre';
+    }
+
+    function getEstadoColor(estado) {
+      if (estado === 'LIBRE') return '#34a853';
+      if (estado === 'OCUPADA') return '#ea4335';
+      if (estado === 'CUENTA') return '#fbbc04';
+      if (estado === 'FACTURACION') return '#9333ea';
+      return '#666';
+    }
+
+    function getEstadoTexto(estado) {
+      if (estado === 'LIBRE') return 'LIBRE';
+      if (estado === 'OCUPADA') return 'OCUPADA';
+      if (estado === 'CUENTA') return 'CUENTA';
+      if (estado === 'FACTURACION') return 'ENVIADA A FACTURACION';
+      return estado;
+    }
+
+    function filtrarMesas(ubicacion, btn) {
+      ubicacionFiltro = ubicacion;
+      var tabs = document.querySelectorAll('#panelMozo .tabs .tab');
+      for (var i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove('active');
+      }
+      if (btn) btn.classList.add('active');
+      renderizarMesas();
+    }
+
+    function clickMesa(mesa) {
+      mesaSeleccionada = mesa;
+      if (mesa.estado === 'FACTURACION') {
+        showToast('Mesa enviada a facturacion. Esperando cobro de CAJA.', 'warning');
+        return;
+      }
+      if (mesa.estado === 'LIBRE') {
+        if (mesa.ubicacion === 'Consumos Externos') {
+          mostrarModal('modalConsumosExternos');
+          document.getElementById('ceNombreMesa').textContent = mesa.nombre;
+          document.getElementById('ceTipoServicio').value = '';
+          document.getElementById('ceNroHabitacion').value = '';
+          document.getElementById('ceNombreHuesped').value = '';
+          document.getElementById('ceApellidoHuesped').value = '';
+          document.getElementById('ceNombreExterno').value = '';
+          document.getElementById('ceApellidoExterno').value = '';
+          document.getElementById('ceCuitExterno').value = '';
+          document.getElementById('ceRazonSocialExterno').value = '';
+          document.getElementById('ceObservaciones').value = '';
+          document.getElementById('ceCantidadComensales').value = '1';
+          document.getElementById('camposCeHabitacion').classList.add('hidden');
+          document.getElementById('camposCeExterno').classList.add('hidden');
+        } else {
+          document.getElementById('abrirMesaNombre').value = mesa.nombre;
+          document.getElementById('abrirMesaUbicacion').value = mesa.ubicacion;
+          document.getElementById('tipoCliente').value = '';
+          document.getElementById('nroHabitacion').value = '';
+          document.getElementById('tipoPension').value = 'Con MAP (Media Pension)';
+          document.getElementById('nombreHuesped').value = '';
+          document.getElementById('apellidoHuesped').value = '';
+          document.getElementById('voucherCarhue').value = '';
+          document.getElementById('nombreCarhue').value = '';
+          document.getElementById('apellidoCarhue').value = '';
+          document.getElementById('habitacionCarhue').value = '';
+          document.getElementById('nombreExterno').value = '';
+          document.getElementById('apellidoExterno').value = '';
+          document.getElementById('cuitExterno').value = '';
+          document.getElementById('razonSocialExterno').value = '';
+          document.getElementById('observacionesMesa').value = '';
+          document.getElementById('camposEpecuen').classList.add('hidden');
+          document.getElementById('camposCarhue').classList.add('hidden');
+          document.getElementById('camposExterno').classList.add('hidden');
+          mostrarModal('modalAbrirMesa');
+        }
+      } else {
+        abrirComanda(mesa);
+      }
+    }
+
+    function clickMesaFacturacion(mesa) {
+      mesaPorFacturar = mesa;
+      document.getElementById('facturarMesaNombre').textContent = mesa.nombre;
+      var infoHtml = '<strong>Cliente:</strong> ' + (mesa.nombreCliente || 'Sin nombre') + '<br>';
+      infoHtml += '<strong>Tipo:</strong> ' + (mesa.tipoCliente || '-') + '<br>';
+      infoHtml += '<strong>Hab:</strong> ' + (mesa.nroHabitacion || '-') + '<br>';
+      if (mesa.cuit) infoHtml += '<strong>CUIT:</strong> ' + mesa.cuit + '<br>';
+      if (mesa.razonSocial) infoHtml += '<strong>Razon Social:</strong> ' + mesa.razonSocial + '<br>';
+      document.getElementById('facturacionInfoCliente').innerHTML = infoHtml;
+      google.script.run
+        .withSuccessHandler(function(items) {
+          var tbody = document.getElementById('tbodyFacturacion');
+          tbody.innerHTML = '';
+          var total = 0;
+          for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            var subtotal = item.cantidad * item.precio;
+            total += subtotal;
+            var tr = document.createElement('tr');
+            tr.innerHTML = 
+              '<td>' + escapeHtml(item.producto) + '</td>' +
+              '<td>' + item.cantidad + '</td>' +
+              '<td>$' + item.precio.toFixed(2) + '</td>' +
+              '<td>$' + subtotal.toFixed(2) + '</td>';
+            tbody.appendChild(tr);
+          }
+          mesaPorFacturarItems = items;
+          mesaPorFacturarTotal = total;
+          document.getElementById('totalFacturacion').textContent = total.toFixed(2);
+          mostrarModal('modalFacturacion');
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error al cargar items: ' + error.message, 'error');
+        })
+        .getItemsComanda(mesa.idComanda);
+    }
+
+    function confirmarFacturacion() {
+      if (!mesaPorFacturar) return;
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Mesa facturada correctamente', 'success');
+            cerrarModal('modalFacturacion');
+            cargarMesasPorCobrar();
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error: ' + error.message, 'error');
+        })
+        .facturarMesa({
+          idComanda: mesaPorFacturar.idComanda,
+          idMesa: mesaPorFacturar.id,
+          usuario: currentUser.usuario
+        });
+    }
+
+    function cambiarMedioPago() {
+      var medio = document.getElementById('medioPago').value;
+      var campoDescuento = document.getElementById('campoDescuento');
+      var campoTransaccion = document.getElementById('campoTransaccion');
+
+      if (medio === 'EFECTIVO') {
+        campoDescuento.style.display = 'block';
+        campoTransaccion.style.display = 'none';
+      } else if (medio === 'DEBITO' || medio === 'CREDITO' || medio === 'TRANSFERENCIA') {
+        campoDescuento.style.display = 'none';
+        campoTransaccion.style.display = 'block';
+        document.getElementById('descuentoEfectivo').value = '0';
+      } else {
+        campoDescuento.style.display = 'none';
+        campoTransaccion.style.display = 'none';
+      }
+      calcularTotalFacturacion();
+    }
+
+    function calcularTotalFacturacion() {
+      if (!mesaPorFacturarTotal) return;
+      var medio = document.getElementById('medioPago').value;
+      var total = mesaPorFacturarTotal;
+      var infoDescuento = document.getElementById('infoDescuento');
+
+      if (medio === 'EFECTIVO') {
+        var descuento = parseFloat(document.getElementById('descuentoEfectivo').value) || 0;
+        if (descuento > 0) {
+          var descuentoMonto = total * (descuento / 100);
+          total = total - descuentoMonto;
+          infoDescuento.textContent = 'Descuento ' + descuento + '%: -$' + descuentoMonto.toFixed(2);
+          infoDescuento.style.display = 'block';
+        } else {
+          infoDescuento.style.display = 'none';
+        }
+      } else {
+        infoDescuento.style.display = 'none';
+      }
+
+      document.getElementById('totalFacturacion').textContent = total.toFixed(2);
+    }
+
+    function imprimirTicketNoFiscal() {
+      if (!mesaPorFacturar || !mesaPorFacturarItems) {
+        showToast('No hay datos para imprimir', 'warning');
+        return;
+      }
+
+      var medioPago = document.getElementById('medioPago').value || 'No especificado';
+      var descuento = parseFloat(document.getElementById('descuentoEfectivo').value) || 0;
+      var nroTransaccion = document.getElementById('nroTransaccion').value || '';
+      var totalOriginal = mesaPorFacturarTotal;
+      var totalFinal = parseFloat(document.getElementById('totalFacturacion').textContent) || totalOriginal;
+
+      var fecha = new Date().toLocaleString();
+      var ticketHTML = '<html><head><title>Ticket No Fiscal</title>';
+      ticketHTML += '<style>' + getTicketCSS80mm() + '</style></head><body>';
+      ticketHTML += '<div class="header">';
+      ticketHTML += '<h2>Hotel Epecuen</h2>';
+      ticketHTML += '<p>Ticket No Fiscal</p>';
+      ticketHTML += '<p>' + fecha + '</p>';
+      ticketHTML += '</div>';
+      ticketHTML += '<p><strong>Mesa:</strong> ' + escapeHtml(mesaPorFacturar.nombre) + '</p>';
+      ticketHTML += '<p><strong>Cliente:</strong> ' + escapeHtml(mesaPorFacturar.nombreCliente || 'Sin nombre') + '</p>';
+      if (mesaPorFacturar.cantidadComensales) {
+        ticketHTML += '<p><strong>Comensales:</strong> ' + mesaPorFacturar.cantidadComensales + '</p>';
+      }
+      ticketHTML += '<hr>';
+      for (var i = 0; i < mesaPorFacturarItems.length; i++) {
+        var item = mesaPorFacturarItems[i];
+        var subtotal = item.cantidad * item.precio;
+        ticketHTML += '<div class="line"><span>' + item.cantidad + 'x ' + escapeHtml(item.producto) + '</span><span>$' + subtotal.toFixed(2) + '</span></div>';
+      }
+      ticketHTML += '<div class="total">';
+      ticketHTML += '<div class="line"><span>Subtotal</span><span>$' + totalOriginal.toFixed(2) + '</span></div>';
+      if (descuento > 0) {
+        var descuentoMonto = totalOriginal * (descuento / 100);
+        ticketHTML += '<div class="line"><span>Dto ' + descuento + '%</span><span>-$' + descuentoMonto.toFixed(2) + '</span></div>';
+      }
+      ticketHTML += '<div class="line"><span>TOTAL</span><span>$' + totalFinal.toFixed(2) + '</span></div>';
+      ticketHTML += '</div>';
+      ticketHTML += '<div class="info">';
+      ticketHTML += '<p><strong>Pago:</strong> ' + escapeHtml(medioPago) + '</p>';
+      if (nroTransaccion) {
+        ticketHTML += '<p><strong>Nro Trans:</strong> ' + escapeHtml(nroTransaccion) + '</p>';
+      }
+      ticketHTML += '</div>';
+      ticketHTML += '<div class="footer">';
+      ticketHTML += '<p>Gracias por su visita</p>';
+      ticketHTML += '<p>Hotel Epecuen - Restaurante</p>';
+      ticketHTML += '</div>';
+      ticketHTML += '</body></html>';
+      imprimirHTML(ticketHTML);
+    }
+
+    // Variables para reimprimir
+    var mesaPorReimprimir = null;
+    var mesaPorFacturarItems = null;
+    var mesaPorFacturarTotal = 0;
+
+    function abrirReimprimirTicket(mesa) {
+      mesaPorReimprimir = mesa;
+      document.getElementById('reimprimirMesaNombre').textContent = mesa.nombre;
+      mostrarModal('modalReimprimir');
+    }
+
+    function confirmarReimprimirTicket() {
+      if (!mesaPorReimprimir) return;
+
+      google.script.run
+        .withSuccessHandler(function(items) {
+          // Crear ticket de consumo con los items actuales
+          var comanda = mesaPorReimprimir;
+          var fecha = new Date().toLocaleString();
+          var ticketHTML = '<html><head><title>Ticket Consumo - Reimpresion</title>';
+          ticketHTML += '<style>' + getTicketCSS80mm() + '</style></head><body>';
+          ticketHTML += '<div class="header">';
+          ticketHTML += '<h2>Hotel Epecuen</h2>';
+          ticketHTML += '<p>Ticket de Consumo</p>';
+          ticketHTML += '<div class="reprint">*** REIMPRESION ***</div>';
+          ticketHTML += '<p>' + fecha + '</p>';
+          ticketHTML += '</div>';
+          ticketHTML += '<p>Mesa: ' + escapeHtml(comanda.nombre) + '</p>';
+          if (comanda.cantidadComensales) {
+            ticketHTML += '<p>Comensales: ' + comanda.cantidadComensales + '</p>';
+          }
+          if (comanda.tipoCliente === 'EXTERNO') {
+            ticketHTML += '<p><strong>Cliente:</strong> ' + escapeHtml(comanda.nombreCliente || 'Consumidor Final') + '</p>';
+          } else if (comanda.tipoCliente === 'EPECUEN_MAP' || comanda.tipoCliente === 'EPECUEN_SIN_MAP' || comanda.tipoCliente === 'CARHUE') {
+            ticketHTML += '<p>Cliente: ' + escapeHtml(comanda.nombreCliente || '') + '</p>';
+            ticketHTML += '<p>Habitacion: ' + escapeHtml(comanda.nroHabitacion || '') + '</p>';
+          }
+          ticketHTML += '<hr>';
+          var total = 0;
+          for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            var subtotal = item.cantidad * item.precio;
+            total += subtotal;
+            ticketHTML += '<div class="line"><span>' + item.cantidad + 'x ' + escapeHtml(item.producto) + '</span><span>$' + subtotal.toFixed(2) + '</span></div>';
+          }
+          ticketHTML += '<div class="total"><div class="line"><span>TOTAL</span><span>$' + total.toFixed(2) + '</span></div></div>';
+          if (comanda.tipoCliente !== 'EXTERNO') {
+            ticketHTML += '<div class="firma">';
+            ticketHTML += '<p>Firma del huesped</p>';
+            ticketHTML += '<p>____________________</p>';
+            ticketHTML += '<p>Hab: ' + escapeHtml(comanda.nroHabitacion || '') + '</p>';
+            ticketHTML += '</div>';
+          }
+          ticketHTML += '</body></html>';
+          imprimirHTML(ticketHTML);
+          cerrarModal('modalReimprimir');
+          showToast('Ticket reimpreso', 'success');
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error al cargar items: ' + error.message, 'error');
+        })
+        .getItemsComanda(mesaPorReimprimir.idComanda);
+    }
+
+    function cambiarTipoCliente() {
+      var tipo = document.getElementById('tipoCliente').value;
+      document.getElementById('camposEpecuen').classList.add('hidden');
+      document.getElementById('camposCarhue').classList.add('hidden');
+      document.getElementById('camposExterno').classList.add('hidden');
+      if (tipo === 'EPECUEN_MAP') {
+        document.getElementById('camposEpecuen').classList.remove('hidden');
+        document.getElementById('tipoPension').value = 'Con MAP (Media Pension)';
+      } else if (tipo === 'EPECUEN_SIN_MAP') {
+        document.getElementById('camposEpecuen').classList.remove('hidden');
+        document.getElementById('tipoPension').value = 'Sin MAP';
+      } else if (tipo === 'CARHUE') {
+        document.getElementById('camposCarhue').classList.remove('hidden');
+      } else if (tipo === 'EXTERNO') {
+        document.getElementById('camposExterno').classList.remove('hidden');
+      }
+    }
+
+    function cambiarTipoServicioCE() {
+      var tipo = document.getElementById('ceTipoServicio').value;
+      document.getElementById('camposCeHabitacion').classList.add('hidden');
+      document.getElementById('camposCeExterno').classList.add('hidden');
+      if (tipo === 'SERVICIO_HABITACION') {
+        document.getElementById('camposCeHabitacion').classList.remove('hidden');
+      } else if (tipo === 'EXTERNO') {
+        document.getElementById('camposCeExterno').classList.remove('hidden');
+      }
+    }
+
+    function confirmarConsumoExterno() {
+      var tipo = document.getElementById('ceTipoServicio').value;
+      if (!tipo) { showToast('Seleccione tipo de servicio', 'warning'); return; }
+      var cantComensales = parseInt(document.getElementById('ceCantidadComensales').value) || 1;
+      var observaciones = document.getElementById('ceObservaciones').value.trim();
+      var datos = { idMesa: mesaSeleccionada.id, observaciones: observaciones, cantidadComensales: cantComensales, usuario: currentUser.usuario };
+
+      if (tipo === 'SERVICIO_HABITACION') {
+        var nroHab = document.getElementById('ceNroHabitacion').value.trim();
+        var nombre = document.getElementById('ceNombreHuesped').value.trim();
+        var apellido = document.getElementById('ceApellidoHuesped').value.trim();
+        if (!nroHab) { showToast('Ingrese nro de habitacion', 'warning'); return; }
+        if (!nombre) { showToast('Ingrese nombre del huesped', 'warning'); return; }
+        if (!apellido) { showToast('Ingrese apellido del huesped', 'warning'); return; }
+        datos.tipoCliente = 'EPECUEN_SIN_MAP';
+        datos.nroHabitacion = nroHab;
+        datos.nombreHuesped = nombre;
+        datos.apellidoHuesped = apellido;
+      } else {
+        var nombre = document.getElementById('ceNombreExterno').value.trim();
+        var apellido = document.getElementById('ceApellidoExterno').value.trim();
+        datos.tipoCliente = 'EXTERNO';
+        datos.nombreHuesped = nombre;
+        datos.apellidoHuesped = apellido;
+        datos.cuit = document.getElementById('ceCuitExterno').value.trim();
+        datos.razonSocial = document.getElementById('ceRazonSocialExterno').value.trim();
+      }
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Consumo externo abierto', 'success');
+            cerrarModal('modalConsumosExternos');
+            setTimeout(function() { cargarMesas(); }, 1500);
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error: ' + error.message, 'error');
+        })
+        .abrirMesa(datos);
+    }
+
+    function confirmarAbrirMesa() {
+      var tipo = document.getElementById('tipoCliente').value;
+      if (!tipo) {
+        showToast('Debe seleccionar un tipo de cliente', 'warning');
+        return;
+      }
+      var nroHab = '';
+      var nombre = '';
+      var apellido = '';
+      var voucher = '';
+      var cuit = '';
+      var razonSocial = '';
+      if (tipo === 'EPECUEN_MAP' || tipo === 'EPECUEN_SIN_MAP') {
+        nroHab = document.getElementById('nroHabitacion').value.trim();
+        nombre = document.getElementById('nombreHuesped').value.trim();
+        apellido = document.getElementById('apellidoHuesped').value.trim();
+        if (!nroHab) { showToast('Debe ingresar el numero de habitacion', 'warning'); return; }
+        if (!nombre) { showToast('Debe ingresar el nombre del huesped', 'warning'); return; }
+        if (!apellido) { showToast('Debe ingresar el apellido del huesped', 'warning'); return; }
+      } else if (tipo === 'CARHUE') {
+        voucher = document.getElementById('voucherCarhue').value.trim();
+        nombre = document.getElementById('nombreCarhue').value.trim();
+        apellido = document.getElementById('apellidoCarhue').value.trim();
+        nroHab = document.getElementById('habitacionCarhue').value.trim();
+        if (!voucher) { showToast('Debe ingresar el ID del voucher', 'warning'); return; }
+      } else if (tipo === 'EXTERNO') {
+        nombre = document.getElementById('nombreExterno').value.trim();
+        apellido = document.getElementById('apellidoExterno').value.trim();
+        cuit = document.getElementById('cuitExterno').value.trim();
+        razonSocial = document.getElementById('razonSocialExterno').value.trim();
+      }
+      var cantidadComensales = parseInt(document.getElementById('cantidadComensales').value) || 1;
+      if (cantidadComensales < 1) {
+        showToast('La cantidad de comensales debe ser al menos 1', 'warning');
+        return;
+      }
+
+      var datos = {
+        idMesa: mesaSeleccionada.id,
+        tipoCliente: tipo,
+        nroHabitacion: nroHab,
+        nombreHuesped: nombre,
+        apellidoHuesped: apellido,
+        voucherCarhue: voucher,
+        cuit: cuit,
+        razonSocial: razonSocial,
+        observaciones: document.getElementById('observacionesMesa').value,
+        cantidadComensales: cantidadComensales,
+        usuario: currentUser.usuario
+      };
+      console.log('Enviando datos:', datos);
+      google.script.run
+        .withSuccessHandler(function(result) {
+          console.log('Respuesta servidor:', result);
+          if (result.success) {
+            showToast('Mesa abierta correctamente', 'success');
+            cerrarModal('modalAbrirMesa');
+            setTimeout(function() {
+              console.log('Recargando mesas...');
+              cargarMesas();
+            }, 1500);
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          console.error('Error servidor:', error);
+          showToast('Error: ' + error.message, 'error');
+        })
+        .abrirMesa(datos);
+    }
+
+    function abrirComanda(mesa) {
+      comandaActivaId = mesa.idComanda;
+      ticketComandaImpreso = false;
+      document.getElementById('comandaMesaNombre').textContent = mesa.nombre;
+      document.getElementById('comandaInfoCliente').textContent = 
+        mesa.tipoCliente + ' | Hab: ' + (mesa.nroHabitacion || '-') + ' | ' + (mesa.nombreCliente || '');
+      google.script.run
+        .withSuccessHandler(function(items) {
+          comandaActual = [];
+          for (var i = 0; i < items.length; i++) {
+            comandaActual.push({
+              idProducto: items[i].idProducto,
+              nombre: items[i].producto,
+              cantidad: items[i].cantidad,
+              precio: items[i].precio
+            });
+          }
+          renderizarComanda();
+        })
+        .withFailureHandler(function(error) {
+          comandaActual = [];
+          renderizarComanda();
+        })
+        .getItemsComanda(mesa.idComanda);
+      mostrarModal('modalComanda');
+    }
+
+    function agregarItem() {
+      var select = document.getElementById('productoSelect');
+      var cantidad = parseInt(document.getElementById('cantidadProducto').value);
+      if (!select.value) {
+        showToast('Seleccione un producto', 'warning');
+        return;
+      }
+      var option = select.options[select.selectedIndex];
+      var idProducto = select.value;
+      var nombreProducto = option.dataset.nombre;
+      var precio = parseFloat(option.dataset.precio);
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            comandaActual.push({
+              idProducto: idProducto,
+              nombre: nombreProducto,
+              cantidad: cantidad,
+              precio: precio
+            });
+            renderizarComanda();
+            select.value = '';
+            document.getElementById('cantidadProducto').value = 1;
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error al agregar item: ' + error.message, 'error');
+        })
+        .agregarItemComanda({
+          idComanda: comandaActivaId,
+          idProducto: idProducto,
+          nombreProducto: nombreProducto,
+          cantidad: cantidad,
+          precio: precio,
+          usuario: currentUser.usuario
+        });
+    }
+
+    function renderizarComanda() {
+      var tbody = document.getElementById('tbodyComanda');
+      tbody.innerHTML = '';
+      var total = 0;
+      for (var i = 0; i < comandaActual.length; i++) {
+        var item = comandaActual[i];
+        var subtotal = item.cantidad * item.precio;
+        total += subtotal;
+        var tr = document.createElement('tr');
+        tr.innerHTML = 
+          '<td>' + escapeHtml(item.nombre) + '</td>' +
+          '<td>' + item.cantidad + '</td>' +
+          '<td>$' + item.precio.toFixed(2) + '</td>' +
+          '<td>$' + subtotal.toFixed(2) + '</td>' +
+          '<td><button onclick="eliminarItem(' + i + ')" style="background:#ea4335;color:#fff;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;">X</button></td>';
+        tbody.appendChild(tr);
+      }
+      document.getElementById('totalComanda').textContent = total.toFixed(2);
+    }
+
+    function eliminarItem(index) {
+      var item = comandaActual[index];
+      var comanda = null;
+      for (var i = 0; i < mesasData.length; i++) {
+        if (mesasData[i].idComanda == comandaActivaId) {
+          comanda = mesasData[i];
+          break;
+        }
+      }
+      if (!confirm('Eliminar ' + item.nombre + ' x' + item.cantidad + '?')) return;
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            registrarEliminacion({
+              idComanda: comandaActivaId,
+              idProducto: item.idProducto,
+              nombreProducto: item.nombre,
+              cantidad: item.cantidad,
+              precio: item.precio,
+              mesa: comanda ? comanda.nombre : '',
+              tipoCliente: comanda ? comanda.tipoCliente : '',
+              usuario: currentUser.usuario,
+              fecha: new Date().toISOString()
+            });
+            comandaActual.splice(index, 1);
+            renderizarComanda();
+            showToast('Item eliminado', 'success');
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error al eliminar: ' + error.message, 'error');
+        })
+        .eliminarItemComanda({
+          idComanda: comandaActivaId,
+          idProducto: item.idProducto,
+          nombreProducto: item.nombre,
+          usuario: currentUser.usuario
+        });
+    }
+
+    function registrarEliminacion(datos) {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          console.log('Eliminacion registrada en auditoria');
+        })
+        .withFailureHandler(function(error) {
+          console.error('Error al registrar eliminacion:', error);
+        })
+        .registrarEliminacionAuditoria(datos);
+    }
+
+    function cargarMesasParaFiltroAdmin() {
+      google.script.run
+        .withSuccessHandler(function(mesas) {
+          var select = document.getElementById('filtroMesaEliminaciones');
+          select.innerHTML = '<option value="">Todas las mesas</option>';
+          for (var i = 0; i < mesas.length; i++) {
+            select.innerHTML += '<option value="' + mesas[i].nombre + '">' + mesas[i].nombre + '</option>';
+          }
+        })
+        .withFailureHandler(function(error) {
+          console.error('Error al cargar mesas:', error);
+        })
+        .getTodasLasMesas();
+    }
+
+    function mostrarTabCaja(tab, btn) {
+      var tabs = document.querySelectorAll('#panelCaja .tab');
+      for (var i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove('active');
+      }
+      if (btn) btn.classList.add('active');
+
+      document.getElementById('tabCobros').classList.add('hidden');
+      document.getElementById('tabHistorial').classList.add('hidden');
+
+      if (tab === 'cobros') {
+        document.getElementById('tabCobros').classList.remove('hidden');
+        cargarMesasPorCobrar();
+      } else if (tab === 'historial') {
+        document.getElementById('tabHistorial').classList.remove('hidden');
+        document.getElementById('filtroFechaCobros').valueAsDate = new Date();
+        cargarHistorialCobros();
+      }
+    }
+
+    function cargarHistorialCobros() {
+      var fecha = document.getElementById('filtroFechaCobros').value;
+      var medioPago = document.getElementById('filtroMedioPagoCobros').value;
+
+      if (!fecha) {
+        document.getElementById('historialCobrosContainer').innerHTML = 
+          '<p style="color: #888; text-align: center; padding: 40px;">Seleccione una fecha para ver el historial</p>';
+        document.getElementById('resumenMediosPago').innerHTML = 
+          '<p style="color: #888; text-align: center; grid-column: 1/-1;">Seleccione una fecha para ver el resumen</p>';
+        return;
+      }
+
+      document.getElementById('historialCobrosContainer').innerHTML = 
+        '<div style="text-align:center; padding:40px;"><span class="loading"></span></div>';
+      document.getElementById('resumenMediosPago').innerHTML = 
+        '<div style="text-align:center; grid-column: 1/-1;"><span class="loading"></span></div>';
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          mostrarHistorialCobros(result.cobros);
+          mostrarResumenMediosPago(result.resumen);
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('historialCobrosContainer').innerHTML = 
+            '<p style="color: #ea4335; text-align: center; padding: 40px;">Error: ' + error.message + '</p>';
+          document.getElementById('resumenMediosPago').innerHTML = 
+            '<p style="color: #ea4335; text-align: center; grid-column: 1/-1;">Error: ' + error.message + '</p>';
+        })
+        .getHistorialCobros({
+          fecha: fecha,
+          medioPago: medioPago
+        });
+    }
+
+    function mostrarHistorialCobros(cobros) {
+      var container = document.getElementById('historialCobrosContainer');
+
+      if (cobros.length === 0) {
+        container.innerHTML = '<p style="color: #888; text-align: center; padding: 40px;">No hay cobros registrados para esta fecha</p>';
+        return;
+      }
+
+      var html = '<div style="margin-bottom: 20px;"><strong>Total cobros:</strong> ' + cobros.length + '</div>';
+      html += '<div class="table-container"><table>';
+      html += '<thead><tr>';
+      html += '<th>Hora</th><th>Mesa</th><th>Cliente</th><th>Medio Pago</th><th>Subtotal</th><th>Descuento</th><th>Total</th><th>Transaccion</th><th>Usuario</th><th>Acciones</th>';
+      html += '</tr></thead><tbody>';
+
+      for (var i = 0; i < cobros.length; i++) {
+        var c = cobros[i];
+        var descuentoTexto = c.descuento > 0 ? c.descuento + '%' : '-';
+        var transaccionTexto = c.idTransaccion || '-';
+
+        html += '<tr>';
+        html += '<td>' + c.hora + '</td>';
+        html += '<td>' + (c.mesa || '-') + '</td>';
+        html += '<td>' + (c.nombreCliente || '-') + '</td>';
+        html += '<td><span class="badge" style="background:' + getColorMedioPago(c.medioPago) + ';">' + c.medioPago + '</span></td>';
+        html += '<td>$' + parseFloat(c.subtotal).toFixed(2) + '</td>';
+        html += '<td>' + descuentoTexto + '</td>';
+        html += '<td><strong>$' + parseFloat(c.total).toFixed(2) + '</strong></td>';
+        html += '<td>' + transaccionTexto + '</td>';
+        html += '<td>' + c.usuario + '</td>';
+        html += '<td><button onclick="reimprimirTicketCobro(' + c.idCobro + ')" class="btn btn-warning" style="width:auto; padding:4px 10px; font-size:0.75rem;">🖨️</button></td>';
+        html += '</tr>';
+      }
+
+      html += '</tbody></table></div>';
+      container.innerHTML = html;
+    }
+
+    function mostrarResumenMediosPago(resumen) {
+      var container = document.getElementById('resumenMediosPago');
+
+      if (!resumen || resumen.length === 0) {
+        container.innerHTML = '<p style="color: #888; text-align: center; grid-column: 1/-1;">No hay datos para el resumen</p>';
+        return;
+      }
+
+      var html = '';
+      var totalGeneral = 0;
+
+      for (var i = 0; i < resumen.length; i++) {
+        var r = resumen[i];
+        totalGeneral += parseFloat(r.total);
+        var color = getColorMedioPago(r.medioPago);
+
+        html += '<div style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px; border-left: 4px solid ' + color + ';">';
+        html += '<div style="font-size: 0.85rem; color: #aaa; margin-bottom: 5px;">' + r.medioPago + '</div>';
+        html += '<div style="font-size: 1.5rem; font-weight: bold; color: ' + color + ';">$' + parseFloat(r.total).toFixed(2) + '</div>';
+        html += '<div style="font-size: 0.8rem; color: #888;">' + r.cantidad + ' cobros</div>';
+        html += '</div>';
+      }
+
+      // Total general
+      html += '<div style="background: rgba(52,168,83,0.2); padding: 20px; border-radius: 10px; border-left: 4px solid #34a853;">';
+      html += '<div style="font-size: 0.85rem; color: #aaa; margin-bottom: 5px;">TOTAL GENERAL</div>';
+      html += '<div style="font-size: 1.8rem; font-weight: bold; color: #34a853;">$' + totalGeneral.toFixed(2) + '</div>';
+      html += '</div>';
+
+      container.innerHTML = html;
+    }
+
+    function getColorMedioPago(medio) {
+      if (medio === 'EFECTIVO') return '#34a853';
+      if (medio === 'DEBITO') return '#4285f4';
+      if (medio === 'CREDITO') return '#fbbc04';
+      if (medio === 'TRANSFERENCIA') return '#9333ea';
+      return '#666';
+    }
+
+    function reimprimirTicketCobro(idCobro) {
+      google.script.run
+        .withSuccessHandler(function(cobro) {
+          if (!cobro) {
+            showToast('Cobro no encontrado', 'error');
+            return;
+          }
+
+          var fecha = new Date().toLocaleString();
+          var ticketHTML = '<html><head><title>Ticket No Fiscal - Reimpresion</title>';
+          ticketHTML += '<style>' + getTicketCSS80mm() + '</style></head><body>';
+          ticketHTML += '<div class="header">';
+          ticketHTML += '<h2>Hotel Epecuen</h2>';
+          ticketHTML += '<p>Ticket No Fiscal</p>';
+          ticketHTML += '<div class="reprint">*** REIMPRESION ***</div>';
+          ticketHTML += '<p>' + fecha + '</p>';
+          ticketHTML += '</div>';
+          ticketHTML += '<p><strong>Mesa:</strong> ' + escapeHtml(cobro.mesa || '-') + '</p>';
+          ticketHTML += '<p><strong>Cliente:</strong> ' + escapeHtml(cobro.nombreCliente || 'Sin nombre') + '</p>';
+          ticketHTML += '<hr>';
+          for (var i = 0; i < cobro.items.length; i++) {
+            var item = cobro.items[i];
+            var subtotal = item.cantidad * item.precio;
+            ticketHTML += '<div class="line"><span>' + item.cantidad + 'x ' + escapeHtml(item.producto) + '</span><span>$' + subtotal.toFixed(2) + '</span></div>';
+          }
+          ticketHTML += '<div class="total">';
+          ticketHTML += '<div class="line"><span>Subtotal</span><span>$' + parseFloat(cobro.subtotal).toFixed(2) + '</span></div>';
+          if (cobro.descuento > 0) {
+            var descuentoMonto = parseFloat(cobro.subtotal) * (cobro.descuento / 100);
+            ticketHTML += '<div class="line"><span>Dto ' + cobro.descuento + '%</span><span>-$' + descuentoMonto.toFixed(2) + '</span></div>';
+          }
+          ticketHTML += '<div class="line"><span>TOTAL</span><span>$' + parseFloat(cobro.total).toFixed(2) + '</span></div>';
+          ticketHTML += '</div>';
+          ticketHTML += '<div class="info">';
+          ticketHTML += '<p><strong>Pago:</strong> ' + escapeHtml(cobro.medioPago) + '</p>';
+          if (cobro.idTransaccion) {
+            ticketHTML += '<p><strong>Nro Trans:</strong> ' + escapeHtml(cobro.idTransaccion) + '</p>';
+          }
+          ticketHTML += '<p><strong>Cajero:</strong> ' + escapeHtml(cobro.usuario) + '</p>';
+          ticketHTML += '</div>';
+          ticketHTML += '<div class="footer">';
+          ticketHTML += '<p>Gracias por su visita</p>';
+          ticketHTML += '<p>Hotel Epecuen - Restaurante</p>';
+          ticketHTML += '</div>';
+          ticketHTML += '</body></html>';
+          imprimirHTML(ticketHTML);
+          showToast('Ticket reimpreso', 'success');
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error: ' + error.message, 'error');
+        })
+        .getCobroPorId(idCobro);
+    }
+
+    function mostrarTabAdmin(tab, btn) {
+      var tabs = document.querySelectorAll('#panelAdmin .tab');
+      for (var i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove('active');
+      }
+      if (btn) btn.classList.add('active');
+
+      document.getElementById('tabAuditoria').classList.add('hidden');
+      document.getElementById('tabComensales').classList.add('hidden');
+      document.getElementById('tabCarhue').classList.add('hidden');
+      document.getElementById('tabListadosCarhue').classList.add('hidden');
+      document.getElementById('tabAdminMesas').classList.add('hidden');
+
+      if (tab === 'auditoria') {
+        document.getElementById('tabAuditoria').classList.remove('hidden');
+      } else if (tab === 'comensales') {
+        document.getElementById('tabComensales').classList.remove('hidden');
+        cargarReporteComensales();
+      } else if (tab === 'carhue') {
+        document.getElementById('tabCarhue').classList.remove('hidden');
+        cargarReporteCarhue();
+      } else if (tab === 'listadosCarhue') {
+        document.getElementById('tabListadosCarhue').classList.remove('hidden');
+        document.getElementById('filtroFechaListadoCarhue').valueAsDate = new Date();
+        cargarListadosDiariosCarhue();
+      } else if (tab === 'mesas') {
+        document.getElementById('tabAdminMesas').classList.remove('hidden');
+        cargarMesasAdmin();
+      }
+    }
+
+    function cargarReporteComensales() {
+      var fecha = document.getElementById('filtroFechaComensales').value;
+      var tipoCliente = document.getElementById('filtroTipoClienteComensales').value;
+
+      if (!fecha) {
+        document.getElementById('resumenComensales').innerHTML = '<p style="color: #888; text-align: center; grid-column: 1/-1;">Seleccione una fecha para ver el resumen</p>';
+        document.getElementById('tablaComensalesContainer').innerHTML = '<p style="color: #888; text-align: center; padding: 40px;">Seleccione una fecha para ver el reporte</p>';
+        return;
+      }
+
+      document.getElementById('resumenComensales').innerHTML = '<div style="text-align:center; grid-column: 1/-1;"><span class="loading"></span></div>';
+      document.getElementById('tablaComensalesContainer').innerHTML = '<div style="text-align:center; padding:40px;"><span class="loading"></span></div>';
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          mostrarResumenComensales(result.resumen);
+          mostrarTablaComensales(result.comensales);
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('resumenComensales').innerHTML = '<p style="color: #ea4335; text-align: center; grid-column: 1/-1;">Error: ' + error.message + '</p>';
+          document.getElementById('tablaComensalesContainer').innerHTML = '<p style="color: #ea4335; text-align: center; padding: 40px;">Error: ' + error.message + '</p>';
+        })
+        .getReporteComensales({
+          fecha: fecha,
+          tipoCliente: tipoCliente
+        });
+    }
+
+    function mostrarResumenComensales(resumen) {
+      var container = document.getElementById('resumenComensales');
+
+      if (!resumen || resumen.length === 0) {
+        container.innerHTML = '<p style="color: #888; text-align: center; grid-column: 1/-1;">No hay datos para esta fecha</p>';
+        return;
+      }
+
+      var html = '';
+      var totalComensales = 0;
+      var totalConsumos = 0;
+      var totalMonto = 0;
+
+      var colores = {
+        'EPECUEN_MAP': '#4285f4',
+        'EPECUEN_SIN_MAP': '#fbbc04',
+        'CARHUE': '#34a853',
+        'EXTERNO': '#ea4335'
+      };
+
+      var nombres = {
+        'EPECUEN_MAP': 'Epecuen Con MAP',
+        'EPECUEN_SIN_MAP': 'Epecuen Sin MAP',
+        'CARHUE': 'Hotel Carhue',
+        'EXTERNO': 'Consumidor Final'
+      };
+
+      for (var i = 0; i < resumen.length; i++) {
+        var r = resumen[i];
+        totalComensales += r.comensales;
+        totalConsumos += r.consumos;
+        totalMonto += r.total;
+        var color = colores[r.tipo] || '#666';
+        var nombre = nombres[r.tipo] || r.tipo;
+
+        html += '<div style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px; border-left: 4px solid ' + color + ';">';
+        html += '<div style="font-size: 0.85rem; color: #aaa; margin-bottom: 5px;">' + nombre + '</div>';
+        html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">';
+        html += '<div><div style="font-size: 1.5rem; font-weight: bold; color: ' + color + ';">' + r.comensales + '</div><div style="font-size: 0.75rem; color: #888;">Comensales</div></div>';
+        html += '<div><div style="font-size: 1.5rem; font-weight: bold; color: ' + color + ';">' + r.consumos + '</div><div style="font-size: 0.75rem; color: #888;">Consumos</div></div>';
+        html += '</div>';
+        html += '<div style="margin-top: 10px; font-size: 1.2rem; font-weight: bold; color: #34a853;">$' + r.total.toFixed(2) + '</div>';
+        html += '</div>';
+      }
+
+      // Total general
+      html += '<div style="background: rgba(52,168,83,0.2); padding: 20px; border-radius: 10px; border-left: 4px solid #34a853;">';
+      html += '<div style="font-size: 0.85rem; color: #aaa; margin-bottom: 5px;">TOTAL GENERAL</div>';
+      html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">';
+      html += '<div><div style="font-size: 1.5rem; font-weight: bold; color: #fff;">' + totalComensales + '</div><div style="font-size: 0.75rem; color: #888;">Comensales</div></div>';
+      html += '<div><div style="font-size: 1.5rem; font-weight: bold; color: #fff;">' + totalConsumos + '</div><div style="font-size: 0.75rem; color: #888;">Consumos</div></div>';
+      html += '</div>';
+      html += '<div style="margin-top: 10px; font-size: 1.5rem; font-weight: bold; color: #34a853;">$' + totalMonto.toFixed(2) + '</div>';
+      html += '</div>';
+
+      container.innerHTML = html;
+    }
+
+    function mostrarTablaComensales(comensales) {
+      var container = document.getElementById('tablaComensalesContainer');
+
+      if (!comensales || comensales.length === 0) {
+        container.innerHTML = '<p style="color: #888; text-align: center; padding: 40px;">No hay comensales para esta fecha</p>';
+        return;
+      }
+
+      var html = '<div style="margin-bottom: 20px;"><strong>Total registros:</strong> ' + comensales.length + '</div>';
+      html += '<div class="table-container"><table>';
+      html += '<thead><tr>';
+      html += '<th>Hora</th><th>Mesa</th><th>Tipo Cliente</th><th>Comensales</th><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th><th>Habitacion</th><th>Cliente</th>';
+      html += '</tr></thead><tbody>';
+
+      for (var i = 0; i < comensales.length; i++) {
+        var c = comensales[i];
+        var tipoColor = c.tipoCliente === 'EPECUEN_MAP' ? '#4285f4' : 
+                       c.tipoCliente === 'EPECUEN_SIN_MAP' ? '#fbbc04' :
+                       c.tipoCliente === 'CARHUE' ? '#34a853' : '#ea4335';
+
+        html += '<tr>';
+        html += '<td>' + c.hora + '</td>';
+        html += '<td>' + c.mesa + '</td>';
+        html += '<td><span style="color: ' + tipoColor + ';">' + c.tipoCliente + '</span></td>';
+        html += '<td>' + c.comensales + '</td>';
+        html += '<td>' + c.producto + '</td>';
+        html += '<td>' + c.cantidad + '</td>';
+        html += '<td>$' + c.precio.toFixed(2) + '</td>';
+        html += '<td>$' + c.subtotal.toFixed(2) + '</td>';
+        html += '<td>' + (c.nroHabitacion || '-') + '</td>';
+        html += '<td>' + (c.nombreCliente || '-') + '</td>';
+        html += '</tr>';
+      }
+
+      html += '</tbody></table></div>';
+      container.innerHTML = html;
+    }
+
+    function cargarReporteCarhue() {
+      var mes = document.getElementById('filtroMesCarhue').value;
+      var cliente = document.getElementById('filtroClienteCarhue').value.trim();
+
+      if (!mes) {
+        document.getElementById('resumenCarhue').innerHTML = '<p style="color: #888; text-align: center; grid-column: 1/-1;">Seleccione un mes para ver el resumen</p>';
+        document.getElementById('tablaCarhueContainer').innerHTML = '<p style="color: #888; text-align: center; padding: 40px;">Seleccione un mes para ver el reporte</p>';
+        return;
+      }
+
+      document.getElementById('resumenCarhue').innerHTML = '<div style="text-align:center; grid-column: 1/-1;"><span class="loading"></span></div>';
+      document.getElementById('tablaCarhueContainer').innerHTML = '<div style="text-align:center; padding:40px;"><span class="loading"></span></div>';
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          mostrarResumenCarhue(result.resumen);
+          mostrarTablaCarhue(result.clientes);
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('resumenCarhue').innerHTML = '<p style="color: #ea4335; text-align: center; grid-column: 1/-1;">Error: ' + error.message + '</p>';
+          document.getElementById('tablaCarhueContainer').innerHTML = '<p style="color: #ea4335; text-align: center; padding: 40px;">Error: ' + error.message + '</p>';
+        })
+        .getReporteCarhue({
+          mes: mes,
+          cliente: cliente
+        });
+    }
+
+    function mostrarResumenCarhue(resumen) {
+      var container = document.getElementById('resumenCarhue');
+
+      if (!resumen) {
+        container.innerHTML = '<p style="color: #888; text-align: center; grid-column: 1/-1;">No hay datos para este mes</p>';
+        return;
+      }
+
+      var html = '';
+
+      html += '<div style="background: rgba(52,168,83,0.2); padding: 20px; border-radius: 10px; border-left: 4px solid #34a853;">';
+      html += '<div style="font-size: 0.85rem; color: #aaa; margin-bottom: 5px;">TOTAL COMENSALES</div>';
+      html += '<div style="font-size: 2rem; font-weight: bold; color: #34a853;">' + resumen.totalComensales + '</div>';
+      html += '</div>';
+
+      html += '<div style="background: rgba(66,133,244,0.2); padding: 20px; border-radius: 10px; border-left: 4px solid #4285f4;">';
+      html += '<div style="font-size: 0.85rem; color: #aaa; margin-bottom: 5px;">TOTAL CONSUMOS</div>';
+      html += '<div style="font-size: 2rem; font-weight: bold; color: #4285f4;">' + resumen.totalConsumos + '</div>';
+      html += '</div>';
+
+      html += '<div style="background: rgba(251,188,4,0.2); padding: 20px; border-radius: 10px; border-left: 4px solid #fbbc04;">';
+      html += '<div style="font-size: 0.85rem; color: #aaa; margin-bottom: 5px;">TOTAL CLIENTES</div>';
+      html += '<div style="font-size: 2rem; font-weight: bold; color: #fbbc04;">' + resumen.totalClientes + '</div>';
+      html += '</div>';
+
+      html += '<div style="background: rgba(147,51,234,0.2); padding: 20px; border-radius: 10px; border-left: 4px solid #9333ea;">';
+      html += '<div style="font-size: 0.85rem; color: #aaa; margin-bottom: 5px;">TOTAL FACTURADO</div>';
+      html += '<div style="font-size: 2rem; font-weight: bold; color: #9333ea;">$' + resumen.totalMonto.toFixed(2) + '</div>';
+      html += '</div>';
+
+      container.innerHTML = html;
+    }
+
+    function mostrarTablaCarhue(clientes) {
+      var container = document.getElementById('tablaCarhueContainer');
+
+      if (!clientes || clientes.length === 0) {
+        container.innerHTML = '<p style="color: #888; text-align: center; padding: 40px;">No hay clientes Carhue para este mes</p>';
+        return;
+      }
+
+      var html = '<div style="margin-bottom: 20px;"><strong>Total clientes:</strong> ' + clientes.length + '</div>';
+
+      for (var i = 0; i < clientes.length; i++) {
+        var c = clientes[i];
+        html += '<div style="background: rgba(0,0,0,0.2); border-radius: 10px; margin-bottom: 15px; overflow: hidden;">';
+        html += '<div style="background: rgba(52,168,83,0.3); padding: 15px; display: flex; justify-content: space-between; align-items: center;">';
+        html += '<div><strong style="font-size: 1.1rem;">' + c.nombre + '</strong>';
+        html += '<div style="font-size: 0.85rem; color: #aaa;">Hab: ' + (c.nroHabitacion || '-') + ' | Visitas: ' + c.visitas + '</div></div>';
+        html += '<div style="text-align: right;"><div style="font-size: 1.3rem; font-weight: bold; color: #34a853;">$' + c.total.toFixed(2) + '</div>';
+        html += '<div style="font-size: 0.8rem; color: #888;">' + c.comensales + ' comensales</div></div>';
+        html += '</div>';
+
+        html += '<div style="padding: 15px;">';
+        html += '<div class="table-container"><table style="font-size: 0.9rem;">';
+        html += '<thead><tr><th>Fecha</th><th>Hora</th><th>Producto</th><th>Cant</th><th>Precio</th><th>Subtotal</th></tr></thead><tbody>';
+
+        for (var j = 0; j < c.consumos.length; j++) {
+          var con = c.consumos[j];
+          html += '<tr>';
+          html += '<td>' + con.fecha + '</td>';
+          html += '<td>' + con.hora + '</td>';
+          html += '<td>' + con.producto + '</td>';
+          html += '<td>' + con.cantidad + '</td>';
+          html += '<td>$' + con.precio.toFixed(2) + '</td>';
+          html += '<td>$' + con.subtotal.toFixed(2) + '</td>';
+          html += '</tr>';
+        }
+
+        html += '</tbody></table></div>';
+        html += '</div>';
+        html += '</div>';
+      }
+
+      container.innerHTML = html;
+    }
+
+    function imprimirReporteCarhue() {
+      var contenido = document.getElementById('tablaCarhueContainer').innerHTML;
+      var resumen = document.getElementById('resumenCarhue').innerHTML;
+      var mes = document.getElementById('filtroMesCarhue').value;
+
+      var ticketHTML = '<html><head><title>Reporte Carhue - ' + mes + '</title>';
+      ticketHTML += '<style>body{font-family:Arial;padding:20px;} h2{color:#333;} .resumen{display:flex;gap:15px;margin-bottom:20px;} .card{background:#f5f5f5;padding:15px;border-radius:8px;flex:1;} table{width:100%;border-collapse:collapse;font-size:0.85rem;} th,td{padding:8px;border:1px solid #ddd;text-align:left;} th{background:#34a853;color:#fff;} .cliente-card{border:1px solid #ddd;border-radius:8px;margin-bottom:15px;overflow:hidden;} .cliente-header{background:#e8f5e9;padding:12px;} .cliente-body{padding:12px;}</style></head><body>';
+      ticketHTML += '<h2>Reporte Hotel Carhue - ' + mes + '</h2>';
+      ticketHTML += '<div class="resumen">' + resumen + '</div>';
+      ticketHTML += '<hr>';
+      ticketHTML += contenido;
+      ticketHTML += '</body></html>';
+
+      var iframe = document.createElement('iframe');
+      iframe.style.position = 'absolute';
+      iframe.style.left = '-9999px';
+      iframe.style.width = '1px';
+      iframe.style.height = '1px';
+      document.body.appendChild(iframe);
+
+      var doc = iframe.contentWindow.document;
+      doc.open();
+      doc.write(ticketHTML);
+      doc.close();
+
+      setTimeout(function() {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        setTimeout(function() {
+          document.body.removeChild(iframe);
+        }, 1000);
+      }, 500);
+    }
+
+    function cargarHistorialEliminaciones() {
+      var fecha = document.getElementById('filtroFechaEliminaciones').value;
+      var mesa = document.getElementById('filtroMesaEliminaciones').value;
+      if (!fecha) {
+        document.getElementById('historialEliminacionesContainer').innerHTML = 
+          '<p style="color: #888; text-align: center; padding: 40px;">Seleccione una fecha para ver el historial</p>';
+        return;
+      }
+      document.getElementById('historialEliminacionesContainer').innerHTML = 
+        '<div style="text-align:center; padding:40px;"><span class="loading"></span></div>';
+      google.script.run
+        .withSuccessHandler(function(result) {
+          var container = document.getElementById('historialEliminacionesContainer');
+          if (result.length === 0) {
+            container.innerHTML = '<p style="color: #888; text-align: center; padding: 40px;">No hay eliminaciones registradas para esta fecha</p>';
+            return;
+          }
+          var html = '<div style="margin-bottom: 20px;"><strong>Total eliminaciones:</strong> ' + result.length + '</div>';
+          var mesaActual = '';
+          for (var i = 0; i < result.length; i++) {
+            var reg = result[i];
+            if (reg.mesa !== mesaActual) {
+              if (mesaActual !== '') html += '</div>';
+              mesaActual = reg.mesa;
+              html += '<div class="historial-mesa">';
+              html += '<div class="historial-mesa-header">';
+              html += '<span style="font-size: 1.1rem; font-weight: 600;">Mesa: ' + reg.mesa + '</span>';
+              html += '<span style="color: #888; font-size: 0.85rem;">' + reg.tipoCliente + '</span>';
+              html += '</div>';
+            }
+            html += '<div class="registro-eliminacion">';
+            html += '<div style="display: flex; justify-content: space-between; align-items: center;">';
+            html += '<div>';
+            html += '<strong>' + reg.nombreProducto + '</strong> x' + reg.cantidad;
+            html += ' <span style="color: #888;">($' + parseFloat(reg.precio).toFixed(2) + ' c/u)</span>';
+            html += '</div>';
+            html += '<div style="text-align: right; font-size: 0.85rem;">';
+            html += '<div style="color: #ea4335;">-$' + (parseFloat(reg.precio) * parseInt(reg.cantidad)).toFixed(2) + '</div>';
+            html += '<div style="color: #888;">por ' + reg.usuario + ' - ' + reg.hora + '</div>';
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+          }
+          if (mesaActual !== '') html += '</div>';
+          container.innerHTML = html;
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('historialEliminacionesContainer').innerHTML = 
+            '<p style="color: #ea4335; text-align: center; padding: 40px;">Error: ' + error.message + '</p>';
+        })
+        .getHistorialEliminaciones({
+          fecha: fecha,
+          mesa: mesa
+        });
+    }
+
+    function getSectorProducto(idProducto) {
+      for (var i = 0; i < productosData.length; i++) {
+        if (productosData[i].id == idProducto) {
+          var p = productosData[i];
+          if (p.sector && p.sector !== '') return p.sector;
+          var cat = (p.categoria || '').toLowerCase();
+          if (cat === 'bebidas' || cat === 'tragos' || cat === 'vinos' || cat === 'cervezas') return 'MOSTRADOR';
+          return 'COCINA';
+        }
+      }
+      return 'COCINA';
+    }
+
+    function imprimirComandaSector(sector) {
+      if (comandaActual.length === 0) { showToast('No hay items', 'warning'); return; }
+      var comanda = null;
+      for (var i = 0; i < mesasData.length; i++) {
+        if (mesasData[i].idComanda == comandaActivaId) { comanda = mesasData[i]; break; }
+      }
+      var items = [];
+      for (var i = 0; i < comandaActual.length; i++) {
+        var itemSector = getSectorProducto(comandaActual[i].idProducto);
+        if (itemSector === sector) items.push(comandaActual[i]);
+      }
+      if (items.length === 0) { showToast('No hay items para ' + sector, 'warning'); return; }
+      var fecha = new Date().toLocaleString();
+      var titulo = sector === 'COCINA' ? 'COMANDA COCINA' : 'COMANDA BEBIDAS';
+      var ticketHTML = '<html><head><title>' + titulo + '</title>';
+      ticketHTML += '<style>' + getTicketCSS80mm() + '</style></head><body>';
+      ticketHTML += '<div class="header"><h2>' + titulo + '</h2><p>' + fecha + '</p></div>';
+      ticketHTML += '<p><strong>Mesa:</strong> ' + escapeHtml(comanda ? comanda.nombre : '') + '</p>';
+      if (comanda && comanda.nombreCliente) ticketHTML += '<p><strong>Cliente:</strong> ' + escapeHtml(comanda.nombreCliente) + '</p>';
+      ticketHTML += '<hr>';
+      for (var i = 0; i < items.length; i++) {
+        ticketHTML += '<div class="line"><span>' + items[i].cantidad + 'x ' + escapeHtml(items[i].nombre) + '</span></div>';
+      }
+      ticketHTML += '<hr>';
+      ticketHTML += '<p style="text-align:center;font-size:10px;">Items: ' + items.length + '</p>';
+      ticketHTML += '</body></html>';
+      imprimirHTML(ticketHTML);
+      ticketComandaImpreso = true;
+    }
+
+    function imprimirComandaCocina() { imprimirComandaSector('COCINA'); }
+    function imprimirComandaMostrador() { imprimirComandaSector('MOSTRADOR'); }
+
+    function generarTicketConsumoHuespedHTML() {
+      var comanda = null;
+      for (var i = 0; i < mesasData.length; i++) {
+        if (mesasData[i].idComanda == comandaActivaId) { comanda = mesasData[i]; break; }
+      }
+      var fecha = new Date().toLocaleString();
+      var ticketHTML = '<html><head><title>Ticket Consumo</title>';
+      ticketHTML += '<style>' + getTicketCSS80mm() + '</style></head><body>';
+      ticketHTML += '<div class="header"><h2>Hotel Epecuen</h2><p>Ticket de Consumo</p><p>' + fecha + '</p></div>';
+      ticketHTML += '<p>Mesa: ' + escapeHtml(comanda ? comanda.nombre : '') + '</p>';
+      if (comanda) {
+        ticketHTML += '<p>Cliente: ' + escapeHtml(comanda.nombreCliente || '') + '</p>';
+        ticketHTML += '<p>Habitacion: ' + escapeHtml(comanda.nroHabitacion || '') + '</p>';
+        ticketHTML += '<p>Tipo: ' + (comanda.tipoCliente === 'EPECUEN_MAP' ? 'Con MAP' : comanda.tipoCliente === 'EPECUEN_SIN_MAP' ? 'Sin MAP' : escapeHtml(comanda.tipoCliente)) + '</p>';
+      }
+      ticketHTML += '<hr>';
+      var total = 0;
+      for (var i = 0; i < comandaActual.length; i++) {
+        var item = comandaActual[i];
+        var subtotal = item.cantidad * item.precio;
+        total += subtotal;
+        ticketHTML += '<div class="line"><span>' + item.cantidad + 'x ' + escapeHtml(item.nombre) + '</span><span>$' + subtotal.toFixed(2) + '</span></div>';
+      }
+      ticketHTML += '<div class="total"><div class="line"><span>TOTAL</span><span>$' + total.toFixed(2) + '</span></div></div>';
+      ticketHTML += '<div class="firma"><p>Firma del huesped</p><p>____________________</p>';
+      ticketHTML += '<p>Hab: ' + escapeHtml(comanda ? comanda.nroHabitacion || '' : '') + '</p></div>';
+      ticketHTML += '</body></html>';
+      return ticketHTML;
+    }
+
+    function imprimirTicketConsumoHuespedYCerrar(datosClose, totalGeneral) {
+      if (comandaActual.length === 0) { showToast('No hay items', 'warning'); return; }
+      var ticketHTML = generarTicketConsumoHuespedHTML();
+      // Imprimir ticket y cerrar mesa en paralelo
+      imprimirHTML(ticketHTML);
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Mesa cerrada - Total: $' + totalGeneral.toFixed(2), 'success');
+            cerrarModal('modalComanda');
+            setTimeout(function() { cargarMesas(); }, 500);
+          } else {
+            showToast(result.error || 'Error al cerrar mesa', 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error: ' + error.message, 'error');
+        })
+        .cerrarMesaSinCobro(datosClose);
+    }
+
+        function cerrarMesa() {
+      if (comandaActual.length === 0) {
+        showToast('No hay items para cerrar', 'warning');
+        return;
+      }
+      if (!ticketComandaImpreso) {
+        showToast('Debe imprimir el ticket de comanda antes de cerrar la mesa', 'warning');
+        return;
+      }
+
+      var comanda = null;
+      for (var i = 0; i < mesasData.length; i++) {
+        if (mesasData[i].idComanda == comandaActivaId) {
+          comanda = mesasData[i];
+          break;
+        }
+      }
+      if (!comanda) {
+        showToast('Error: mesa no encontrada', 'error');
+        return;
+      }
+
+      // Calcular totales
+      var totalBebidas = 0;
+      var totalComidas = 0;
+      var cantidadComensales = comanda.cantidadComensales || 1;
+
+      for (var i = 0; i < comandaActual.length; i++) {
+        var item = comandaActual[i];
+        var esBebida = false;
+        for (var j = 0; j < productosData.length; j++) {
+          if (productosData[j].id == item.idProducto) {
+            esBebida = productosData[j].categoria === 'Bebidas';
+            break;
+          }
+        }
+        if (esBebida) {
+          totalBebidas += (item.cantidad * item.precio);
+        } else {
+          totalComidas += (item.cantidad * item.precio);
+        }
+      }
+
+      var totalGeneral = totalBebidas + totalComidas;
+
+      // ===== HUESPEDES (EPECUEN_MAP, EPECUEN_SIN_MAP, CARHUE) =====
+      // Imprimen ticket consumo con precios (duplicado) para firma huesped, mesa pasa a LIBRE
+      if (comanda.tipoCliente === 'EPECUEN_MAP' || comanda.tipoCliente === 'EPECUEN_SIN_MAP' || comanda.tipoCliente === 'CARHUE') {
+        var tipoLabel = comanda.tipoCliente === 'EPECUEN_MAP' ? 'Huesped MAP' :
+                        comanda.tipoCliente === 'EPECUEN_SIN_MAP' ? 'Huesped Sin MAP' : 'Hotel Carhue';
+        var msgCierre = 'Cerrar mesa?\n\n' + tipoLabel + '\nTotal: $' + totalGeneral.toFixed(2) + '\n\nSe imprimira ticket de consumo para firma del huesped.\nLa mesa pasara a LIBRE.';
+        if (!confirm(msgCierre)) return;
+
+        var datosClose = {
+          idComanda: comandaActivaId,
+          tipoCliente: comanda.tipoCliente,
+          totalBebidas: totalBebidas,
+          totalComidas: totalComidas,
+          cantidadComensales: cantidadComensales,
+          usuario: currentUser.usuario
+        };
+
+        imprimirTicketConsumoHuespedYCerrar(datosClose, totalGeneral);
+        return;
+      }
+
+      // ===== CONSUMIDOR FINAL (EXTERNO) =====
+      // Envia a facturacion para que caja cobre
+      var totalACobrar = totalGeneral;
+      var mensaje = 'Consumidor Final\nTotal: $' + totalACobrar.toFixed(2);
+
+      if (confirm('Cerrar mesa?\n\n' + mensaje + '\n\nTotal a cobrar: $' + totalACobrar.toFixed(2))) {
+        google.script.run
+          .withSuccessHandler(function(result) {
+            showToast('Mesa enviada a facturacion', 'success');
+            cerrarModal('modalComanda');
+            cargarMesas();
+          })
+          .withFailureHandler(function(error) {
+            showToast('Error: ' + error.message, 'error');
+          })
+          .pasarAFacturacion({
+            idComanda: comandaActivaId,
+            total: totalACobrar,
+            usuario: currentUser.usuario
+          });
+      }
+    }
+
+    function mostrarModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function cerrarModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function showToast(mensaje, tipo) {
+      var toast = document.createElement('div');
+      toast.className = 'toast toast-' + tipo;
+      toast.textContent = mensaje;
+      document.body.appendChild(toast);
+      setTimeout(function() { toast.remove(); }, 3000);
+    }
+
+    // === ADMIN MESAS ===
+    function cargarMesasAdmin() {
+      var tbody = document.getElementById('tbodyAdminMesas');
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#888;">Cargando mesas...</td></tr>';
+      google.script.run
+        .withSuccessHandler(function(mesas) {
+          if (!mesas || mesas.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#888;">No hay mesas configuradas</td></tr>';
+            return;
+          }
+          var html = '';
+          for (var i = 0; i < mesas.length; i++) {
+            var m = mesas[i];
+            var estadoColor = m.estado === 'LIBRE' ? '#34a853' : '#ea4335';
+            html += '<tr>';
+            html += '<td>' + m.id + '</td>';
+            html += '<td>' + escapeHtml(m.nombre) + '</td>';
+            html += '<td>' + escapeHtml(m.ubicacion) + '</td>';
+            html += '<td style="color:' + estadoColor + ';">' + escapeHtml(m.estado) + '</td>';
+            html += '<td>';
+            if (m.estado === 'LIBRE') {
+              html += '<button class="btn btn-danger" onclick="adminEliminarMesa(' + m.id + ')" style="width:auto;padding:5px 15px;font-size:0.8rem;">Eliminar</button>';
+            } else {
+              html += '<span style="color:#888;font-size:0.8rem;">En uso</span>';
+            }
+            html += '</td></tr>';
+          }
+          tbody.innerHTML = html;
+        })
+        .withFailureHandler(function(e) {
+          tbody.innerHTML = '<tr><td colspan="5" style="color:#ea4335;">Error: ' + escapeHtml(e.message || '') + '</td></tr>';
+        })
+        .getMesas();
+    }
+
+    function adminAgregarMesa() {
+      var nombre = document.getElementById('adminNuevaMesaNombre').value.trim();
+      var ubicacion = document.getElementById('adminNuevaMesaUbicacion').value;
+      if (!nombre) { showToast('Ingrese el nombre de la mesa', 'warning'); return; }
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Mesa "' + nombre + '" agregada (ID: ' + result.idMesa + ')', 'success');
+            document.getElementById('adminNuevaMesaNombre').value = '';
+            cargarMesasAdmin();
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'error'); })
+        .agregarMesa({ nombre: nombre, ubicacion: ubicacion, usuario: currentUser.usuario });
+    }
+
+    function adminEliminarMesa(idMesa) {
+      if (!confirm('Eliminar esta mesa? Solo se pueden eliminar mesas en estado LIBRE.')) return;
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Mesa eliminada', 'success');
+            cargarMesasAdmin();
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'error'); })
+        .eliminarMesa({ idMesa: idMesa, usuario: currentUser.usuario });
+    }
+
+    var modals = document.querySelectorAll('.modal-overlay');
+    for (var i = 0; i < modals.length; i++) {
+      modals[i].addEventListener('click', function(e) {
+        if (e.target === this) cerrarModal(this.id);
+      });
+    }
+    // Auto-detectar hash #carhue para mostrar login Carhue directamente
+    (function() {
+      if (window.location.hash === '#carhue' || window.location.hash.indexOf('carhue') !== -1) {
+        mostrarLoginCarhue();
+      }
+    })();
+  </script>
+</body>
+</html>
