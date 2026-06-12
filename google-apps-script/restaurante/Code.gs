@@ -3,7 +3,7 @@
 
 const CONFIG = {
   SPREADSHEET_NAME: 'Hotel Epecuen - Sistema Restaurante',
-  HOJAS: ['Config', 'Productos', 'Stock', 'Platos', 'Recetas', 'Mesas', 'Comandas', 'ComandasDetalle', 'Huespedes', 'VouchersCarhue', 'Cierres', 'CierresDetalle', 'Cobros', 'Usuarios', 'HistorialStock', 'AuditoriaEliminaciones', 'ConsumosHuespedes'],
+  HOJAS: ['Config', 'Productos', 'Stock', 'Platos', 'Recetas', 'Mesas', 'Comandas', 'ComandasDetalle', 'Huespedes', 'VouchersCarhue', 'Cierres', 'CierresDetalle', 'Cobros', 'Usuarios', 'HistorialStock', 'AuditoriaEliminaciones', 'ConsumosHuespedes', 'ListadosDiariosCarhue'],
   ROLES_PERMITIDOS: {
     'abrirMesa': ['MOZO', 'ADMIN'],
     'agregarItemComanda': ['MOZO', 'ADMIN'],
@@ -15,7 +15,9 @@ const CONFIG = {
     'actualizarStock': ['STOCK', 'ADMIN'],
     'agregarProducto': ['STOCK', 'ADMIN'],
     'guardarReceta': ['CHEF', 'ADMIN'],
-    'agregarPlato': ['CHEF', 'ADMIN']
+    'agregarPlato': ['CHEF', 'ADMIN'],
+    'crearVoucherCarhue': ['CARHUE_RECEPCION', 'ADMIN'],
+    'enviarListadoDiarioCarhue': ['CARHUE_RECEPCION', 'ADMIN']
   }
 };
 
@@ -101,6 +103,7 @@ function inicializarHoja(nombre, hoja) {
         ['Ultimo ID Comanda', '0'],
         ['Ultimo ID Cierre', '0'],
         ['Ultimo ID Voucher', '0'],
+        ['Ultimo ID Listado', '0'],
         ['Fecha inicializacion', new Date()],
         ['Version', '1.0'],
         ['', ''],
@@ -235,8 +238,8 @@ function inicializarHoja(nombre, hoja) {
       break;
 
     case 'VouchersCarhue':
-      hoja.getRange('A1:H1').setValues([['ID Voucher', 'Fecha', 'Nombre', 'Apellido', 'Nro Habitacion Carhue', 'Estado', 'Usado En', 'Fecha Uso']]);
-      hoja.getRange('A1:H1').setFontWeight('bold').setBackground('#34a853').setFontColor('white');
+      hoja.getRange('A1:L1').setValues([['ID Voucher', 'Fecha', 'Nombre', 'Apellido', 'Nro Habitacion Carhue', 'Tipo Pension', 'Comensales', 'Observaciones', 'Estado', 'Usado En', 'Fecha Uso', 'Creado Por']]);
+      hoja.getRange('A1:L1').setFontWeight('bold').setBackground('#34a853').setFontColor('white');
       break;
 
     case 'Cierres':
@@ -262,7 +265,8 @@ function inicializarHoja(nombre, hoja) {
         ['caja', 'caja123', 'CAJA', 'Cajero Restaurante'],
         ['stock', 'stock123', 'STOCK', 'Encargado Stock'],
         ['chef', 'chef123', 'CHEF', 'Chef Principal'],
-        ['admin', 'admin123', 'ADMIN', 'Administrador']
+        ['admin', 'admin123', 'ADMIN', 'Administrador'],
+        ['carhue', 'carhue123', 'CARHUE_RECEPCION', 'Recepcion Hotel Carhue']
       ];
       hoja.getRange(2, 1, usuariosData.length, 4).setValues(usuariosData);
       break;
@@ -280,6 +284,11 @@ function inicializarHoja(nombre, hoja) {
     case 'ConsumosHuespedes':
       hoja.getRange('A1:O1').setValues([['ID Consumo', 'Fecha', 'Hora', 'Nro Habitacion', 'Nombre Cliente', 'Tipo Cliente', 'Producto', 'Cantidad', 'Precio Unitario', 'Subtotal', 'Es Bebida', 'ID Comanda', 'Cantidad Comensales', 'Monto Excedente', 'Bebidas Excedentes']]);
       hoja.getRange('A1:O1').setFontWeight('bold').setBackground('#9333ea').setFontColor('white');
+      break;
+
+    case 'ListadosDiariosCarhue':
+      hoja.getRange('A1:I1').setValues([['ID Listado', 'Fecha Envio', 'ID Voucher', 'Nombre', 'Apellido', 'Nro Habitacion Carhue', 'Tipo Pension', 'Comensales', 'Enviado Por']]);
+      hoja.getRange('A1:I1').setFontWeight('bold').setBackground('#0f9d58').setFontColor('white');
       break;
   }
 
@@ -330,6 +339,7 @@ function getNuevoID(tipo) {
     if (tipo === 'comanda') fila = 7;
     else if (tipo === 'cierre') fila = 8;
     else if (tipo === 'voucher') fila = 9;
+    else if (tipo === 'listado') fila = 10;
     else return 0;
     var idActual = hoja.getRange(fila, 2).getValue() || 0;
     var nuevoID = parseInt(idActual) + 1;
@@ -1776,5 +1786,161 @@ function getReporteCarhue(datos) {
   } catch(e) {
     Logger.log('Error getReporteCarhue: ' + e);
     return { resumen: null, clientes: [] };
+  }
+}
+
+// ============================================
+// SISTEMA DE VOUCHERS HOTEL CARHUE
+// ============================================
+
+function crearVoucherCarhue(datos) {
+  var auth = verificarAutorizacion(datos, 'crearVoucherCarhue');
+  if (!auth.autorizado) return { success: false, error: auth.error };
+
+  var hoja = getHoja('VouchersCarhue');
+  if (!hoja) return { success: false, error: 'Hoja VouchersCarhue no encontrada' };
+
+  try {
+    var idVoucher = getNuevoID('voucher');
+    if (!idVoucher) return { success: false, error: 'Error al generar ID de voucher' };
+
+    var ahora = new Date();
+    hoja.appendRow([
+      idVoucher,
+      ahora,
+      datos.nombre,
+      datos.apellido,
+      datos.habitacion,
+      datos.tipoPension || 'MAP',
+      datos.comensales || 1,
+      datos.observaciones || '',
+      'PENDIENTE',
+      '',
+      '',
+      datos.usuario
+    ]);
+
+    SpreadsheetApp.flush();
+    return { success: true, idVoucher: idVoucher };
+  } catch(e) {
+    Logger.log('Error crearVoucherCarhue: ' + e);
+    return { success: false, error: 'Error al crear voucher' };
+  }
+}
+
+function getVouchersDelDia() {
+  var hoja = getHoja('VouchersCarhue');
+  if (!hoja) return [];
+
+  try {
+    var datos = hoja.getDataRange().getValues();
+    var hoy = new Date();
+    var hoyStr = Utilities.formatDate(hoy, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    var vouchers = [];
+
+    for (var i = 1; i < datos.length; i++) {
+      var fechaVoucher = datos[i][1];
+      if (fechaVoucher instanceof Date) {
+        var fechaStr = Utilities.formatDate(fechaVoucher, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+        if (fechaStr === hoyStr) {
+          vouchers.push({
+            id: datos[i][0],
+            fecha: fechaStr,
+            nombre: datos[i][2],
+            apellido: datos[i][3],
+            habitacion: datos[i][4],
+            tipoPension: datos[i][5],
+            comensales: datos[i][6],
+            observaciones: datos[i][7],
+            estado: datos[i][8]
+          });
+        }
+      }
+    }
+    return vouchers;
+  } catch(e) {
+    Logger.log('Error getVouchersDelDia: ' + e);
+    return [];
+  }
+}
+
+function enviarListadoDiarioCarhue(datos) {
+  var auth = verificarAutorizacion(datos, 'enviarListadoDiarioCarhue');
+  if (!auth.autorizado) return { success: false, error: auth.error };
+
+  var hojaVouchers = getHoja('VouchersCarhue');
+  var hojaListados = getHoja('ListadosDiariosCarhue');
+  if (!hojaVouchers || !hojaListados) return { success: false, error: 'Hojas no encontradas' };
+
+  try {
+    var datosVouchers = hojaVouchers.getDataRange().getValues();
+    var hoy = new Date();
+    var hoyStr = Utilities.formatDate(hoy, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    var vouchersHoy = [];
+
+    for (var i = 1; i < datosVouchers.length; i++) {
+      var fechaVoucher = datosVouchers[i][1];
+      if (fechaVoucher instanceof Date) {
+        var fechaStr = Utilities.formatDate(fechaVoucher, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+        if (fechaStr === hoyStr && datosVouchers[i][8] === 'PENDIENTE') {
+          vouchersHoy.push({ fila: i + 1, datos: datosVouchers[i] });
+        }
+      }
+    }
+
+    if (vouchersHoy.length === 0) {
+      return { success: false, error: 'No hay vouchers pendientes para enviar hoy' };
+    }
+
+    var idListado = getNuevoID('listado');
+    var filas = [];
+    for (var j = 0; j < vouchersHoy.length; j++) {
+      var v = vouchersHoy[j].datos;
+      filas.push([idListado, hoy, v[0], v[2], v[3], v[4], v[5], v[6], datos.usuario]);
+      hojaVouchers.getRange(vouchersHoy[j].fila, 9).setValue('ENVIADO');
+    }
+
+    if (filas.length > 0) {
+      hojaListados.getRange(hojaListados.getLastRow() + 1, 1, filas.length, 9).setValues(filas);
+    }
+
+    SpreadsheetApp.flush();
+    return { success: true, cantidad: vouchersHoy.length };
+  } catch(e) {
+    Logger.log('Error enviarListadoDiarioCarhue: ' + e);
+    return { success: false, error: 'Error al enviar listado' };
+  }
+}
+
+function getListadosDiariosCarhue(fecha) {
+  var hoja = getHoja('ListadosDiariosCarhue');
+  if (!hoja) return [];
+
+  try {
+    var datos = hoja.getDataRange().getValues();
+    var listados = [];
+
+    for (var i = 1; i < datos.length; i++) {
+      var fechaEnvio = datos[i][1];
+      if (fechaEnvio instanceof Date) {
+        var fechaStr = Utilities.formatDate(fechaEnvio, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+        if (fechaStr === fecha) {
+          listados.push({
+            idListado: datos[i][0],
+            idVoucher: datos[i][2],
+            nombre: datos[i][3],
+            apellido: datos[i][4],
+            habitacion: datos[i][5],
+            tipoPension: datos[i][6],
+            comensales: datos[i][7],
+            estado: 'ENVIADO'
+          });
+        }
+      }
+    }
+    return listados;
+  } catch(e) {
+    Logger.log('Error getListadosDiariosCarhue: ' + e);
+    return [];
   }
 }

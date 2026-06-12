@@ -221,11 +221,43 @@
       padding-bottom: 10px;
       border-bottom: 1px solid rgba(255,255,255,0.1);
     }
+    /* Login Carhue */
+    .login-carhue .login-box { border-color: rgba(52,168,83,0.4); }
+    .login-carhue .login-box h1 {
+      background: linear-gradient(45deg, #34a853, #0f9d58);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .rol-carhue_recepcion { background: #0f9d58; }
+    .voucher-card {
+      background: rgba(52,168,83,0.1);
+      border: 1px solid rgba(52,168,83,0.3);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 10px;
+    }
+    .voucher-card .voucher-id {
+      font-size: 1.1rem; font-weight: 700; color: #34a853;
+    }
+    .voucher-card .voucher-estado {
+      padding: 3px 10px; border-radius: 8px;
+      font-size: 0.75rem; font-weight: 600;
+      display: inline-block;
+    }
+    .voucher-pendiente { background: #fbbc04; color: #000; }
+    .voucher-usado { background: #4285f4; color: #fff; }
+    .voucher-enviado { background: #34a853; color: #fff; }
+    .listado-card {
+      background: rgba(52,168,83,0.1);
+      border-left: 3px solid #34a853;
+      padding: 15px;
+      margin: 8px 0;
+      border-radius: 0 10px 10px 0;
+    }
   </style>
 </head>
 <body>
 
-  <!-- LOGIN -->
+  <!-- LOGIN RESTAURANTE -->
   <div id="loginScreen" class="login-container">
     <div class="login-box">
       <h1>Hotel Epecuen</h1>
@@ -241,7 +273,27 @@
       <button class="btn btn-primary" onclick="doLogin()">
         <span id="loginText">Ingresar</span>
       </button>
+      <p style="margin-top: 20px;"><a href="#" onclick="mostrarLoginCarhue()" style="color: #34a853; font-size: 0.85rem;">Acceso Hotel Carhue</a></p>
+    </div>
+  </div>
 
+  <!-- LOGIN CARHUE -->
+  <div id="loginCarhue" class="login-container login-carhue hidden">
+    <div class="login-box">
+      <h1>Hotel Carhue</h1>
+      <p class="subtitle">Sistema de Vouchers</p>
+      <div class="input-group">
+        <label>Usuario</label>
+        <input type="text" id="loginCarhueUser" placeholder="Usuario">
+      </div>
+      <div class="input-group">
+        <label>Contrasena</label>
+        <input type="password" id="loginCarhuePass" placeholder="Contrasena">
+      </div>
+      <button class="btn btn-success" onclick="doLoginCarhue()">
+        <span id="loginCarhueText">Ingresar</span>
+      </button>
+      <p style="margin-top: 20px;"><a href="#" onclick="mostrarLoginRestaurante()" style="color: #fbbc04; font-size: 0.85rem;">Volver al Restaurante</a></p>
     </div>
   </div>
 
@@ -347,6 +399,7 @@
         <button class="tab active" onclick="mostrarTabAdmin('auditoria', this)">Auditoria</button>
         <button class="tab" onclick="mostrarTabAdmin('comensales', this)">Comensales</button>
         <button class="tab" onclick="mostrarTabAdmin('carhue', this)">Hotel Carhue</button>
+        <button class="tab" onclick="mostrarTabAdmin('listadosCarhue', this)">Listados Diarios Carhue</button>
       </div>
 
       <!-- TAB AUDITORIA -->
@@ -423,6 +476,103 @@
           <p style="color: #888; text-align: center; padding: 40px;">Seleccione un mes para ver el reporte</p>
         </div>
       </div>
+
+      <!-- TAB LISTADOS DIARIOS CARHUE -->
+      <div id="tabListadosCarhue" class="card hidden">
+        <div class="card-title">Listados Diarios - Hotel Carhue</div>
+        <div class="filtros-admin">
+          <div class="form-group">
+            <label>Fecha</label>
+            <input type="date" id="filtroFechaListadoCarhue" onchange="cargarListadosDiariosCarhue()">
+          </div>
+          <div style="display: flex; align-items: flex-end; gap: 10px;">
+            <button class="btn btn-info" onclick="cargarListadosDiariosCarhue()" style="width: auto; padding: 12px 20px;">Buscar</button>
+            <button class="btn btn-warning" onclick="imprimirListadoCarhue()" style="width: auto; padding: 12px 20px;">Imprimir</button>
+            <button class="btn btn-success" onclick="descargarListadoCarhue()" style="width: auto; padding: 12px 20px;">Descargar</button>
+          </div>
+        </div>
+        <div id="listadoCarhueContainer">
+          <p style="color: #888; text-align: center; padding: 40px;">Seleccione una fecha para ver los listados recibidos</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARHUE APP (pantalla independiente) -->
+  <div id="carhueApp" class="container hidden">
+    <div class="header" style="border-left: 3px solid #34a853;">
+      <div>
+        <h2>Hotel Carhue - Vouchers</h2>
+        <span style="color: #aaa; font-size: 0.9rem;">Sistema de Gestion de Vouchers</span>
+      </div>
+      <div class="user-info">
+        <span id="carhueUserName"></span>
+        <span class="rol-badge rol-carhue_recepcion" id="carhueUserRol">CARHUE</span>
+        <button class="btn btn-danger" onclick="logoutCarhue()" style="width:auto; padding:8px 20px; font-size:0.85rem;">Salir</button>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+      <button class="tab active" onclick="mostrarTabCarhue('vouchers', this)">Crear Voucher</button>
+      <button class="tab" onclick="mostrarTabCarhue('listado', this)">Vouchers del Dia</button>
+      <button class="tab" onclick="mostrarTabCarhue('enviar', this)">Enviar Listado Diario</button>
+    </div>
+
+    <!-- TAB CREAR VOUCHER -->
+    <div id="tabCarhueVouchers" class="card">
+      <div class="card-title">Nuevo Voucher</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input type="text" id="voucherNombre" placeholder="Nombre del huesped">
+        </div>
+        <div class="form-group">
+          <label>Apellido *</label>
+          <input type="text" id="voucherApellido" placeholder="Apellido del huesped">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nro Habitacion Carhue *</label>
+          <input type="text" id="voucherHabitacion" placeholder="Ej: 201">
+        </div>
+        <div class="form-group">
+          <label>Tipo Pension</label>
+          <select id="voucherTipoPension">
+            <option value="MAP">Media Pension (MAP)</option>
+            <option value="SIN_MAP">Sin MAP</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Cantidad Comensales</label>
+          <input type="number" id="voucherComensales" value="1" min="1">
+        </div>
+        <div class="form-group">
+          <label>Observaciones</label>
+          <input type="text" id="voucherObservaciones" placeholder="Opcional">
+        </div>
+      </div>
+      <button class="btn btn-success" onclick="crearVoucher()" style="max-width: 300px;">Crear Voucher</button>
+    </div>
+
+    <!-- TAB VOUCHERS DEL DIA -->
+    <div id="tabCarhueListado" class="card hidden">
+      <div class="card-title">Vouchers del Dia</div>
+      <div id="vouchersDelDiaContainer">
+        <p style="color: #888; text-align: center; padding: 40px;">Cargando vouchers...</p>
+      </div>
+    </div>
+
+    <!-- TAB ENVIAR LISTADO -->
+    <div id="tabCarhueEnviar" class="card hidden">
+      <div class="card-title">Enviar Listado Diario al Restaurante</div>
+      <p style="color: #aaa; margin-bottom: 15px;">Envia el listado de huespedes con media pension que utilizaran el restaurante hoy. El admin de Hotel Epecuen recibira este listado.</p>
+      <div id="resumenEnvioContainer">
+        <p style="color: #888; text-align: center; padding: 20px;">Cargando resumen...</p>
+      </div>
+      <button class="btn btn-success" onclick="enviarListadoDiario()" style="max-width: 400px; margin-top: 15px;">Enviar Listado al Restaurante Epecuen</button>
     </div>
   </div>
 
@@ -792,16 +942,280 @@
       currentUser = null;
       document.getElementById('loginScreen').classList.remove('hidden');
       document.getElementById('mainApp').classList.add('hidden');
+      document.getElementById('carhueApp').classList.add('hidden');
       var panels = document.querySelectorAll('.panel');
       for (var i = 0; i < panels.length; i++) {
         panels[i].classList.add('hidden');
       }
-      // Reset del boton de login
       var btn = document.getElementById('loginText');
       if (btn) btn.textContent = 'Ingresar';
-      // Limpiar campos
       document.getElementById('loginUser').value = '';
       document.getElementById('loginPass').value = '';
+    }
+
+    // === LOGIN CARHUE ===
+    function mostrarLoginCarhue() {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('loginCarhue').classList.remove('hidden');
+    }
+    function mostrarLoginRestaurante() {
+      document.getElementById('loginCarhue').classList.add('hidden');
+      document.getElementById('loginScreen').classList.remove('hidden');
+    }
+    function doLoginCarhue() {
+      var user = document.getElementById('loginCarhueUser').value;
+      var pass = document.getElementById('loginCarhuePass').value;
+      var btn = document.getElementById('loginCarhueText');
+      btn.innerHTML = '<span class="loading"></span>';
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success && result.rol === 'CARHUE_RECEPCION') {
+            currentUser = result;
+            document.getElementById('loginCarhue').classList.add('hidden');
+            document.getElementById('carhueApp').classList.remove('hidden');
+            document.getElementById('carhueUserName').textContent = result.nombre;
+            cargarVouchersDelDia();
+            cargarResumenEnvio();
+          } else if (result.success && result.rol !== 'CARHUE_RECEPCION') {
+            showToast('Este acceso es solo para usuarios Hotel Carhue', 'error');
+            btn.textContent = 'Ingresar';
+          } else {
+            showToast(result.error, 'error');
+            btn.textContent = 'Ingresar';
+          }
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error de conexion: ' + error.message, 'error');
+          btn.textContent = 'Ingresar';
+        })
+        .login(user, pass);
+    }
+    function logoutCarhue() {
+      currentUser = null;
+      document.getElementById('carhueApp').classList.add('hidden');
+      document.getElementById('loginCarhue').classList.remove('hidden');
+      document.getElementById('loginCarhueUser').value = '';
+      document.getElementById('loginCarhuePass').value = '';
+      var btn = document.getElementById('loginCarhueText');
+      if (btn) btn.textContent = 'Ingresar';
+    }
+
+    // === CARHUE TABS ===
+    function mostrarTabCarhue(tab, btn) {
+      var tabs = document.querySelectorAll('#carhueApp .tab');
+      for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+      if (btn) btn.classList.add('active');
+      document.getElementById('tabCarhueVouchers').classList.add('hidden');
+      document.getElementById('tabCarhueListado').classList.add('hidden');
+      document.getElementById('tabCarhueEnviar').classList.add('hidden');
+      if (tab === 'vouchers') {
+        document.getElementById('tabCarhueVouchers').classList.remove('hidden');
+      } else if (tab === 'listado') {
+        document.getElementById('tabCarhueListado').classList.remove('hidden');
+        cargarVouchersDelDia();
+      } else if (tab === 'enviar') {
+        document.getElementById('tabCarhueEnviar').classList.remove('hidden');
+        cargarResumenEnvio();
+      }
+    }
+
+    // === CREAR VOUCHER ===
+    function crearVoucher() {
+      var nombre = document.getElementById('voucherNombre').value.trim();
+      var apellido = document.getElementById('voucherApellido').value.trim();
+      var habitacion = document.getElementById('voucherHabitacion').value.trim();
+      var tipoPension = document.getElementById('voucherTipoPension').value;
+      var comensales = parseInt(document.getElementById('voucherComensales').value) || 1;
+      var observaciones = document.getElementById('voucherObservaciones').value.trim();
+      if (!nombre) { showToast('Ingrese el nombre', 'warning'); return; }
+      if (!apellido) { showToast('Ingrese el apellido', 'warning'); return; }
+      if (!habitacion) { showToast('Ingrese nro de habitacion', 'warning'); return; }
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Voucher #' + result.idVoucher + ' creado', 'success');
+            document.getElementById('voucherNombre').value = '';
+            document.getElementById('voucherApellido').value = '';
+            document.getElementById('voucherHabitacion').value = '';
+            document.getElementById('voucherComensales').value = '1';
+            document.getElementById('voucherObservaciones').value = '';
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error: ' + error.message, 'error');
+        })
+        .crearVoucherCarhue({
+          nombre: nombre,
+          apellido: apellido,
+          habitacion: habitacion,
+          tipoPension: tipoPension,
+          comensales: comensales,
+          observaciones: observaciones,
+          usuario: currentUser.usuario
+        });
+    }
+
+    // === VOUCHERS DEL DIA ===
+    function cargarVouchersDelDia() {
+      var container = document.getElementById('vouchersDelDiaContainer');
+      container.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Cargando...</p>';
+      google.script.run
+        .withSuccessHandler(function(vouchers) {
+          if (!vouchers || vouchers.length === 0) {
+            container.innerHTML = '<p style="color:#888;text-align:center;padding:40px;">No hay vouchers creados hoy</p>';
+            return;
+          }
+          var html = '';
+          for (var i = 0; i < vouchers.length; i++) {
+            var v = vouchers[i];
+            var estadoClass = v.estado === 'PENDIENTE' ? 'voucher-pendiente' : v.estado === 'USADO' ? 'voucher-usado' : 'voucher-enviado';
+            html += '<div class="voucher-card">';
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+            html += '<span class="voucher-id">Voucher #' + v.id + '</span>';
+            html += '<span class="voucher-estado ' + estadoClass + '">' + escapeHtml(v.estado) + '</span>';
+            html += '</div>';
+            html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:0.9rem;">';
+            html += '<div><strong>Huesped:</strong> ' + escapeHtml(v.nombre) + ' ' + escapeHtml(v.apellido) + '</div>';
+            html += '<div><strong>Hab Carhue:</strong> ' + escapeHtml(v.habitacion) + '</div>';
+            html += '<div><strong>Pension:</strong> ' + escapeHtml(v.tipoPension) + '</div>';
+            html += '<div><strong>Comensales:</strong> ' + v.comensales + '</div>';
+            if (v.observaciones) html += '<div style="grid-column:1/-1;"><strong>Obs:</strong> ' + escapeHtml(v.observaciones) + '</div>';
+            html += '</div></div>';
+          }
+          container.innerHTML = html;
+        })
+        .withFailureHandler(function(error) {
+          container.innerHTML = '<p style="color:#ea4335;text-align:center;">Error: ' + escapeHtml(error.message) + '</p>';
+        })
+        .getVouchersDelDia();
+    }
+
+    // === RESUMEN ENVIO ===
+    function cargarResumenEnvio() {
+      var container = document.getElementById('resumenEnvioContainer');
+      container.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Cargando...</p>';
+      google.script.run
+        .withSuccessHandler(function(vouchers) {
+          if (!vouchers || vouchers.length === 0) {
+            container.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">No hay vouchers para enviar hoy. Cree vouchers primero.</p>';
+            return;
+          }
+          var html = '<table><thead><tr><th>Voucher</th><th>Huesped</th><th>Hab</th><th>Pension</th><th>Comensales</th><th>Estado</th></tr></thead><tbody>';
+          for (var i = 0; i < vouchers.length; i++) {
+            var v = vouchers[i];
+            html += '<tr>';
+            html += '<td>#' + v.id + '</td>';
+            html += '<td>' + escapeHtml(v.nombre) + ' ' + escapeHtml(v.apellido) + '</td>';
+            html += '<td>' + escapeHtml(v.habitacion) + '</td>';
+            html += '<td>' + escapeHtml(v.tipoPension) + '</td>';
+            html += '<td>' + v.comensales + '</td>';
+            html += '<td>' + escapeHtml(v.estado) + '</td>';
+            html += '</tr>';
+          }
+          html += '</tbody></table>';
+          container.innerHTML = html;
+        })
+        .withFailureHandler(function(error) {
+          container.innerHTML = '<p style="color:#ea4335;">Error: ' + escapeHtml(error.message) + '</p>';
+        })
+        .getVouchersDelDia();
+    }
+
+    // === ENVIAR LISTADO DIARIO ===
+    function enviarListadoDiario() {
+      if (!confirm('Enviar el listado de vouchers de hoy al restaurante Hotel Epecuen?')) return;
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showToast('Listado enviado correctamente (' + result.cantidad + ' huespedes)', 'success');
+            cargarVouchersDelDia();
+            cargarResumenEnvio();
+          } else {
+            showToast(result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showToast('Error: ' + error.message, 'error');
+        })
+        .enviarListadoDiarioCarhue({ usuario: currentUser.usuario });
+    }
+
+    // === ADMIN: LISTADOS DIARIOS CARHUE ===
+    var listadoCarhueData = [];
+    function cargarListadosDiariosCarhue() {
+      var fecha = document.getElementById('filtroFechaListadoCarhue').value;
+      if (!fecha) { showToast('Seleccione una fecha', 'warning'); return; }
+      var container = document.getElementById('listadoCarhueContainer');
+      container.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Cargando...</p>';
+      google.script.run
+        .withSuccessHandler(function(listados) {
+          listadoCarhueData = listados || [];
+          if (!listados || listados.length === 0) {
+            container.innerHTML = '<p style="color:#888;text-align:center;padding:40px;">No se recibieron listados para esta fecha</p>';
+            return;
+          }
+          var html = '<table><thead><tr><th>#</th><th>Voucher</th><th>Huesped</th><th>Hab Carhue</th><th>Pension</th><th>Comensales</th><th>Estado</th></tr></thead><tbody>';
+          for (var i = 0; i < listados.length; i++) {
+            var l = listados[i];
+            html += '<tr>';
+            html += '<td>' + (i + 1) + '</td>';
+            html += '<td>#' + l.idVoucher + '</td>';
+            html += '<td>' + escapeHtml(l.nombre) + ' ' + escapeHtml(l.apellido) + '</td>';
+            html += '<td>' + escapeHtml(l.habitacion) + '</td>';
+            html += '<td>' + escapeHtml(l.tipoPension) + '</td>';
+            html += '<td>' + l.comensales + '</td>';
+            html += '<td>' + escapeHtml(l.estado) + '</td>';
+            html += '</tr>';
+          }
+          html += '</tbody></table>';
+          container.innerHTML = html;
+        })
+        .withFailureHandler(function(error) {
+          container.innerHTML = '<p style="color:#ea4335;">Error: ' + escapeHtml(error.message) + '</p>';
+        })
+        .getListadosDiariosCarhue(fecha);
+    }
+
+    function imprimirListadoCarhue() {
+      if (!listadoCarhueData || listadoCarhueData.length === 0) {
+        showToast('No hay datos para imprimir', 'warning'); return;
+      }
+      var fecha = document.getElementById('filtroFechaListadoCarhue').value;
+      var html = '<html><head><title>Listado Carhue - ' + fecha + '</title>';
+      html += '<style>' + getTicketCSS80mm();
+      html += 'table{width:100%;border-collapse:collapse;font-size:10px;}th,td{padding:3px 2px;border-bottom:1px solid #000;text-align:left;}th{font-weight:bold;border-bottom:2px solid #000;}';
+      html += '</style></head><body>';
+      html += '<div class="header"><h2>Hotel Epecuen</h2><p>Listado Diario Carhue</p><p>' + fecha + '</p></div>';
+      html += '<table><thead><tr><th>Voucher</th><th>Huesped</th><th>Hab</th><th>Pension</th><th>Com</th></tr></thead><tbody>';
+      for (var i = 0; i < listadoCarhueData.length; i++) {
+        var l = listadoCarhueData[i];
+        html += '<tr><td>#' + l.idVoucher + '</td><td>' + escapeHtml(l.nombre) + ' ' + escapeHtml(l.apellido) + '</td><td>' + escapeHtml(l.habitacion) + '</td><td>' + escapeHtml(l.tipoPension) + '</td><td>' + l.comensales + '</td></tr>';
+      }
+      html += '</tbody></table>';
+      var totalCom = 0;
+      for (var j = 0; j < listadoCarhueData.length; j++) totalCom += (listadoCarhueData[j].comensales || 1);
+      html += '<div class="total"><p>Total huespedes: ' + listadoCarhueData.length + ' | Total comensales: ' + totalCom + '</p></div>';
+      html += '</body></html>';
+      imprimirHTML(html);
+    }
+
+    function descargarListadoCarhue() {
+      if (!listadoCarhueData || listadoCarhueData.length === 0) {
+        showToast('No hay datos para descargar', 'warning'); return;
+      }
+      var fecha = document.getElementById('filtroFechaListadoCarhue').value;
+      var csv = 'Voucher,Nombre,Apellido,Habitacion,Pension,Comensales,Estado\n';
+      for (var i = 0; i < listadoCarhueData.length; i++) {
+        var l = listadoCarhueData[i];
+        csv += l.idVoucher + ',' + l.nombre + ',' + l.apellido + ',' + l.habitacion + ',' + l.tipoPension + ',' + l.comensales + ',' + l.estado + '\n';
+      }
+      var blob = new Blob([csv], { type: 'text/csv' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'listado-carhue-' + fecha + '.csv';
+      a.click();
     }
 
     function mostrarPanel(rol) {
@@ -1750,6 +2164,7 @@
       document.getElementById('tabAuditoria').classList.add('hidden');
       document.getElementById('tabComensales').classList.add('hidden');
       document.getElementById('tabCarhue').classList.add('hidden');
+      document.getElementById('tabListadosCarhue').classList.add('hidden');
 
       if (tab === 'auditoria') {
         document.getElementById('tabAuditoria').classList.remove('hidden');
@@ -1759,6 +2174,10 @@
       } else if (tab === 'carhue') {
         document.getElementById('tabCarhue').classList.remove('hidden');
         cargarReporteCarhue();
+      } else if (tab === 'listadosCarhue') {
+        document.getElementById('tabListadosCarhue').classList.remove('hidden');
+        document.getElementById('filtroFechaListadoCarhue').valueAsDate = new Date();
+        cargarListadosDiariosCarhue();
       }
     }
 
