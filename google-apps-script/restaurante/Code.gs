@@ -125,27 +125,27 @@ function inicializarHoja(nombre, hoja) {
       break;
 
     case 'Productos':
-      hoja.getRange('A1:H1').setValues([['ID', 'Categoria', 'Nombre', 'Unidad', 'Precio Costo', 'Precio Venta', 'Activo', 'Fecha Modificacion']]);
-      hoja.getRange('A1:H1').setFontWeight('bold').setBackground('#4285f4').setFontColor('white');
+      hoja.getRange('A1:I1').setValues([['ID', 'Categoria', 'Nombre', 'Unidad', 'Precio Costo', 'Precio Venta', 'Activo', 'Fecha Modificacion', 'Sector']]);
+      hoja.getRange('A1:I1').setFontWeight('bold').setBackground('#4285f4').setFontColor('white');
       var productosData = [
-        [1, 'Bebidas', 'Coca Cola 500ml', 'unidad', 450, 900, 'SI', new Date()],
-        [2, 'Bebidas', 'Agua sin gas 500ml', 'unidad', 200, 500, 'SI', new Date()],
-        [3, 'Bebidas', 'Cerveza Artesanal', 'unidad', 600, 1200, 'SI', new Date()],
-        [4, 'Bebidas', 'Vino Tinto Copa', 'copa', 800, 1800, 'SI', new Date()],
-        [5, 'Bebidas', 'Gaseosa Linea', 'unidad', 350, 700, 'SI', new Date()],
-        [6, 'Entradas', 'Bruschetta', 'plato', 1200, 2500, 'SI', new Date()],
-        [7, 'Entradas', 'Tabla de Fiambres', 'plato', 2500, 5500, 'SI', new Date()],
-        [8, 'Platos Principales', 'Milanesa Napolitana', 'plato', 2800, 6500, 'SI', new Date()],
-        [9, 'Platos Principales', 'Pasta Bolognesa', 'plato', 2200, 5500, 'SI', new Date()],
-        [10, 'Platos Principales', 'Parrillada para 2', 'plato', 5500, 12000, 'SI', new Date()],
-        [11, 'Postres', 'Flan Casero', 'plato', 600, 1500, 'SI', new Date()],
-        [12, 'Postres', 'Helado Artesanal', 'plato', 800, 2000, 'SI', new Date()],
-        [13, 'Cafeteria', 'Cafe Expreso', 'taza', 300, 800, 'SI', new Date()],
-        [14, 'Cafeteria', 'Medialunas x3', 'porcion', 500, 1200, 'SI', new Date()],
-        [15, 'Piscina', 'Trago del Dia', 'vaso', 800, 1800, 'SI', new Date()],
-        [16, 'Platos Principales', 'Menu MAP', 'plato', 0, 0, 'SI', new Date()]
+        [1, 'Bebidas', 'Coca Cola 500ml', 'unidad', 450, 900, 'SI', new Date(), 'MOSTRADOR'],
+        [2, 'Bebidas', 'Agua sin gas 500ml', 'unidad', 200, 500, 'SI', new Date(), 'MOSTRADOR'],
+        [3, 'Bebidas', 'Cerveza Artesanal', 'unidad', 600, 1200, 'SI', new Date(), 'MOSTRADOR'],
+        [4, 'Bebidas', 'Vino Tinto Copa', 'copa', 800, 1800, 'SI', new Date(), 'MOSTRADOR'],
+        [5, 'Bebidas', 'Gaseosa Linea', 'unidad', 350, 700, 'SI', new Date(), 'MOSTRADOR'],
+        [6, 'Entradas', 'Bruschetta', 'plato', 1200, 2500, 'SI', new Date(), 'COCINA'],
+        [7, 'Entradas', 'Tabla de Fiambres', 'plato', 2500, 5500, 'SI', new Date(), 'COCINA'],
+        [8, 'Platos Principales', 'Milanesa Napolitana', 'plato', 2800, 6500, 'SI', new Date(), 'COCINA'],
+        [9, 'Platos Principales', 'Pasta Bolognesa', 'plato', 2200, 5500, 'SI', new Date(), 'COCINA'],
+        [10, 'Platos Principales', 'Parrillada para 2', 'plato', 5500, 12000, 'SI', new Date(), 'COCINA'],
+        [11, 'Postres', 'Flan Casero', 'plato', 600, 1500, 'SI', new Date(), 'COCINA'],
+        [12, 'Postres', 'Helado Artesanal', 'plato', 800, 2000, 'SI', new Date(), 'COCINA'],
+        [13, 'Cafeteria', 'Cafe Expreso', 'taza', 300, 800, 'SI', new Date(), 'COCINA'],
+        [14, 'Cafeteria', 'Medialunas x3', 'porcion', 500, 1200, 'SI', new Date(), 'COCINA'],
+        [15, 'Piscina', 'Trago del Dia', 'vaso', 800, 1800, 'SI', new Date(), 'MOSTRADOR'],
+        [16, 'Platos Principales', 'Menu MAP', 'plato', 0, 0, 'SI', new Date(), 'COCINA']
       ];
-      hoja.getRange(2, 1, productosData.length, 8).setValues(productosData);
+      hoja.getRange(2, 1, productosData.length, 9).setValues(productosData);
       break;
 
     case 'Stock':
@@ -443,7 +443,8 @@ function getProductos() {
           nombre: datos[i][2],
           unidad: datos[i][3],
           precioCosto: datos[i][4],
-          precioVenta: datos[i][5]
+          precioVenta: datos[i][5],
+          sector: datos[i][8] || (datos[i][1] === 'Bebidas' ? 'MOSTRADOR' : 'COCINA')
         });
       }
     }
@@ -1147,10 +1148,20 @@ function getCobrosDelDia(fecha) {
 }
 
 function getStock() {
-  const hoja = getHoja('Stock');
-  if (!hoja) return [];
+  var ss = getSpreadsheet();
+  if (!ss) return [];
   try {
-    var datos = hoja.getDataRange().getValues();
+    var hojaStock = ss.getSheetByName('Stock');
+    var hojaProductos = ss.getSheetByName('Productos');
+    if (!hojaStock) return [];
+    var datos = hojaStock.getDataRange().getValues();
+    var sectores = {};
+    if (hojaProductos) {
+      var prods = hojaProductos.getDataRange().getValues();
+      for (var j = 1; j < prods.length; j++) {
+        sectores[prods[j][0]] = prods[j][8] || (prods[j][1] === 'Bebidas' ? 'MOSTRADOR' : 'COCINA');
+      }
+    }
     var stock = [];
     for (var i = 1; i < datos.length; i++) {
       stock.push({
@@ -1159,7 +1170,8 @@ function getStock() {
         stockActual: datos[i][2],
         stockMinimo: datos[i][3],
         ultimaCompra: datos[i][4],
-        precioCosto: datos[i][5]
+        precioCosto: datos[i][5],
+        sector: sectores[datos[i][0]] || 'COCINA'
       });
     }
     return stock;
@@ -1278,7 +1290,8 @@ function agregarProducto(datos) {
       datos.precioCosto,
       datos.precioVenta,
       'SI',
-      new Date()
+      new Date(),
+      datos.sector || (datos.categoria === 'Bebidas' ? 'MOSTRADOR' : 'COCINA')
     ]);
     hojaStock.appendRow([
       nuevoId,

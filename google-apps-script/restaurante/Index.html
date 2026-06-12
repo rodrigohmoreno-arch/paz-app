@@ -395,7 +395,7 @@
         </div>
         <div class="table-container">
           <table>
-            <thead><tr><th>ID</th><th>Producto</th><th>Stock Actual</th><th>Stock Minimo</th><th>Ultima Compra</th><th>Precio Costo</th><th>Estado</th></tr></thead>
+            <thead><tr><th>ID</th><th>Producto</th><th>Sector</th><th>Stock Actual</th><th>Stock Minimo</th><th>Ultima Compra</th><th>Precio Costo</th><th>Estado</th></tr></thead>
             <tbody id="tbodyStock"></tbody>
           </table>
         </div>
@@ -491,9 +491,18 @@
             <input type="number" id="npStockInicial" min="0" value="0">
           </div>
         </div>
-        <div class="form-group">
-          <label>Stock Minimo</label>
-          <input type="number" id="npStockMinimo" min="0" value="5" style="max-width:200px;">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Stock Minimo</label>
+            <input type="number" id="npStockMinimo" min="0" value="5">
+          </div>
+          <div class="form-group">
+            <label>Sector *</label>
+            <select id="npSector">
+              <option value="COCINA">Cocina</option>
+              <option value="MOSTRADOR">Mostrador (Bebidas)</option>
+            </select>
+          </div>
         </div>
         <button class="btn btn-success" onclick="confirmarNuevoProducto()" style="max-width:300px;">Agregar Producto</button>
       </div>
@@ -971,7 +980,8 @@
       </div>
       <div class="modal-footer">
         <button class="btn" onclick="cerrarModal('modalComanda')" style="background:rgba(255,255,255,0.1);color:#fff;">Volver</button>
-        <button class="btn btn-warning" onclick="imprimirTicketConsumo()">🖨️ Ticket Comanda</button>
+        <button class="btn btn-info" onclick="imprimirComandaCocina()">Comanda Cocina</button>
+        <button class="btn btn-warning" onclick="imprimirComandaMostrador()">Comanda Mostrador</button>
         <button class="btn btn-danger" onclick="cerrarMesa()">Cerrar Mesa</button>
       </div>
     </div>
@@ -1443,7 +1453,7 @@
     function renderStockTable(data) {
       var tbody = document.getElementById('tbodyStock');
       if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">No hay productos en stock</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#888;">No hay productos en stock</td></tr>';
         return;
       }
       var html = '';
@@ -1452,9 +1462,11 @@
         var bajo = s.stockActual <= s.stockMinimo;
         var estadoHtml = bajo ? '<span style="color:#ea4335;font-weight:600;">BAJO</span>' : '<span style="color:#34a853;">OK</span>';
         var fechaCompra = s.ultimaCompra ? new Date(s.ultimaCompra).toLocaleDateString() : '-';
+        var sectorColor = s.sector === 'MOSTRADOR' ? '#fbbc04' : '#4285f4';
         html += '<tr style="' + (bajo ? 'background:rgba(234,67,53,0.1);' : '') + '">';
         html += '<td>' + s.idProducto + '</td>';
         html += '<td>' + escapeHtml(s.producto) + '</td>';
+        html += '<td style="color:' + sectorColor + ';font-weight:600;">' + escapeHtml(s.sector || '') + '</td>';
         html += '<td style="font-weight:600;' + (bajo ? 'color:#ea4335;' : '') + '">' + s.stockActual + '</td>';
         html += '<td>' + s.stockMinimo + '</td>';
         html += '<td>' + fechaCompra + '</td>';
@@ -1503,7 +1515,7 @@
         .withSuccessHandler(function(data) {
           sel.innerHTML = '<option value="">Seleccionar producto...</option>';
           for (var i = 0; i < data.length; i++) {
-            sel.innerHTML += '<option value="' + data[i].idProducto + '">' + escapeHtml(data[i].producto) + ' (Stock: ' + data[i].stockActual + ')</option>';
+            sel.innerHTML += '<option value="' + data[i].idProducto + '">' + escapeHtml(data[i].producto) + ' [' + (data[i].sector || '') + '] (Stock: ' + data[i].stockActual + ')</option>';
           }
         })
         .getStock();
@@ -1549,6 +1561,7 @@
       var precioVenta = parseFloat(document.getElementById('npPrecioVenta').value) || 0;
       var stockInicial = parseInt(document.getElementById('npStockInicial').value) || 0;
       var stockMinimo = parseInt(document.getElementById('npStockMinimo').value) || 5;
+      var sector = document.getElementById('npSector').value;
       if (!nombre) { showToast('Ingrese nombre del producto', 'warning'); return; }
 
       google.script.run
@@ -1572,6 +1585,7 @@
           precioVenta: precioVenta,
           stockInicial: stockInicial,
           stockMinimo: stockMinimo,
+          sector: sector,
           usuario: currentUser.usuario
         });
     }
@@ -2037,6 +2051,10 @@
 
     function clickMesa(mesa) {
       mesaSeleccionada = mesa;
+      if (mesa.estado === 'FACTURACION') {
+        showToast('Mesa enviada a facturacion. Esperando cobro de CAJA.', 'warning');
+        return;
+      }
       if (mesa.estado === 'LIBRE') {
         document.getElementById('abrirMesaNombre').value = mesa.nombre;
         document.getElementById('abrirMesaUbicacion').value = mesa.ubicacion;
@@ -3094,41 +3112,60 @@
         });
     }
 
-    function imprimirTicketConsumo() {
-      if (comandaActual.length === 0) {
-        showToast('No hay items para imprimir', 'warning');
-        return;
+    function getSectorProducto(idProducto) {
+      for (var i = 0; i < productosData.length; i++) {
+        if (productosData[i].id == idProducto) return productosData[i].sector || 'COCINA';
       }
+      return 'COCINA';
+    }
+
+    function imprimirComandaSector(sector) {
+      if (comandaActual.length === 0) { showToast('No hay items', 'warning'); return; }
       var comanda = null;
       for (var i = 0; i < mesasData.length; i++) {
-        if (mesasData[i].idComanda == comandaActivaId) {
-          comanda = mesasData[i];
-          break;
-        }
+        if (mesasData[i].idComanda == comandaActivaId) { comanda = mesasData[i]; break; }
+      }
+      var items = [];
+      for (var i = 0; i < comandaActual.length; i++) {
+        if (getSectorProducto(comandaActual[i].idProducto) === sector) items.push(comandaActual[i]);
+      }
+      if (items.length === 0) { showToast('No hay items para ' + sector, 'warning'); return; }
+      var fecha = new Date().toLocaleString();
+      var titulo = sector === 'COCINA' ? 'COMANDA COCINA' : 'COMANDA MOSTRADOR';
+      var ticketHTML = '<html><head><title>' + titulo + '</title>';
+      ticketHTML += '<style>' + getTicketCSS80mm() + '</style></head><body>';
+      ticketHTML += '<div class="header"><h2>' + titulo + '</h2><p>' + fecha + '</p></div>';
+      ticketHTML += '<p><strong>Mesa:</strong> ' + escapeHtml(comanda ? comanda.nombre : '') + '</p>';
+      if (comanda && comanda.nombreCliente) ticketHTML += '<p><strong>Cliente:</strong> ' + escapeHtml(comanda.nombreCliente) + '</p>';
+      ticketHTML += '<hr>';
+      for (var i = 0; i < items.length; i++) {
+        ticketHTML += '<div class="line"><span>' + items[i].cantidad + 'x ' + escapeHtml(items[i].nombre) + '</span></div>';
+      }
+      ticketHTML += '<hr>';
+      ticketHTML += '<p style="text-align:center;font-size:10px;">Items: ' + items.length + '</p>';
+      ticketHTML += '</body></html>';
+      imprimirHTML(ticketHTML);
+      ticketComandaImpreso = true;
+    }
+
+    function imprimirComandaCocina() { imprimirComandaSector('COCINA'); }
+    function imprimirComandaMostrador() { imprimirComandaSector('MOSTRADOR'); }
+
+    function imprimirTicketConsumoHuesped() {
+      if (comandaActual.length === 0) { showToast('No hay items', 'warning'); return; }
+      var comanda = null;
+      for (var i = 0; i < mesasData.length; i++) {
+        if (mesasData[i].idComanda == comandaActivaId) { comanda = mesasData[i]; break; }
       }
       var fecha = new Date().toLocaleString();
       var ticketHTML = '<html><head><title>Ticket Consumo</title>';
       ticketHTML += '<style>' + getTicketCSS80mm() + '</style></head><body>';
-      ticketHTML += '<div class="header">';
-      ticketHTML += '<h2>Hotel Epecuen</h2>';
-      ticketHTML += '<p>Ticket de Consumo</p>';
-      ticketHTML += '<p>' + fecha + '</p>';
-      ticketHTML += '</div>';
+      ticketHTML += '<div class="header"><h2>Hotel Epecuen</h2><p>Ticket de Consumo</p><p>' + fecha + '</p></div>';
       ticketHTML += '<p>Mesa: ' + escapeHtml(comanda ? comanda.nombre : '') + '</p>';
-      if (comanda && comanda.tipoCliente === 'EXTERNO') {
-        var clienteInfo = '';
-        if (comanda.nombreCliente) clienteInfo += '<p><strong>Cliente:</strong> ' + escapeHtml(comanda.nombreCliente) + '</p>';
-        if (comanda.apellidoHuesped) clienteInfo += '<p><strong>Apellido:</strong> ' + escapeHtml(comanda.apellidoHuesped) + '</p>';
-        if (comanda.cuit) clienteInfo += '<p><strong>CUIT:</strong> ' + escapeHtml(comanda.cuit) + '</p>';
-        if (comanda.razonSocial) clienteInfo += '<p><strong>Razon Social:</strong> ' + escapeHtml(comanda.razonSocial) + '</p>';
-        if (clienteInfo) {
-          ticketHTML += '<div class="cliente-info">' + clienteInfo + '</div>';
-        } else {
-          ticketHTML += '<p><strong>Cliente:</strong> Consumidor Final</p>';
-        }
-      } else if (comanda && (comanda.tipoCliente === 'EPECUEN_MAP' || comanda.tipoCliente === 'EPECUEN_SIN_MAP' || comanda.tipoCliente === 'CARHUE')) {
+      if (comanda) {
         ticketHTML += '<p>Cliente: ' + escapeHtml(comanda.nombreCliente || '') + '</p>';
         ticketHTML += '<p>Habitacion: ' + escapeHtml(comanda.nroHabitacion || '') + '</p>';
+        ticketHTML += '<p>Tipo: ' + (comanda.tipoCliente === 'EPECUEN_MAP' ? 'Con MAP' : comanda.tipoCliente === 'EPECUEN_SIN_MAP' ? 'Sin MAP' : escapeHtml(comanda.tipoCliente)) + '</p>';
       }
       ticketHTML += '<hr>';
       var total = 0;
@@ -3139,17 +3176,12 @@
         ticketHTML += '<div class="line"><span>' + item.cantidad + 'x ' + escapeHtml(item.nombre) + '</span><span>$' + subtotal.toFixed(2) + '</span></div>';
       }
       ticketHTML += '<div class="total"><div class="line"><span>TOTAL</span><span>$' + total.toFixed(2) + '</span></div></div>';
-      if (comanda && (comanda.tipoCliente === 'EPECUEN_MAP' || comanda.tipoCliente === 'EPECUEN_SIN_MAP' || comanda.tipoCliente === 'CARHUE')) {
-        ticketHTML += '<div class="firma">';
-        ticketHTML += '<p>Firma del huesped</p>';
-        ticketHTML += '<p>____________________</p>';
-        ticketHTML += '<p>Hab: ' + escapeHtml(comanda.nroHabitacion || '') + '</p>';
-        ticketHTML += '<p>Tipo: ' + (comanda.tipoCliente === 'EPECUEN_MAP' ? 'Con MAP' : comanda.tipoCliente === 'EPECUEN_SIN_MAP' ? 'Sin MAP' : escapeHtml(comanda.tipoCliente)) + '</p>';
-        ticketHTML += '</div>';
-      }
+      ticketHTML += '<div class="firma"><p>Firma del huesped</p><p>____________________</p>';
+      ticketHTML += '<p>Hab: ' + escapeHtml(comanda ? comanda.nroHabitacion || '' : '') + '</p></div>';
+      ticketHTML += '<div style="margin-top:10px;text-align:center;font-size:10px;border-top:1px dashed #000;padding-top:4px;">DUPLICADO</div>';
       ticketHTML += '</body></html>';
       imprimirHTML(ticketHTML);
-      ticketComandaImpreso = true;
+      setTimeout(function() { imprimirHTML(ticketHTML); }, 1000);
     }
 
         function cerrarMesa() {
@@ -3198,12 +3230,14 @@
       var totalGeneral = totalBebidas + totalComidas;
 
       // ===== HUESPEDES (EPECUEN_MAP, EPECUEN_SIN_MAP, CARHUE) =====
-      // Cierran mesa, cobran todo, firma huesped, mesa pasa a LIBRE
+      // Imprimen ticket consumo con precios (duplicado) para firma huesped, mesa pasa a LIBRE
       if (comanda.tipoCliente === 'EPECUEN_MAP' || comanda.tipoCliente === 'EPECUEN_SIN_MAP' || comanda.tipoCliente === 'CARHUE') {
         var tipoLabel = comanda.tipoCliente === 'EPECUEN_MAP' ? 'Huesped MAP' :
                         comanda.tipoCliente === 'EPECUEN_SIN_MAP' ? 'Huesped Sin MAP' : 'Hotel Carhue';
-        var msgCierre = 'Cerrar mesa?\n\n' + tipoLabel + '\nTotal: $' + totalGeneral.toFixed(2) + '\n\nLa mesa pasara a LIBRE.';
+        var msgCierre = 'Cerrar mesa?\n\n' + tipoLabel + '\nTotal: $' + totalGeneral.toFixed(2) + '\n\nSe imprimira ticket de consumo en duplicado para firma del huesped.\nLa mesa pasara a LIBRE.';
         if (!confirm(msgCierre)) return;
+
+        imprimirTicketConsumoHuesped();
 
         google.script.run
           .withSuccessHandler(function(result) {
