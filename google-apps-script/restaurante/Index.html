@@ -1461,13 +1461,17 @@
 
     function cargarStockActual() {
       var tbody = document.getElementById('tbodyStock');
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">Cargando...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#888;">Cargando stock...</td></tr>';
       google.script.run
         .withSuccessHandler(function(data) {
+          console.log('Stock recibido:', data ? data.length : 0, 'items');
           stockData = data || [];
           renderStockTable(stockData);
         })
-        .withFailureHandler(function(e) { tbody.innerHTML = '<tr><td colspan="7" style="color:#ea4335;">Error: ' + escapeHtml(e.message) + '</td></tr>'; })
+        .withFailureHandler(function(e) {
+          console.error('Error cargando stock:', e);
+          tbody.innerHTML = '<tr><td colspan="8" style="color:#ea4335;">Error al cargar stock: ' + escapeHtml(e.message || e.toString()) + '</td></tr>';
+        })
         .getStock();
     }
 
@@ -1479,20 +1483,28 @@
       }
       var html = '';
       for (var i = 0; i < data.length; i++) {
-        var s = data[i];
-        var bajo = s.stockActual <= s.stockMinimo;
-        var estadoHtml = bajo ? '<span style="color:#ea4335;font-weight:600;">BAJO</span>' : '<span style="color:#34a853;">OK</span>';
-        var fechaCompra = s.ultimaCompra ? new Date(s.ultimaCompra).toLocaleDateString() : '-';
-        var sectorColor = s.sector === 'MOSTRADOR' ? '#fbbc04' : '#4285f4';
-        html += '<tr style="' + (bajo ? 'background:rgba(234,67,53,0.1);' : '') + '">';
-        html += '<td>' + s.idProducto + '</td>';
-        html += '<td>' + escapeHtml(s.producto) + '</td>';
-        html += '<td style="color:' + sectorColor + ';font-weight:600;">' + escapeHtml(s.sector || '') + '</td>';
-        html += '<td style="font-weight:600;' + (bajo ? 'color:#ea4335;' : '') + '">' + s.stockActual + '</td>';
-        html += '<td>' + s.stockMinimo + '</td>';
-        html += '<td>' + fechaCompra + '</td>';
-        html += '<td>$' + (s.precioCosto || 0).toFixed(2) + '</td>';
-        html += '<td>' + estadoHtml + '</td></tr>';
+        try {
+          var s = data[i];
+          var stockActual = parseFloat(s.stockActual) || 0;
+          var stockMinimo = parseFloat(s.stockMinimo) || 0;
+          var bajo = stockActual <= stockMinimo;
+          var estadoHtml = bajo ? '<span style="color:#ea4335;font-weight:600;">BAJO</span>' : '<span style="color:#34a853;">OK</span>';
+          var fechaCompra = '-';
+          try { if (s.ultimaCompra) fechaCompra = new Date(s.ultimaCompra).toLocaleDateString(); } catch(fe) {}
+          var precio = parseFloat(s.precioCosto) || 0;
+          var sectorColor = s.sector === 'MOSTRADOR' ? '#fbbc04' : '#4285f4';
+          html += '<tr style="' + (bajo ? 'background:rgba(234,67,53,0.1);' : '') + '">';
+          html += '<td>' + (s.idProducto || '') + '</td>';
+          html += '<td>' + escapeHtml(s.producto || '') + '</td>';
+          html += '<td style="color:' + sectorColor + ';font-weight:600;">' + escapeHtml(s.sector || '') + '</td>';
+          html += '<td style="font-weight:600;' + (bajo ? 'color:#ea4335;' : '') + '">' + stockActual + '</td>';
+          html += '<td>' + stockMinimo + '</td>';
+          html += '<td>' + fechaCompra + '</td>';
+          html += '<td>$' + precio.toFixed(2) + '</td>';
+          html += '<td>' + estadoHtml + '</td></tr>';
+        } catch(rowErr) {
+          html += '<tr><td colspan="8" style="color:#ea4335;">Error en fila ' + (i+1) + '</td></tr>';
+        }
       }
       tbody.innerHTML = html;
     }

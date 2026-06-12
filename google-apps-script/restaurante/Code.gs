@@ -1161,35 +1161,37 @@ function getCobrosDelDia(fecha) {
 
 function getStock() {
   var ss = getSpreadsheet();
-  if (!ss) return [];
-  try {
-    var hojaStock = ss.getSheetByName('Stock');
-    var hojaProductos = ss.getSheetByName('Productos');
-    if (!hojaStock) return [];
-    var datos = hojaStock.getDataRange().getValues();
-    var sectores = {};
-    if (hojaProductos) {
+  if (!ss) throw new Error('No se pudo acceder al spreadsheet');
+  var hojaStock = ss.getSheetByName('Stock');
+  var hojaProductos = ss.getSheetByName('Productos');
+  if (!hojaStock) throw new Error('Hoja Stock no encontrada');
+  var datos = hojaStock.getDataRange().getValues();
+  if (datos.length <= 1) return [];
+  var sectores = {};
+  if (hojaProductos) {
+    try {
       var prods = hojaProductos.getDataRange().getValues();
       for (var j = 1; j < prods.length; j++) {
-        sectores[prods[j][0]] = prods[j][8] || ((['Bebidas','Tragos','Vinos','Cervezas'].indexOf(prods[j][1]) !== -1) ? 'MOSTRADOR' : 'COCINA');
+        var prodId = prods[j][0];
+        sectores[prodId] = prods[j][8] || ((['Bebidas','Tragos','Vinos','Cervezas'].indexOf(prods[j][1]) !== -1) ? 'MOSTRADOR' : 'COCINA');
+        sectores[String(prodId)] = sectores[prodId];
       }
-    }
-    var stock = [];
-    for (var i = 1; i < datos.length; i++) {
-      stock.push({
-        idProducto: datos[i][0],
-        producto: datos[i][1],
-        stockActual: datos[i][2],
-        stockMinimo: datos[i][3],
-        ultimaCompra: datos[i][4],
-        precioCosto: datos[i][5],
-        sector: sectores[datos[i][0]] || 'COCINA'
-      });
-    }
-    return stock;
-  } catch(e) {
-    return [];
+    } catch(e) {}
   }
+  var stock = [];
+  for (var i = 1; i < datos.length; i++) {
+    if (!datos[i][0] && !datos[i][1]) continue;
+    stock.push({
+      idProducto: datos[i][0],
+      producto: datos[i][1] || '',
+      stockActual: Number(datos[i][2]) || 0,
+      stockMinimo: Number(datos[i][3]) || 0,
+      ultimaCompra: datos[i][4] || '',
+      precioCosto: Number(datos[i][5]) || 0,
+      sector: sectores[datos[i][0]] || sectores[String(datos[i][0])] || 'COCINA'
+    });
+  }
+  return stock;
 }
 
 function getFaltantes() {
