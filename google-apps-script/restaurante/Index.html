@@ -2545,7 +2545,7 @@
         ticketHTML += '<div class="line"><span>' + item.cantidad + 'x ' + escapeHtml(item.nombre) + '</span><span>$' + subtotal.toFixed(2) + '</span></div>';
       }
       ticketHTML += '<div class="total"><div class="line"><span>TOTAL</span><span>$' + total.toFixed(2) + '</span></div></div>';
-      if (comanda && (comanda.tipoCliente === 'EPECUEN_MAP' || comanda.tipoCliente === 'EPECUEN_SIN_MAP' || comanda.tipoCliente === 'CARHUE' || mesaSeleccionada.ubicacion === 'Servicio Habitacion')) {
+      if (comanda && (comanda.tipoCliente === 'EPECUEN_MAP' || comanda.tipoCliente === 'EPECUEN_SIN_MAP' || comanda.tipoCliente === 'CARHUE')) {
         ticketHTML += '<div class="firma">';
         ticketHTML += '<p>Firma del huesped</p>';
         ticketHTML += '<p>____________________</p>';
@@ -2580,10 +2580,9 @@
         return;
       }
 
-      // Calcular totales y bebidas
+      // Calcular totales
       var totalBebidas = 0;
       var totalComidas = 0;
-      var cantidadBebidas = 0;
       var cantidadComensales = comanda.cantidadComensales || 1;
 
       for (var i = 0; i < comandaActual.length; i++) {
@@ -2597,52 +2596,25 @@
         }
         if (esBebida) {
           totalBebidas += (item.cantidad * item.precio);
-          cantidadBebidas += item.cantidad;
         } else {
           totalComidas += (item.cantidad * item.precio);
         }
       }
 
-      // Calcular bebidas excedentes para MAP (1 por comensal incluido)
-      var bebidasIncluidas = 0;
-      var bebidasExcedentes = 0;
-      var montoExcedente = 0;
+      var totalGeneral = totalBebidas + totalComidas;
 
-      if (comanda.tipoCliente === 'EPECUEN_MAP') {
-        bebidasIncluidas = Math.min(cantidadBebidas, cantidadComensales);
-        bebidasExcedentes = Math.max(0, cantidadBebidas - cantidadComensales);
-        if (cantidadBebidas > 0) {
-          var precioPromedioBebida = totalBebidas / cantidadBebidas;
-          montoExcedente = bebidasExcedentes * precioPromedioBebida;
-        }
-      }
-
-      // ===== HUESPEDES (EPECUEN_MAP, EPECUEN_SIN_MAP, CARHUE, Servicio Habitacion) =====
-      // Estos cierran sin cobro. El ticket ya fue impreso (requisito previo).
-      if (comanda.tipoCliente === 'EPECUEN_MAP' || comanda.tipoCliente === 'EPECUEN_SIN_MAP' || comanda.tipoCliente === 'CARHUE' || comanda.ubicacion === 'Servicio Habitacion') {
-        var msgCierre = 'Cerrar mesa?\n\n';
-        if (comanda.tipoCliente === 'EPECUEN_MAP') {
-          msgCierre += 'Huesped MAP - Comida incluida\n';
-          if (montoExcedente > 0) {
-            msgCierre += 'Bebidas excedentes: $' + montoExcedente.toFixed(2) + '\n';
-          }
-        } else if (comanda.tipoCliente === 'EPECUEN_SIN_MAP') {
-          msgCierre += 'Huesped Sin MAP\nTotal: $' + (totalBebidas + totalComidas).toFixed(2) + '\n';
-        } else if (comanda.tipoCliente === 'CARHUE') {
-          msgCierre += 'Hotel Carhue\nTotal: $' + (totalBebidas + totalComidas).toFixed(2) + '\n';
-        } else {
-          msgCierre += 'Servicio Habitacion\nTotal: $' + (totalBebidas + totalComidas).toFixed(2) + '\n';
-        }
-        if (!confirm(msgCierre + '\nLa mesa pasara a LIBRE.')) return;
+      // ===== HUESPEDES (EPECUEN_MAP, EPECUEN_SIN_MAP, CARHUE) =====
+      // Cierran mesa, cobran todo, firma huesped, mesa pasa a LIBRE
+      if (comanda.tipoCliente === 'EPECUEN_MAP' || comanda.tipoCliente === 'EPECUEN_SIN_MAP' || comanda.tipoCliente === 'CARHUE') {
+        var tipoLabel = comanda.tipoCliente === 'EPECUEN_MAP' ? 'Huesped MAP' :
+                        comanda.tipoCliente === 'EPECUEN_SIN_MAP' ? 'Huesped Sin MAP' : 'Hotel Carhue';
+        var msgCierre = 'Cerrar mesa?\n\n' + tipoLabel + '\nTotal: $' + totalGeneral.toFixed(2) + '\n\nLa mesa pasara a LIBRE.';
+        if (!confirm(msgCierre)) return;
 
         google.script.run
           .withSuccessHandler(function(result) {
             if (result.success) {
-              if (comanda.tipoCliente === 'EPECUEN_MAP' && montoExcedente > 0) {
-                showToast('Mesa cerrada - Bebidas excedentes: $' + montoExcedente.toFixed(2), 'success');
-              } else {
-                showToast('Mesa cerrada correctamente', 'success');
-              }
+              showToast('Mesa cerrada - Total: $' + totalGeneral.toFixed(2), 'success');
               cerrarModal('modalComanda');
               setTimeout(function() { cargarMesas(); }, 500);
             } else {
@@ -2657,9 +2629,6 @@
             tipoCliente: comanda.tipoCliente,
             totalBebidas: totalBebidas,
             totalComidas: totalComidas,
-            montoExcedente: montoExcedente,
-            bebidasIncluidas: bebidasIncluidas,
-            bebidasExcedentes: bebidasExcedentes,
             cantidadComensales: cantidadComensales,
             usuario: currentUser.usuario
           });
@@ -2667,9 +2636,9 @@
       }
 
       // ===== CONSUMIDOR FINAL (EXTERNO) =====
-      // Solo este tipo envia a facturacion para que caja cobre
-      var mensaje = 'Consumidor Final - Abona todo\nTotal: $' + (totalBebidas + totalComidas).toFixed(2);
-      var totalACobrar = totalBebidas + totalComidas;
+      // Envia a facturacion para que caja cobre
+      var totalACobrar = totalGeneral;
+      var mensaje = 'Consumidor Final\nTotal: $' + totalACobrar.toFixed(2);
 
       if (confirm('Cerrar mesa?\n\n' + mensaje + '\n\nTotal a cobrar: $' + totalACobrar.toFixed(2))) {
         google.script.run

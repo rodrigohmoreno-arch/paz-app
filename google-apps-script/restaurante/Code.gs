@@ -97,7 +97,7 @@ function inicializarHoja(nombre, hoja) {
         ['PARAMETRO', 'VALOR'],
         ['Nombre Hotel', 'Hotel Epecuen'],
         ['Hotel Cadena', 'Hotel Carhue'],
-        ['Bebidas incluidas MAP', '1'],
+        ['Bebidas incluidas MAP', ''],
         ['Descuento maximo efectivo %', '15'],
         ['IVA %', '21'],
         ['Ultimo ID Comanda', '0'],
@@ -282,8 +282,8 @@ function inicializarHoja(nombre, hoja) {
       break;
 
     case 'ConsumosHuespedes':
-      hoja.getRange('A1:O1').setValues([['ID Consumo', 'Fecha', 'Hora', 'Nro Habitacion', 'Nombre Cliente', 'Tipo Cliente', 'Producto', 'Cantidad', 'Precio Unitario', 'Subtotal', 'Es Bebida', 'ID Comanda', 'Cantidad Comensales', 'Monto Excedente', 'Bebidas Excedentes']]);
-      hoja.getRange('A1:O1').setFontWeight('bold').setBackground('#9333ea').setFontColor('white');
+      hoja.getRange('A1:M1').setValues([['ID Consumo', 'Fecha', 'Hora', 'Nro Habitacion', 'Nombre Cliente', 'Tipo Cliente', 'Producto', 'Cantidad', 'Precio Unitario', 'Subtotal', 'Es Bebida', 'ID Comanda', 'Cantidad Comensales']]);
+      hoja.getRange('A1:M1').setFontWeight('bold').setBackground('#9333ea').setFontColor('white');
       break;
 
     case 'ListadosDiariosCarhue':
