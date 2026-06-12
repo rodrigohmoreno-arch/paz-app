@@ -1480,7 +1480,8 @@
           idProducto: idProducto,
           nombreProducto: nombreProducto,
           cantidad: cantidad,
-          precio: precio
+          precio: precio,
+          usuario: currentUser.usuario
         });
     }
 
@@ -1541,7 +1542,8 @@
         .eliminarItemComanda({
           idComanda: comandaActivaId,
           idProducto: item.idProducto,
-          nombreProducto: item.nombre
+          nombreProducto: item.nombre,
+          usuario: currentUser.usuario
         });
     }
 
