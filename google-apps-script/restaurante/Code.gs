@@ -139,7 +139,8 @@ function inicializarHoja(nombre, hoja) {
         [12, 'Postres', 'Helado Artesanal', 'plato', 800, 2000, 'SI', new Date()],
         [13, 'Cafeteria', 'Cafe Expreso', 'taza', 300, 800, 'SI', new Date()],
         [14, 'Cafeteria', 'Medialunas x3', 'porcion', 500, 1200, 'SI', new Date()],
-        [15, 'Piscina', 'Trago del Dia', 'vaso', 800, 1800, 'SI', new Date()]
+        [15, 'Piscina', 'Trago del Dia', 'vaso', 800, 1800, 'SI', new Date()],
+        [16, 'Platos Principales', 'Menu MAP', 'plato', 0, 0, 'SI', new Date()]
       ];
       hoja.getRange(2, 1, productosData.length, 8).setValues(productosData);
       break;
